@@ -22,7 +22,10 @@ defmodule Votr.Accounts.Username do
       seq: nil,
       subject_id: username.subject_id,
       hash: :crypto.hash(:sha512, username.username),
-      data: username.username
+      data:
+        username.username
+        |> AES.encrypt()
+        |> Base.encode64()
     }
   end
 
