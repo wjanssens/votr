@@ -1,4 +1,7 @@
 defmodule Votr.Identity.Totp do
+  @moduledoc """
+  Time-based one-time passwords may be by election officials as a form of MFA to log in.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.Totp

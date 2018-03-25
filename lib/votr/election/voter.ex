@@ -8,6 +8,7 @@ defmodule Votr.Election.Voter do
     # subject will join to this table using id to give voters secrets
     # the id will be printed on mailings so voters can fetch their ballots
     field(:ward_id, :integer)
+    field(:voted, :integer)
     timestamps()
   end
 

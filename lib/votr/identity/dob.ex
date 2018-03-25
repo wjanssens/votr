@@ -1,4 +1,7 @@
 defmodule Votr.Identity.DateOfBirth do
+  @moduledoc """
+  Date of birth may be used as a form of identity confirmation during voting.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.DateOfBirth

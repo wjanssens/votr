@@ -1,4 +1,7 @@
 defmodule Votr.Identity.ChallengeResponse do
+  @moduledoc """
+  Challenge/Responses are used during password resets.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.ChallengeResponse

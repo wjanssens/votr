@@ -1,4 +1,8 @@
 defmodule Votr.Identity.Email do
+  @moduledoc """
+  Email addresses may be used to communicate with election officials.
+  Email addresses may be used to deliver ballots to voters.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.Email

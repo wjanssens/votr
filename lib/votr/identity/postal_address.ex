@@ -1,4 +1,7 @@
 defmodule Votr.Identity.PostalAddress do
+  @moduledoc """
+  Postal addresses may be used to deliver ballots to voters.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.PostalAddress

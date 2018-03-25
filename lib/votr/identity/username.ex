@@ -1,4 +1,7 @@
 defmodule Votr.Identity.Username do
+  @moduledoc """
+  Usernames are used by election officials to log in.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   alias Votr.Identity.Username
