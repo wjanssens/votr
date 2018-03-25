@@ -1,9 +1,9 @@
-defmodule Votr.Accounts.PostalAddress do
+defmodule Votr.Identity.PostalAddress do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.PostalAddress
-  alias Votr.Accounts.Principal
-  alias Votr.Accounts.DN
+  alias Votr.Identity.PostalAddress
+  alias Votr.Identity.Principal
+  alias Votr.Identity.DN
   alias Votr.AES
 
   embedded_schema do
@@ -34,7 +34,7 @@ defmodule Votr.Accounts.PostalAddress do
       subject_id: address.subject_id,
       kind: "postal_address",
       seq: address.seq,
-      data:
+      value:
         %{postalAddress: lines, label: address.label, status: address.status}
         |> DN.to_string()
         |> AES.encrypt()
@@ -44,10 +44,10 @@ defmodule Votr.Accounts.PostalAddress do
 
   def from_principal(%Principal{} = p) do
     dn =
-      p.data
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> DN.parse()
+      |> DN.from_string()
 
     lines =
       dn.postalAddress

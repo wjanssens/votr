@@ -1,9 +1,10 @@
-defmodule Votr.Accounts.Subject do
+defmodule Votr.Identity.Subject do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :integer, autogenerate: false}
+  @timestamps_opts [type: :utc_datetime, usec: true]
   schema "subject" do
-    field(:id, :integer)
     timestamps()
   end
 

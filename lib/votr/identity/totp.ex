@@ -1,8 +1,8 @@
-defmodule Votr.Accounts.Totp do
+defmodule Votr.Identity.Totp do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.Totp
-  alias Votr.Accounts.Principal
+  alias Votr.Identity.Totp
+  alias Votr.Identity.Principal
   alias Votr.AES
 
   embedded_schema do
@@ -17,40 +17,34 @@ defmodule Votr.Accounts.Totp do
     |> validate_required([:subject_id, :secret_key, :scratch_codes])
   end
 
-  def to_string(totp) do
-    "#{Base.encode32(totp.secret_key)};#{Enum.join(totp.scratch_codes, ",")}"
-  end
-
-  def parse(string) do
-    {key, codes} = string |> String.split(";")
-    {Base.decode32(key), codes |> String.split(",") |> Enum.map(fn c -> Integer.parse(c) end)}
-  end
-
   def to_principal(%Totp{} = totp) do
     %Principal{
       id: totp.id,
       subject_id: totp.subject_id,
       kind: "totp",
       seq: nil,
-      data:
-        to_string()
+      value:
+        "#{Base.encode32(totp.secret_key)};#{Enum.join(totp.scratch_codes, ",")}"
         |> AES.encrypt()
         |> Base.encode64()
     }
   end
 
   def from_principal(%Principal{} = p) do
-    values =
-      p.data
+    {key, codes} =
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> parse
+      |> String.split(";")
+
+    {secret_key, scratch_codes} =
+      {Base.decode32(key), codes |> String.split(",") |> Enum.map(fn c -> Integer.parse(c) end)}
 
     %Totp{
       id: p.id,
       subject_id: p.subject_id,
-      secret_key: values.secret_key,
-      scratch_codes: values.scratch_codes,
+      secret_key: secret_key,
+      scratch_codes: scratch_codes,
       seq: p.seq
     }
   end

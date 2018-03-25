@@ -1,8 +1,8 @@
-defmodule Votr.Accounts.Username do
+defmodule Votr.Identity.Username do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.Username
-  alias Votr.Accounts.Principal
+  alias Votr.Identity.Username
+  alias Votr.Identity.Principal
 
   embedded_schema do
     field(:username, :string)
@@ -22,7 +22,7 @@ defmodule Votr.Accounts.Username do
       seq: nil,
       subject_id: username.subject_id,
       hash: :crypto.hash(:sha512, username.username),
-      data:
+      value:
         username.username
         |> AES.encrypt()
         |> Base.encode64()
@@ -31,10 +31,9 @@ defmodule Votr.Accounts.Username do
 
   def from_principal(%Principal{} = p) do
     username =
-      p.data
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> DN.parse()
 
     %Username{
       id: p.id,

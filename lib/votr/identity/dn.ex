@@ -1,12 +1,12 @@
-defmodule Votr.DN do
+defmodule Votr.Identity.DN do
   def to_string(map) do
     map
     |> Enum.filter(fn {_k, v} -> not is_nil(v) end)
     |> Enum.map_join(",", fn {k, v} -> "#{k}=#{escape(v)}" end)
   end
 
-  def parse(str) do
-    str
+  def from_string(binary) do
+    binary
     |> String.split(",")
     |> Enum.map(fn p -> String.split(p, "=") end)
     |> Map.new(fn [k, v] -> {k, unescape(v)} end)

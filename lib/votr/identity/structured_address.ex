@@ -1,9 +1,9 @@
-defmodule Votr.Accounts.StructuredAddress do
+defmodule Votr.Identity.StructuredAddress do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.StructuredAddress
-  alias Votr.Accounts.Principal
-  alias Votr.Accounts.DN
+  alias Votr.Identity.StructuredAddress
+  alias Votr.Identity.Principal
+  alias Votr.Identity.DN
 
   embedded_schema do
     field(:title, :string)
@@ -47,7 +47,7 @@ defmodule Votr.Accounts.StructuredAddress do
       subject_id: address.subject_id,
       kind: "full_address",
       seq: address.seq,
-      data:
+      value:
         address
         |> DN.to_string()
         |> AES.encrypt()
@@ -57,10 +57,10 @@ defmodule Votr.Accounts.StructuredAddress do
 
   def from_principal(%Principal{} = p) do
     dn =
-      p.data
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> DN.parse()
+      |> DN.from_string()
 
     %StructuredAddress{
       id: p.id,

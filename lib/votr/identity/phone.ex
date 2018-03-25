@@ -1,9 +1,9 @@
-defmodule Votr.Accounts.Phone do
+defmodule Votr.Identity.Phone do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.Phone
-  alias Votr.Accounts.Principal
-  alias Votr.Accounts.DN
+  alias Votr.Identity.Phone
+  alias Votr.Identity.Principal
+  alias Votr.Identity.DN
 
   embedded_schema do
     field(:number, :string)
@@ -39,7 +39,7 @@ defmodule Votr.Accounts.Phone do
       kind: "phone",
       seq: phone.seq,
       hash: :crypto.hash(:sha512, phone.number),
-      data:
+      value:
         %{number: phone.number, label: phone.label, status: phone.status}
         |> DN.to_string()
         |> AES.encrypt()
@@ -49,10 +49,10 @@ defmodule Votr.Accounts.Phone do
 
   def from_principal(%Principal{} = p) do
     dn =
-      p.data
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> DN.parse()
+      |> DN.from_string()
 
     %Phone{
       id: p.id,

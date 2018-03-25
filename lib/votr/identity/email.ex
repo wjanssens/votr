@@ -1,9 +1,9 @@
-defmodule Votr.Accounts.Email do
+defmodule Votr.Identity.Email do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Accounts.Email
-  alias Votr.Accounts.Principal
-  alias Votr.Accounts.DN
+  alias Votr.Identity.Email
+  alias Votr.Identity.Principal
+  alias Votr.Identity.DN
 
   embedded_schema do
     field(:mail, :string)
@@ -28,7 +28,7 @@ defmodule Votr.Accounts.Email do
       kind: "email",
       seq: email.seq,
       hash: :crypto.hash(:sha512, email.mail),
-      data:
+      value:
         %{mail: email.mail, label: email.label, status: email.status}
         |> DN.to_string()
         |> AES.encrypt()
@@ -38,10 +38,10 @@ defmodule Votr.Accounts.Email do
 
   def from_principal(%Principal{} = p) do
     dn =
-      p.data
+      p.value
       |> Base.decode64()
       |> AES.decrypt()
-      |> DN.parse()
+      |> DN.from_string()
 
     %Email{
       id: p.id,

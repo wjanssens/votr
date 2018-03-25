@@ -4,11 +4,11 @@ defmodule Votr.Repo.Migrations.CreatePrincipal do
   def change do
     create table(:principal) do
       add(:id, :bigint, :primary_key)
-      add(:subject_id, references(:subject), null: false)
-      add(:kind, :string, size: 8, null: false, comment: "Defines the type of principal")
-      add(:seq, :integer, default: 0, comment: "Permits ordering")
-      add(:hash, :string, comment: "Permits searching for encrypted data")
-      add(:data, :text, null: false)
+      add(:subject_id, references(:subject, on_delete: :delete_all), null: false)
+      add(:kind, :varchar, null: false, comment: "Defines the type (eg. phone)")
+      add(:seq, :integer, default: 0, comment: "Permits ordering (eg. primary email)")
+      add(:hash, :varchar, comment: "Permits searching for encrypted data (eg. username)")
+      add(:value, :text, null: false)
       timestamps()
     end
   end
