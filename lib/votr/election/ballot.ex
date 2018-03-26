@@ -8,6 +8,7 @@ defmodule Votr.Election.Ballot do
     field(:id, :integer)
     field(:ward_id, :integer)
     field(:res_id, :integer)
+    field(:ext_id, :string)
     field(:kind, :string)
     field(:elect, :integer)
     field(:shuffle, :boolean)

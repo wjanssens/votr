@@ -6,6 +6,7 @@ defmodule Votr.Repo.Migrations.CreateElection do
       add(:id, :bigint, :primary_key, comment: "Shared with res")
       add(:subject_id, :bigint, null: true, comment: "Owner")
       add(:ward_id, :bigint, null: true, comment: "Parent ward")
+      add(:ext_id, :varchar, null: true, comment: "External reference")
       add(:name, :varchar, null: false, comment: "Path segment name")
       timestamps()
     end

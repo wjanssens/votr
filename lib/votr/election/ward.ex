@@ -8,6 +8,7 @@ defmodule Votr.Election.Ward do
     # res will join to this table using id to give wards resource values
     field(:parent_id, :integer)
     field(:res_id, :integer)
+    field(:ext_id, :string)
     field(:name, :string)
     timestamps()
   end
