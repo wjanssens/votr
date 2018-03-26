@@ -9,16 +9,16 @@ defmodule Votr.Identity.ChallengeResponse do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:c, :string)
     field(:r, :string)
-    field(:seq, :integer)
-    field(:subject_id, :integer)
   end
 
   def changeset(%ChallengeResponse{} = cr, attrs) do
     cr
-    |> cast(attrs, [:subject_id, :c, :r])
-    |> validate_required([:subject_id, :c, :r])
+    |> cast(attrs, [:subject_id, :seq, :c, :r])
+    |> validate_required([:subject_id, :seq, :c, :r])
   end
 
   def to_principal(%ChallengeResponse{} = cr) do

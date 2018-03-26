@@ -12,6 +12,8 @@ defmodule Votr.Identity.IdentityCard do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:number, :string)
     field(:exp, :date)
     field(:dob, :date)
@@ -20,13 +22,12 @@ defmodule Votr.Identity.IdentityCard do
     field(:gn, :string)
     field(:sn, :string)
     field(:gender, :string)
-    field(:subject_id, :integer)
   end
 
   def changeset(%IdentityCard{} = ic, attrs) do
     phone
-    |> cast(attrs, [:subject_id, :number, :exp, :st, :c])
-    |> validate_required([:subject_id, :number])
+    |> cast(attrs, [:subject_id, :seq, :number, :exp, :dob, :c, :st, :gn, :sn, :gender])
+    |> validate_required([:subject_id, :seq, :number])
   end
 
   def to_principal(%IdentityCard{} = ic) do

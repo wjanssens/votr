@@ -9,9 +9,9 @@ defmodule Votr.Identity.Totp do
   alias Votr.AES
 
   embedded_schema do
+    field(:subject_id, :integer)
     field(:secret_key, :binary)
     field(:scratch_codes, {:array, :integer})
-    field(:subject_id, :integer)
   end
 
   def changeset(%Totp{} = totp, attrs) do

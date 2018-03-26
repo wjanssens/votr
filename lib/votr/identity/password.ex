@@ -14,13 +14,19 @@ defmodule Votr.Identity.Password do
   alias Votr.Accounts.Principal
 
   embedded_schema do
-    field(:password, :string)
     field(:subject_id, :integer)
+    field(:password, :string)
   end
 
   def delete_all(subject_id) do
-    query = from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
-    query |> Repo.delete_all()
+    from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
+    |> Repo.delete_all()
+  end
+
+  def select_one(subject_id) do
+    from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
+    |> Repo.one()
+    |> Password.from_principal()
   end
 
   def changeset(attrs \\ %{}) do
@@ -37,6 +43,14 @@ defmodule Votr.Identity.Password do
       seq: nil,
       hash: nil,
       value: hash(password.password)
+    }
+  end
+
+  def from_principal(%Principal{} = p) do
+    %Password{
+      id: p.id,
+      subject_id: p.subject_id,
+      password: p.value
     }
   end
 

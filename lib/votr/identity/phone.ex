@@ -10,17 +10,17 @@ defmodule Votr.Identity.Phone do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:number, :string)
     field(:label, :string)
     field(:status, :string)
-    field(:seq, :integer)
-    field(:subject_id, :integer)
   end
 
   def changeset(%Phone{} = phone, attrs) do
     phone
-    |> cast(attrs, [:subject_id, :sequence, :mail, :label, :status])
-    |> validate_required([:subject_id, :mail, :status])
+    |> cast(attrs, [:subject_id, :seq, :number, :label, :status])
+    |> validate_required([:subject_id, :number, :label, :status])
     |> validate_inclusion(:label, [
       "mobile",
       "iphone",

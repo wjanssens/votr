@@ -9,6 +9,8 @@ defmodule Votr.Identity.StructuredAddress do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:title, :string)
     # given name
     field(:gn, :string)
@@ -32,14 +34,29 @@ defmodule Votr.Identity.StructuredAddress do
     field(:c, :string)
     field(:label, :string)
     field(:status, :string)
-    field(:seq, :integer)
-    field(:subject_id, :integer)
   end
 
   def changeset(%StructuredAddress{} = address, attrs) do
     address
-    |> cast(attrs, [:subject_id, :sequence, :lines, :label, :status])
-    |> validate_required([:subject_id, :street, :l, :pc, :c, :status])
+    |> cast(attrs, [
+      :subject_id,
+      :seq,
+      :title,
+      :gn,
+      :initials,
+      :sn,
+      :o,
+      :ou,
+      :street,
+      :po,
+      :l,
+      :st,
+      :pc,
+      :c,
+      :label,
+      :status
+    ])
+    |> validate_required([:subject_id, :seq, :street, :l, :pc, :c, :label, :status])
     |> validate_inclusion(:label, ["home", "work", "other"])
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
   end

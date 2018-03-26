@@ -10,17 +10,17 @@ defmodule Votr.Identity.PostalAddress do
   alias Votr.AES
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:lines, {:array, :string})
     field(:label, :string)
     field(:status, :string)
-    field(:seq, :integer)
-    field(:subject_id, :integer)
   end
 
   def changeset(%PostalAddress{} = address, attrs) do
     address
-    |> cast(attrs, [:subject_id, :sequence, :lines, :label, :status])
-    |> validate_required([:subject_id, :lines, :status])
+    |> cast(attrs, [:subject_id, :seq, :lines, :label, :status])
+    |> validate_required([:subject_id, :seq, :lines, :label, :status])
     |> validate_inclusion(:label, ["home", "work", "other"])
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
   end

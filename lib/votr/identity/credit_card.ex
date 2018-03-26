@@ -9,21 +9,16 @@ defmodule Votr.Identity.CreditCard do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:number, :string)
     field(:exp, :date)
-    field(:c, :string)
-    field(:st, :string)
-    field(:dob, :date)
-    field(:gn, :string)
-    field(:sn, :string)
-    field(:gender, :string)
-    field(:subject_id, :integer)
   end
 
   def changeset(%IdentityCard{} = ic, attrs) do
     phone
-    |> cast(attrs, [:subject_id, :number, :exp, :st, :c])
-    |> validate_required([:subject_id, :number])
+    |> cast(attrs, [:subject_id, :seq, :number, :exp])
+    |> validate_required([:subject_id, :seq, :number, :exp])
   end
 
   def to_principal(%IdentityCard{} = ic) do

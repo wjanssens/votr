@@ -8,8 +8,8 @@ defmodule Votr.Identity.Username do
   alias Votr.Identity.Principal
 
   embedded_schema do
-    field(:username, :string)
     field(:subject_id, :integer)
+    field(:username, :string)
   end
 
   def changeset(%Username{} = username, attrs) do

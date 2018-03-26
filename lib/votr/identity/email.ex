@@ -10,17 +10,17 @@ defmodule Votr.Identity.Email do
   alias Votr.Identity.DN
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:seq, :integer)
     field(:mail, :string)
     field(:label, :string)
     field(:status, :string)
-    field(:seq, :integer)
-    field(:subject_id, :integer)
   end
 
   def changeset(%Email{} = email, attrs) do
     email
-    |> cast(attrs, [:subject_id, :sequence, :mail, :label, :status])
-    |> validate_required([:subject_id, :mail, :status])
+    |> cast(attrs, [:subject_id, :seq, :mail, :label, :status])
+    |> validate_required([:subject_id, :seq, :mail, :label, :status])
     |> validate_inclusion(:label, ["home", "work", "other"])
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
   end
