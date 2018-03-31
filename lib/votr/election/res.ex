@@ -5,8 +5,9 @@ defmodule Votr.Election.Res do
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "res" do
-    field(:kind, :string)
-    field(:lang, :string)
+    field(:parent_id, :string)
+    field(:tag, :string)
+    field(:key, :string)
     field(:value, :string)
     timestamps()
   end

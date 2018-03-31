@@ -3,13 +3,14 @@ defmodule Votr.Repo.Migrations.CreateRes do
 
   def change do
     create table(:res, comment: "Localized, encrypted string values for entities") do
-      add(:id, :bigint, comment: "Shared with ward, ballot, candidate, voter")
-      add(:kind, :string, null: false, comment: "Defines the type (eg. name)")
-      add(:lang, :varchar, comment: "Language and Country code (eg. en-CA)")
+      add(:id, :bigint, :primary_key)
+      add(:entity_id, :bigint)
+      add(:tag, :varchar, comment: "Language and Country code (eg. en-CA)")
+      add(:key, :string, null: false)
       add(:value, :text, null: false)
       timestamps()
     end
 
-    create(index(:res, [:id, :kind, :lang], unique: true, name: "uk_res"))
+    create(index(:res, [:entity_id, :tag, :key], unique: true, name: "uk_res"))
   end
 end

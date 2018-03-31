@@ -24,8 +24,8 @@ defmodule Votr.Identity.IdentityCard do
     field(:gender, :string)
   end
 
-  def changeset(%IdentityCard{} = ic, attrs) do
-    phone
+  def changeset(%IdentityCard{} = card, attrs) do
+    card
     |> cast(attrs, [:subject_id, :seq, :number, :exp, :dob, :c, :st, :gn, :sn, :gender])
     |> validate_required([:subject_id, :seq, :number])
   end

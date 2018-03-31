@@ -7,6 +7,7 @@ defmodule Votr.Election.Ballot do
   schema "ballot" do
     field(:id, :integer)
     field(:ward_id, :integer)
+    field(:seq, :integer)
     field(:res_id, :integer)
     field(:ext_id, :string)
     field(:kind, :string)

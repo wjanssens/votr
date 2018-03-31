@@ -1,0 +1,779 @@
+swagger: '2.0'
+info:
+  title: Vote API
+  description: This is an API specification to support voting.
+  version: v1.0
+schemes:
+  - https
+paths:
+  /voters/{id}:
+    get:
+      tags:
+        - Voters
+      summary: All the ballots for a voter
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: 'Ballot ID'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/voter_ballot_response'
+    post:
+      tags:
+        - Voter
+      summary: Cast or update ballots
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: 'Ballot ID'
+          required: true
+          type: string
+        - name: ballot
+          in: body
+          description: A ballot with votes.
+          schema:
+            $ref: '#/definitions/voter_ballot_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response'
+
+  /wards:
+    get:
+      tags:
+        - Election Officials
+      summary: All top level wards
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ward_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - Election Officials
+      summary: Add a top-level ward
+      parameters:
+        - name: ward
+          in: body
+          schema:
+            $ref: '#/definitions/ward_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /wards/{id}:
+    get:
+      tags:
+        - Election Officials
+      summary: A ward
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ward_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    put:
+      tags:
+        - Election Officials
+      summary: Update a ward
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ward
+          in: body
+          description: A ward
+          schema:
+            $ref: '#/definitions/ward_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - Election officials
+      summary: Delete a ward
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /wards/{id}/wards:
+    get:
+      tags:
+        - Election Officials
+      summary: Child wards for a ward
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/wards_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - Election Officials
+      summary: Add a child ward to a ward
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ward
+          in: body
+          schema:
+            $ref: '#/definitions/ward_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /wards/{id}/ballots:
+    get:
+      tags:
+        - Election Officials
+      summary: Ballots for a ward
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ballots_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - Election Officials
+      summary: Add a ballot to a ward
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ballot
+          in: body
+          schema:
+            $ref: '#/definitions/ballot_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /ballots/{id}:
+    get:
+      tags:
+        - Election Officials
+      summary: A ballot
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ballot_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    put:
+      tags:
+        - Election Officials
+      summary: Update a ballot
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ballot
+          in: body
+          description: A ballot
+          schema:
+            $ref: '#/definitions/ballot_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - Election officials
+      summary: Delete a ballot
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /ballots/{id}/candidates:
+    get:
+      tags:
+        - Election Officials
+      summary: Candidates for a ballot
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/candidates_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - Election Officials
+      summary: Add a candidate to a ballot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: candidate
+          in: body
+          schema:
+            $ref: '#/definitions/candidate_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /candidates/{id}:
+    get:
+      tags:
+        - Election Officials
+      summary: A candidate
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/candidate_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    put:
+      tags:
+        - Election Officials
+      summary: Update a candidate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ballot
+          in: body
+          description: A candidate
+          schema:
+            $ref: '#/definitions/candidate_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - Election officials
+      summary: Delete a candidate
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /credentials:
+    post:
+      tags:
+        - Authentication
+      summary: Authentication conversation
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/credentials_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    update:
+      tags:
+        - Authentication
+      summary: Password reset and TOTP enrollment conversations
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/credentials_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/credentials_response'
+  /subjects:
+    post:
+      tags:
+        - Account
+      summary: Add a subject (enrollment)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/subject_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /subject/{id}/principals:
+    get:
+      tags:
+        - Account
+      summary: Principals for a subject
+      description: Used by authenticated users to manage their principal data
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/principals_response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - Account
+      summary: Add a principal to a subject
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/principal_request'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+  /principals/{id}:
+    put:
+      tags:
+        - Account
+      summary: Update a principal
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/principal_request'
+      responses:
+        '201':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - Account
+      summary: Delete a principal
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '201':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+
+definitions:
+  response:
+    type: object
+    required:
+      - success
+    properties:
+      success:
+        type: boolean
+        description: the value of which indicates whether a given request succeeded or failed
+      message:
+        type: string
+        description: contains a response message for exception handling
+      type:
+        type: string
+        description: the type of the model to be created from the data
+      total:
+        type: integer
+        description: the total number of records in the dataset (when paging)
+
+  ballot_response:
+    allOf:
+      - $ref: '#/definitions/response'
+      - properties:
+          ballots:
+            type: array
+            items:
+              type: object
+              required:
+                - id
+                - valid_interval
+                - title
+                - ranked
+                - factors
+                - accept_factors
+                - electing
+                - candidates
+              description: A ballot
+              properties:
+                id:
+                  type: string
+                start_time:
+                  type: string
+                  format: iso8601 date/time interval
+                end_time:
+                  type: string
+                  format: iso8601 date/time interval
+                title:
+                  type: string
+                description:
+                  type: string
+                instructions:
+                  type: string
+                type:
+                  default: 'partial_rank'
+                  description: different types of counting have different requirements
+                  type: string
+                  enum: ['partial_rank','full_rank','unranked','approval']
+                background_color:
+                  description: the background color of the ballot
+                  type: string
+                banner_img:
+                  type: string
+                  description: an image that will appear above the ballot
+                authentication:
+                  type: object
+                  required:
+                    - required
+                    - challenges
+                  properties:
+                    required:
+                      type: integer
+                      description: the number of challenge responses required
+                    challenges:
+                      type: array
+                      items:
+                        type: string
+                        description: a localized description of the challenge
+                electing:
+                  description: how many candidates are being elected
+                  type: integer
+                shuffle:
+                  description: should canditates be presented in a shuffled order
+                  type: boolean
+                  default: false
+                candidates:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                        description: the name of the candidate
+                      affiliation:
+                        type: string
+                        description: the affiliation of the candidate
+
+  vote:
+    type: array
+    items:
+      type: object
+      required:
+        - ranking
+        - factors
+      properties:
+        ranking:
+          type: array
+          items:
+            type: integer
+        factors:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - value
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+  elections_response:
+    allOf:
+      - $ref: '#/definitions/response'
+      - properties:
+          elections:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                valid-interval:
+                  type: string
+                  format: iso8601 date/time interval
+  election:
+    type: object
+
+  credentials:
+    type: array
+    items:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          enum:
+            - identifier
+            - password
+            - otp
+        value:
+          type: string
+
+  principals_response:
+    allOf:
+      - $ref: '#/definitions/response'
+      - properties:
+          principals:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/principal'
+
+  principal:
+    type: object
+    properties:
+      type:
+        type: string
+      data:
+        type: string
+      seq:
+        type: integer
+
+  tokens_response:
+    required:
+      - token_type
+      - access_token
+      - expires_in
+    allOf:
+      - $ref: '#/definitions/response'
+      - properties:
+          token_type:
+            type: string
+          access_token:
+            type: string
+          refresh_token:
+            type: string
+          expires_in:
+            type: integer
