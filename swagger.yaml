@@ -53,6 +53,31 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
+  /ballots/{id}/votes:
+    get:
+      tags:
+        - Public
+      summary: A log of all votes cast
+      produces:
+        - application/json
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/votes_response'
+  /ballots/{id}/result:
+    get:
+      tags:
+        - Public
+      summary: Summary of the election results
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/results_response'
   /wards:
     get:
       tags:

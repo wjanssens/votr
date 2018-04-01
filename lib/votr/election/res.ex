@@ -18,4 +18,11 @@ defmodule Votr.Election.Res do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  def select(entity_ids) do
+    Res
+    |> Ecto.Query.where("entity_id" in ^entity_ids)
+    |> Ecto.Query.order_by(:parent_id)
+    |> Votr.Repo.all()
+  end
 end

@@ -14,6 +14,7 @@ defmodule Votr.Election.Ballot do
     field(:elect, :integer)
     field(:shuffle, :boolean)
     field(:mutable, :boolean)
+    field(:color, :string)
     timestamps()
   end
 
@@ -22,5 +23,12 @@ defmodule Votr.Election.Ballot do
     ballot
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  def select(ids) do
+    Ballot
+    |> Ecto.Query.where("ward_id" in ^ids)
+    |> Ecto.Query.order_by([:ward_id, :seq])
+    |> Votr.Repo.all()
   end
 end

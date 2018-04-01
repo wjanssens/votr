@@ -2,7 +2,7 @@ defmodule Votr.Repo.Migrations.CreateBallotLog do
   use Ecto.Migration
 
   def change do
-    create table(:ballot_log) do
+    create table(:vote) do
       add(:id, :bigint, :primary_key)
       add(:ballot_id, :bigint, references(:ballot, on_delete: :delete_all), null: false)
       add(:voter_id, :bigint, references(:voter, on_delete: :nilify_all), null: true)

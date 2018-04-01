@@ -9,6 +9,7 @@ defmodule Votr.Election.Candidate do
     field(:ballot_id, :integer)
     field(:ext_id, :string)
     field(:withdrawn, :boolean)
+    field(:color, :string)
     timestamps()
   end
 
@@ -17,5 +18,12 @@ defmodule Votr.Election.Candidate do
     candidate
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  def select(ids) do
+    Candidate
+    |> Ecto.Query.where("ballot_id" in ^ids)
+    |> Ecto.Query.order_by([:ballot_id, :seq])
+    |> Votr.Repo.all()
   end
 end

@@ -34,7 +34,7 @@ defmodule Votr.Election.Ward do
 
   def select_for_voter(voter_id) do
     # get all the wards a voter belongs to
-    ward_results =
+    results =
       """
       with heirarchy (id, parent_id, res_id, start_time, end_time) as (
         select id, parent_id, res_id, start_time, duration
@@ -49,9 +49,9 @@ defmodule Votr.Election.Ward do
       select id, parent, res_id, max(start_start), min(end_time)
       from heirarchy
       """
-      |> Votr.Repo.query!(voter_id)
+      |> Votr.Repo.query!([voter_id])
 
-    ward_results.rows
+    results.rows
     |> Enum.map(&Ecto.Repo.load(Votr.Election.Ward, {ward_results.columns, &1}))
     |> Enum.group_by(& &1.id, & &1)
   end

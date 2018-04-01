@@ -11,6 +11,7 @@ defmodule Votr.Repo.Migrations.CreateBallot do
       add(:elect, :smallint, null: false, default: 1)
       add(:shuffle, :char, size: 1, null: false, default: 'N')
       add(:mutable, :char, size: 1, null: false, default: 'N', comment: "Vote can be changed")
+      add(:color, :char, size: 6, null: true, comment: "Background color for ballot card")
       timestamps()
     end
   end

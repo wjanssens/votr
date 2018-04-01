@@ -2,6 +2,7 @@ import Ecto.Query
 
 defmodule Votr.Api.BallotController do
   use VotrWeb, :controller
+  alias Votr.Election.Ward
   alias Votr.Election.Ballot
   alias Votr.Election.Candidate
   alias Votr.Election.Res
@@ -11,30 +12,19 @@ defmodule Votr.Api.BallotController do
     id = params.id
 
     # gets all the ballots for the wards
-    wards = Votr.Election.Ward.select_for_voter(id)
+    wards = Ward.select_for_voter(id)
+    ballots = Ballot.select(Map.keys(wards))
 
-    ballots =
-      Ballot
-      |> Ecto.Query.where("ward_id" in ^Map.keys(wards))
-      |> Ecto.Query.order_by([:ward_id, :seq])
-      |> Votr.Repo.all()
-
-    # get all the candidates for all the ballots
     candidates =
-      Candidate
-      |> Ecto.Query.where("ballot_id" in ^Enum.map(ballots, & &1.id))
-      |> Ecto.Query.order_by([:ballot_id, :seq])
-      |> Votr.Repo.all()
+      Candidate.select(Enum.map(ballots, & &1.id))
       |> Enum.group_by(& &1.ballot_id, & &1)
 
     # get all the localized strings for all the ballots and candidates
     strings =
-      Res
-      |> Ecto.Query.where("entity_id" in ^Enum.concat(ballots, Map.keys(candidates)))
-      |> Ecto.Query.order_by(:parent_id)
+      Res.select(Enum.concat(ballots, Map.keys(candidates)))
       |> Enum.group_by(& &1.entity_id, & &1)
 
-    %{
+    result = %{
       success: true,
       ballots:
         Enum.map(ballots, fn b ->
@@ -60,7 +50,10 @@ defmodule Votr.Api.BallotController do
         end)
     }
 
-    Plug.Head.json(conn, Repo.all(from(s in Subject, select: s.id)))
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_status(:ok)
+    |> json(result)
   end
 
   defp validity(ward) do

@@ -8,6 +8,7 @@ defmodule Votr.Repo.Migrations.CreateCandidate do
       add(:ballot_id, :bigint, references(:ballot, on_delete: :delete_all), null: false)
       add(:ext_id, :varchar, null: true, comment: "External reference")
       add(:withdrawn, :char, size: 1, null: false, default: 'N')
+      add(:color, :char, size: 6, null: true, comment: "Used in result charts")
       timestamps()
     end
   end
