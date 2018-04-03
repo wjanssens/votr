@@ -65,7 +65,6 @@ defmodule Votr.Identity.IdentityCard do
       id: p.id,
       subject_id: p.subject_id,
       seq: p.seq,
-      hash: p.hash,
       number: dn.number,
       exp: Date.from_iso8601(dn.exp),
       dob: Date.from_iso8601(dn.dob),
