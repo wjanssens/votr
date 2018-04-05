@@ -320,7 +320,7 @@ paths:
     put:
       tags:
         - CRUD Voters
-      summary: Import (replace) voters for a ward
+      summary: Import (replace) voters for an election
       consumes:
         - application/json
         - application/yaml
@@ -329,6 +329,7 @@ paths:
         - application/json
       parameters:
         - name: id
+          description: top level ward (election) identifier
           in: path
           required: true
           type: string
@@ -1067,7 +1068,10 @@ definitions:
         description: voter identifier
         type: string
       ext_id:
-        description: external identifier
+        description: external voter identifier
+        type: string
+      ward_ext_id:
+        description: external ward identifier
         type: string
       identity:
         description: values voters use to verify their identity
