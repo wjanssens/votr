@@ -6,7 +6,7 @@ info:
 schemes:
   - https
 paths:
-  /voters/{id}:
+  /voters/{id}/ballots:
     get:
       tags:
         - Voters
@@ -23,7 +23,13 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/voter_ballot_response'
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  ballots:
+                    type: array
+                    items:
+                      $ref: '#/definitions/voter_ballot'
     post:
       tags:
         - Voters
@@ -38,14 +44,16 @@ paths:
           description: 'Ballot ID'
           required: true
           type: string
-        - name: ballot
+        - name: votes
           in: body
           description: A ballot with votes.
           schema:
-            $ref: '#/definitions/voter_ballot_request'
+            type: array
+            items:
+              $ref: '#/definitions/ballot_vote'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           schema:
             $ref: '#/definitions/response'
         '400':
@@ -70,12 +78,19 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/votes_response'
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  votes:
+                    type: array
+                    items:
+                      type: string
+
   /ballots/{id}/result:
     get:
       tags:
         - Public
-      summary: Summary of the election results
+      summary: Election results for a ward
       produces:
         - application/json
       parameters:
@@ -87,11 +102,20 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/results_response'
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  provisional:
+                    type: boolean
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/definitions/result'
+
   /wards:
     get:
       tags:
-        - Election Officials
+        - CRUD Elections / Wards
       summary: All elections (top-level wards) and their child wards
       produces:
         - application/json
@@ -112,7 +136,7 @@ paths:
             $ref: '#/definitions/response'
     post:
       tags:
-        - Election Officials
+        - CRUD Elections / Wards
       summary: Add a new election
       parameters:
         - name: ward
@@ -128,10 +152,11 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
+
   /wards/{id}:
     put:
       tags:
-        - Election Officials
+        - CRUD Elections / Wards
       summary: Update a ward
       consumes:
         - application/json
@@ -158,7 +183,7 @@ paths:
             $ref: '#/definitions/response'
     delete:
       tags:
-        - Election Officials
+        - CRUD Elections / Wards
       summary: Delete a ward
       produces:
         - application/json
@@ -176,10 +201,11 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
+
   /wards/{id}/ballots:
     get:
       tags:
-        - Election Officials
+        - CRUD Ballots
       summary: Ballots for a ward
       produces:
         - application/json
@@ -205,8 +231,12 @@ paths:
             $ref: '#/definitions/response'
     post:
       tags:
-        - Election Officials
+        - CRUD Ballots
       summary: Add a ballot to a ward
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - name: id
           in: path
@@ -225,10 +255,148 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
+
+  /wards/{id}/voters:
+    get:
+      tags:
+        - CRUD Voters
+      summary: Voters for a ward
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: offset
+          in: query
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  voters:
+                    type: array
+                    items:
+                      $ref: '#/definitions/voter'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    post:
+      tags:
+        - CRUD Voters
+      summary: Add a voter to a ward
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: voter
+          in: body
+          schema:
+            $ref: '#/definitions/voter'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    put:
+      tags:
+        - CRUD Voters
+      summary: Import (replace) voters for a ward
+      consumes:
+        - application/json
+        - application/yaml
+        - application/csv
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: voters
+          in: body
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/voter'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+
+  /voters/{id}:
+    put:
+      tags:
+        - CRUD Voters
+      summary: Update a voter
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: voter
+          in: body
+          description: A voter
+          schema:
+            $ref: '#/definitions/voter'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - CRUD Voters
+      summary: Delete a voter
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+
   /ballots/{id}:
     put:
       tags:
-        - Election Officials
+        - CRUD Ballots
       summary: Update a ballot
       consumes:
         - application/json
@@ -255,7 +423,7 @@ paths:
             $ref: '#/definitions/response'
     delete:
       tags:
-        - Election Officials
+        - CRUD Ballots
       summary: Delete a ballot
       produces:
         - application/json
@@ -273,10 +441,11 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
+
   /ballots/{id}/candidates:
     get:
       tags:
-        - Election Officials
+        - CRUD Candidates
       summary: Candidates for a ballot
       produces:
         - application/json
@@ -302,7 +471,7 @@ paths:
             $ref: '#/definitions/response'
     post:
       tags:
-        - Election Officials
+        - CRUD Candidates
       summary: Add a candidate to a ballot
       parameters:
         - name: id
@@ -325,7 +494,7 @@ paths:
   /candidates/{id}:
     put:
       tags:
-        - Election Officials
+        - CRUD Candidates
       summary: Update a candidate
       consumes:
         - application/json
@@ -352,7 +521,7 @@ paths:
             $ref: '#/definitions/response'
     delete:
       tags:
-        - Election Officials
+        - CRUD Candidates
       summary: Delete a candidate
       produces:
         - application/json
@@ -374,12 +543,13 @@ paths:
   /res/{id}:
     get:
       tags:
-        - Election Officials
-      summary: All tag strings for a resource
+        - CRUD Localization
+      summary: All localized strings for an entity
       produces:
         - application/json
       parameters:
         - name: id
+          description: Owning entity identifier
           in: path
           required: true
           type: string
@@ -387,25 +557,82 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/res_response'
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  tags:
+                    type: array
+                    items:
+                      $ref: '#/definitions/res'
         '404':
           description: Not Found
           schema:
             $ref: '#/definitions/response'
 
-  /res/{id}/{tag}:
+  /res/{id}/{key}/{tag}:
     put:
       tags:
-        - Election Officials
+        - CRUD Localization
       summary: Add / update a string for a resource tag
       produces:
         - application/json
       parameters:
         - name: id
+          description: Owning entity identifier
+          in: path
+          required: true
+          type: string
+        - name: key
+          description: Resource key (eg. name)
           in: path
           required: true
           type: string
         - name: tag
+          description: Language tag (eg. en-CA)
+          in: path
+          required: true
+          type: string
+        - name: value
+          description: Localized string
+          in: body
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response'
+    delete:
+      tags:
+        - CRUD Localization
+      summary: Delete a string for a resource tag
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          description: Owning entity identifier
+          in: path
+          required: true
+          type: string
+        - name: key
+          description: Resource key (eg. name)
+          in: path
+          required: true
+          type: string
+        - name: tag
+          description: Language tag (eg. en-CA)
           in: path
           required: true
           type: string
@@ -414,6 +641,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response'
+
   /token:
     post:
       tags:
@@ -647,116 +883,106 @@ definitions:
       - type
       - value
     properties:
-      type:
+      kind:
         type: string
       value:
-        type: string
+        type: object
+        additionalProperties:
+          type: string
       seq:
         type: integer
 
-  voter_ballot_response:
-    allOf:
-      - $ref: '#/definitions/response'
-      - properties:
-          ballots:
+  voter_ballot:
+    type: object
+    required:
+      - id
+      - title
+      - start_time
+      - end_time
+      - ranked
+      - authentication
+      - electing
+      - candidates
+    description: A ballot
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      description:
+        type: string
+      instructions:
+        type: string
+      start_time:
+        type: string
+        format: datetime
+      end_time:
+        type: string
+        format: datetime
+      type:
+        default: 'partial_rank'
+        description: different types of counting have different requirements
+        type: string
+        enum: ['partial_rank','full_rank','unranked','approval']
+      background_color:
+        description: the background color of the ballot
+        type: string
+      authentication:
+        type: object
+        required:
+          - required
+          - challenges
+        properties:
+          required:
+            type: integer
+            description: the number of challenge responses required
+          challenges:
             type: array
             items:
-              type: object
-              required:
-                - id
-                - title
-                - start_time
-                - end_time
-                - ranked
-                - authentication
-                - electing
-                - candidates
-              description: A ballot
-              properties:
-                id:
-                  type: string
-                title:
-                  type: string
-                description:
-                  type: string
-                instructions:
-                  type: string
-                start_time:
-                  type: string
-                  format: datetime
-                end_time:
-                  type: string
-                  format: datetime
-                type:
-                  default: 'partial_rank'
-                  description: different types of counting have different requirements
-                  type: string
-                  enum: ['partial_rank','full_rank','unranked','approval']
-                background_color:
-                  description: the background color of the ballot
-                  type: string
-                banner_img:
-                  type: string
-                  description: an image that will appear above the ballot
-                authentication:
-                  type: object
-                  required:
-                    - required
-                    - challenges
-                  properties:
-                    required:
-                      type: integer
-                      description: the number of challenge responses required
-                    challenges:
-                      type: array
-                      items:
-                        type: string
-                        description: a localized description of the challenge
-                electing:
-                  description: how many candidates are being elected
-                  type: integer
-                shuffle:
-                  description: should canditates be presented in a shuffled order
-                  type: boolean
-                  default: false
-                candidates:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - name
-                    properties:
-                      name:
-                        type: string
-                        description: the name of the candidate
-                      affiliation:
-                        type: string
-                        description: the affiliation of the candidate
+              type: string
+              description: a localized description of the challenge
+      electing:
+        description: how many candidates are being elected
+        type: integer
+      shuffle:
+        description: should canditates be presented in a shuffled order
+        type: boolean
+        default: false
+      candidates:
+        type: array
+        items:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: the name of the candidate
+            affiliation:
+              type: string
+              description: the affiliation of the candidate
 
-  voter_ballot_request:
-    type: array
-    items:
-      type: object
-      required:
-        - ranking
-        - identity
-      properties:
-        ranking:
-          description: a ranking of candidates
-          type: array
-          items:
-            type: integer
-        identity:
-          description: an array of SHA-512 hashes
-          type: array
-          items:
-            type: string
+  ballot_vote:
+    type: object
+    required:
+      - ranking
+      - identity
+    properties:
+      ranking:
+        description: a ranking of candidates
+        type: array
+        items:
+          type: integer
+      identity:
+        description: an array of SHA-512 hashes
+        type: array
+        items:
+          type: string
 
   ward:
     type: object
     required:
       - id
-      - res_id
       - name
     properties:
       id:
@@ -764,9 +990,6 @@ definitions:
         type: string
       parent_id:
         description: parent ward identifier, null for elections
-        type: string
-      res_id:
-        description: resource identifier
         type: string
       ext_id:
         description: external identifier
@@ -782,6 +1005,9 @@ definitions:
         description: when voting closes, null to inherit
         type: string
         format: datetime
+      priv:
+        description: results availability, null to inherit
+        type: boolean
       leaf:
         description: this ward has no children
         type: boolean
@@ -791,12 +1017,6 @@ definitions:
     properties:
       id:
         description: ballot identifier
-        type: string
-      ward_id:
-        description: ward identifier
-        type: string
-      res_id:
-        description: resource identifier
         type: string
       ext_id:
         description: external identifier
@@ -827,9 +1047,6 @@ definitions:
       id:
         description: candidate identifier
         type: string
-      ballot_id:
-        description: ballot identifier
-        type: string
       ext_id:
         description: external identifier
         type: string
@@ -843,48 +1060,55 @@ definitions:
         description: color to use in result charts
         type: string
 
-  votes_response:
-    allOf:
-      - $ref: '#/definitions/response'
-      - properties:
-          votes:
-            type: array
-            items:
+  voter:
+    type: object
+    properties:
+      id:
+        description: voter identifier
+        type: string
+      ext_id:
+        description: external identifier
+        type: string
+      identity:
+        description: values voters use to verify their identity
+        type: array
+        items:
+          type: object
+          properties:
+            kind:
               type: string
-
-  results_response:
-    allOf:
-      - $ref: '#/definitions/response'
-      - properties:
-          results:
-            type: array
-            items:
+            value:
               type: object
-              properties:
-                candidate:
-                  type: string
-                round:
-                  type: integer
-                status:
-                  type: string
-                  enum: ['elected', 'excluded']
-                votes:
-                  type: integer
-                surplus:
-                  type: integer
-                exhausted:
-                  type: integer
+              additionalProperties:
+                type: string
 
-  res_response:
-    allOf:
-      - $ref: '#/definitions/response'
-      - properties:
-          tags:
-            type: array
-            items:
-              type: object
-              properties:
-                tag:
-                  type: string
-                value:
-                  type: string
+  result:
+    type: object
+    properties:
+      candidate:
+        type: string
+      round:
+        type: integer
+      status:
+        type: string
+        enum: ['elected', 'excluded']
+      votes:
+        type: integer
+      surplus:
+        type: integer
+      exhausted:
+        type: integer
+
+  res:
+    type: object
+    required:
+      - key
+      - tag
+      - value
+    properties:
+      key:
+        type: string
+      tag:
+        type: string
+      value:
+        type: string
