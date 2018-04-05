@@ -881,11 +881,13 @@ definitions:
   principal:
     type: object
     required:
-      - type
+      - kind
       - value
     properties:
       kind:
+        description: the type of principal (some are for only voters, some are only for election officials)
         type: string
+        enum: ['challenge_response', 'credit_card', 'dob', 'email',  'identity_card', 'opaque', 'password', 'phone', 'postal_address', 'structured_address', 'totp', 'username']
       value:
         type: object
         additionalProperties:
@@ -1074,17 +1076,10 @@ definitions:
         description: external ward identifier
         type: string
       identity:
-        description: values voters use to verify their identity
+        description: values voters use to verify their identity, and values used to deliver ballots
         type: array
         items:
-          type: object
-          properties:
-            kind:
-              type: string
-            value:
-              type: object
-              additionalProperties:
-                type: string
+          $ref: '#/definitions/principal'
 
   result:
     type: object
