@@ -40,5 +40,6 @@ defmodule VotrWeb.Router do
     resources("/subjects", SubjectsController, only: [:create])
     resources("/subjects/:id/principals", PrincipalsController, only: [:index, :create])
     resources("/principals/:id", PrincipalController, only: [:update, :delete])
+    resources("/activate/:id", ActivateController, only: [:get, :update])
   end
 end

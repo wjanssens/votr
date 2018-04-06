@@ -704,6 +704,8 @@ paths:
           required: true
           schema:
             type: object
+            required:
+              - username
             properties:
               username:
                 type: string
@@ -713,12 +715,12 @@ paths:
         '201':
           description: Created
           schema:
-            $ref: '#/definitions/response'
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response'
-  /activate/{token}:
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  totp_uri:
+                    type: string
+  /activate/{key}:
     get:
       tags:
         - Account
@@ -726,7 +728,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: token
+        - name: key
           in: path
           required: true
           type: string
@@ -739,6 +741,38 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response'
+    put:
+      tags:
+        - Account
+      summary: Activates a subject (TOTP enrollment, password reset)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: key
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              value:
+                description: the new password, or the current OTP
+                type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/response'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response'
+
   /subject/{id}/principals:
     get:
       tags:

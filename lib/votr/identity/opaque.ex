@@ -13,19 +13,19 @@ defmodule Votr.Identity.Opaque do
     field(:hash, :string)
   end
 
-  def changeset(%IdentityCard{} = card, attrs) do
-    card
+  def changeset(%Opaque{} = opaque, attrs) do
+    opaque
     |> cast(attrs, [:subject_id, :hash])
     |> validate_required([:subject_id, :hash])
   end
 
-  def to_principal(%Opaque{} = o) do
+  def to_principal(%Opaque{} = opaque) do
     %Principal{
-      id: ic.id,
-      subject_id: ic.subject_id,
+      id: opaque.id,
+      subject_id: opaque.subject_id,
       kind: "opaque",
-      seq: ic.seq,
-      hash: o.hash,
+      seq: opaque.seq,
+      hash: opaque.hash,
       value: nil
     }
   end
