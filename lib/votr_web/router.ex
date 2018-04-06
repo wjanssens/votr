@@ -23,31 +23,22 @@ defmodule VotrWeb.Router do
   scope "/api", Votr.Api do
     pipe_through(:api)
 
-    # for logging in, resetting passwords, setting up mfa
-    resources("/credentials", LoginController, only: [:create, :update])
-
-    # listing, creating, and deleting subjects (accounts)
-    resources("/subjects", SubjectsController, only: [:create])
-    resources("/subjects/:id", SubjectController, only: [:delete])
-
-    # for maintaining subject principals
-    resources("/principals", PrincipalsController, only: [:index, :create])
-    resources("/principals/:id", PrincipalController, only: [:update, :delete])
-
-    # for election officials to configure an election
     resources("/wards", WardsController, only: [:index, :create])
-    resources("/wards/:id", WardController, only: [:show, :update, :delete])
-    resources("/wards/:id/ballots", WardController, only: [:index, :create])
-    resources("/wards/:id/wards", WardController, only: [:index, :create])
-    resources("/ballots/:id", BallotController, only: [:show, :update, :delete])
-    resources("/ballots/:id/candidates", BallotController, only: [:index, :create])
-    resources("/candidates/:id", CandidateController, only: [:show, :update, :delete])
-
-    # for retrieving ballots and submitting votes
-    resources("/voters/:id", VoteController, only: [:show, :update])
-
-    # list all of the votes for a ballot
+    resources("/wards/:id", WardController, only: [:update, :delete])
+    resources("/wards/:id/ballots", BallotsController, only: [:index, :create])
+    resources("/wards/:id/voters", VotersController, only: [:index, :create, :update])
+    resources("/ballots/:id", BallotController, only: [:update, :delete])
+    resources("/ballots/:id/candidates", CandidatesController, only: [:index, :create])
     resources("/ballots/:id/votes", BallotVotesController, only: [:index])
     resources("/ballots/:id/result", BallotResultController, only: [:index])
+    resources("/candidates/:id", CandidateController, only: [:update, :delete])
+    resources("/voters/:id", VoterController, only: [:update, :delete])
+    resources("/voters/:id/ballots", VoteController, only: [:show, :update])
+    resources("/res/:id", ResourcesController, only: [:index])
+    resources("/res/:id/:key/:tag", ResourceController, only: [:update, :delete])
+    resources("/token", TokenController, only: [:create])
+    resources("/subjects", SubjectsController, only: [:create])
+    resources("/subjects/:id/principals", PrincipalsController, only: [:index, :create])
+    resources("/principals/:id", PrincipalController, only: [:update, :delete])
   end
 end
