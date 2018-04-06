@@ -30,7 +30,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/definitions/voter_ballot'
-    post:
+    put:
       tags:
         - Voters
       summary: Cast or update ballots
