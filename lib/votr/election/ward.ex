@@ -12,11 +12,11 @@ defmodule Votr.Election.Ward do
   # with different polling times
   # eg. all Alberta wards should be have the same time
 
-  @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ward" do
     # res will join to this table using id to give wards resource values
     field(:parent_id, :integer)
+    field(:version, :integer)
     field(:res_id, :integer)
     field(:ext_id, :string)
     field(:name, :string)

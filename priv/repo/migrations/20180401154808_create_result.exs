@@ -4,6 +4,7 @@ defmodule Votr.Repo.Migrations.CreateResult do
   def change do
     create table(:result) do
       add(:id, :bigint, :primary_key)
+      add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:ward_id, :bigint, references(:ward, on_delete: :delete_all), null: false)
       add(:round, :int, null: false, comment: "The round of election or exclusion")
       add(:status, :char, size: 1, null: true, comment: "Elected or eXcluded")

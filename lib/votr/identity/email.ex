@@ -20,7 +20,7 @@ defmodule Votr.Identity.Email do
   def changeset(%Email{} = email, attrs) do
     email
     |> cast(attrs, [:subject_id, :seq, :mail, :label, :status])
-    |> validate_required([:subject_id, :seq, :mail, :label, :status])
+    |> validate_required([:subject_id, :seq, :mail, :status])
     |> validate_inclusion(:label, ["home", "work", "other"])
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
   end

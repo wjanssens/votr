@@ -4,10 +4,11 @@ defmodule Votr.Repo.Migrations.CreateRes do
   def change do
     create table(:res, comment: "Localized, encrypted string values for entities") do
       add(:id, :bigint, :primary_key)
+      add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:entity_id, :bigint)
       add(:tag, :varchar, comment: "Language and Country code (eg. en-CA)")
-      add(:key, :string, null: false)
-      add(:value, :text, null: false)
+      add(:key, :string, null: false, comment: "Resource key (eg. name)")
+      add(:value, :text, null: false, comment: "Localized string")
       timestamps()
     end
 

@@ -2,11 +2,11 @@ defmodule Votr.Vote do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot_log" do
     # voter_id is an optional link to voter only when the ballot is mutable
     field(:ballot_id, :integer)
+    field(:version, :integer)
     field(:voter_id, :integer)
     field(:value, :string)
     timestamps()

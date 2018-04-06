@@ -10,14 +10,13 @@ defmodule Votr.Identity.Opaque do
 
   embedded_schema do
     field(:subject_id, :integer)
-    field(:seq, :integer)
     field(:hash, :string)
   end
 
   def changeset(%IdentityCard{} = card, attrs) do
     card
-    |> cast(attrs, [:subject_id, :seq, :number, :exp, :dob, :c, :st, :gn, :sn, :gender])
-    |> validate_required([:subject_id, :seq, :number])
+    |> cast(attrs, [:subject_id, :hash])
+    |> validate_required([:subject_id, :hash])
   end
 
   def to_principal(%Opaque{} = o) do

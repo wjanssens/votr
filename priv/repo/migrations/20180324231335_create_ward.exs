@@ -4,6 +4,7 @@ defmodule Votr.Repo.Migrations.CreateElection do
   def change do
     create table(:ward) do
       add(:id, :bigint, :primary_key, comment: "Shared with res")
+      add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:subject_id, :bigint, null: true, comment: "Owner")
       add(:ward_id, :bigint, null: true, comment: "Parent ward")
       add(:ext_id, :varchar, null: true, comment: "External reference")

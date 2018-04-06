@@ -6,6 +6,7 @@ defmodule Votr.Election.Ballot do
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot" do
     field(:id, :integer)
+    field(:version, :integer)
     field(:ward_id, :integer)
     field(:seq, :integer)
     field(:res_id, :integer)
@@ -23,6 +24,7 @@ defmodule Votr.Election.Ballot do
     ballot
     |> cast(attrs, [])
     |> validate_required([])
+    |> validate_inclusion(:kind, ["partially_ranked", "fully_ranked", "unranked", "approval"])
   end
 
   def select(ids) do

@@ -6,6 +6,7 @@ defmodule Votr.Election.Result do
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "result" do
     field(:ward_id, :integer)
+    field(:version, :integer)
     field(:round, :integer)
     field(:status, :string)
     field(:votes, :float)

@@ -7,6 +7,7 @@ defmodule Votr.Election.Candidate do
   schema "candidate" do
     # res will join to this table using id to give candidates resource values
     field(:ballot_id, :integer)
+    field(:version, :integer)
     field(:ext_id, :string)
     field(:withdrawn, :boolean)
     field(:color, :string)
