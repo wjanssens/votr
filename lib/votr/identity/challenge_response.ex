@@ -10,6 +10,7 @@ defmodule Votr.Identity.ChallengeResponse do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:c, :string)
     field(:r, :string)

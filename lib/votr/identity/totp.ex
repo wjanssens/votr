@@ -10,6 +10,7 @@ defmodule Votr.Identity.Totp do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:secret_key, :binary)
     field(:scratch_codes, {:array, :integer})
   end
@@ -18,6 +19,8 @@ defmodule Votr.Identity.Totp do
     totp
     |> cast(attrs, [:subject_id, :secret_key, :scratch_codes])
     |> validate_required([:subject_id, :secret_key, :scratch_codes])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Totp{} = totp) do

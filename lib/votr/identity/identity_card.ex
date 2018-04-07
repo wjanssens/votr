@@ -13,6 +13,7 @@ defmodule Votr.Identity.IdentityCard do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:number, :string)
     field(:exp, :date)
@@ -28,6 +29,8 @@ defmodule Votr.Identity.IdentityCard do
     card
     |> cast(attrs, [:subject_id, :seq, :number, :exp, :dob, :c, :st, :gn, :sn, :gender])
     |> validate_required([:subject_id, :seq, :number])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%IdentityCard{} = ic) do

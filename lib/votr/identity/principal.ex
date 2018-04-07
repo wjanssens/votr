@@ -6,6 +6,7 @@ defmodule Votr.Identity.Principal do
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "principal" do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:kind, :string)
     field(:seq, :integer)
     field(:hash, :string)

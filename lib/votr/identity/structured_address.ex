@@ -10,6 +10,7 @@ defmodule Votr.Identity.StructuredAddress do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:title, :string)
     # given name
@@ -33,7 +34,7 @@ defmodule Votr.Identity.StructuredAddress do
     # country
     field(:c, :string)
     field(:label, :string)
-    field(:status, :string)
+    field(:failures, :integer)
   end
 
   def changeset(%StructuredAddress{} = address, attrs) do
@@ -54,11 +55,12 @@ defmodule Votr.Identity.StructuredAddress do
       :pc,
       :c,
       :label,
-      :status
+      :integer
     ])
-    |> validate_required([:subject_id, :seq, :street, :l, :pc, :c, :label, :status])
+    |> validate_required([:subject_id, :seq, :street, :l, :pc, :c, :label, :failures])
     |> validate_inclusion(:label, ["home", "work", "other"])
-    |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%StructuredAddress{} = address) do
@@ -98,7 +100,7 @@ defmodule Votr.Identity.StructuredAddress do
       pc: dn.pc,
       c: dn.c,
       label: dn.label,
-      status: dn.status,
+      failures: String.to_integer(dn.failures),
       seq: p.seq
     }
   end

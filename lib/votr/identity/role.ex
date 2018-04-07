@@ -6,6 +6,7 @@ defmodule Votr.Identity.Role do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:name, :string)
   end
 
@@ -13,6 +14,8 @@ defmodule Votr.Identity.Role do
     card
     |> cast(attrs, [:subject_id, :key])
     |> validate_required([:subject_id, :name])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Role{} = role) do

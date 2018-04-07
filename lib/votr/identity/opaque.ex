@@ -10,6 +10,7 @@ defmodule Votr.Identity.Opaque do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:hash, :string)
   end
 
@@ -17,6 +18,8 @@ defmodule Votr.Identity.Opaque do
     opaque
     |> cast(attrs, [:subject_id, :hash])
     |> validate_required([:subject_id, :hash])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Opaque{} = opaque) do

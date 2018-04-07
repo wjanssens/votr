@@ -11,18 +11,20 @@ defmodule Votr.Identity.PostalAddress do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:lines, {:array, :string})
     field(:label, :string)
-    field(:status, :string)
+    field(:failures, :integer)
   end
 
   def changeset(%PostalAddress{} = address, attrs) do
     address
-    |> cast(attrs, [:subject_id, :seq, :lines, :label, :status])
-    |> validate_required([:subject_id, :seq, :lines, :label, :status])
+    |> cast(attrs, [:subject_id, :seq, :lines, :label, :failures])
+    |> validate_required([:subject_id, :seq, :lines, :label, :failures])
     |> validate_inclusion(:label, ["home", "work", "other"])
-    |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%PostalAddress{} = address) do
@@ -38,7 +40,7 @@ defmodule Votr.Identity.PostalAddress do
       kind: "postal_address",
       seq: address.seq,
       value:
-        %{postalAddress: lines, label: address.label, status: address.status}
+        %{postalAddress: lines, label: address.label, failures: Integer.to_string(email.failures)}
         |> DN.to_string()
         |> AES.encrypt()
         |> Base.encode64()
@@ -63,7 +65,7 @@ defmodule Votr.Identity.PostalAddress do
       subject_id: p.subject_id,
       lines: lines,
       label: dn.label,
-      status: dn.status,
+      failures: String.to_integer(dn.failures),
       seq: p.seq
     }
   end

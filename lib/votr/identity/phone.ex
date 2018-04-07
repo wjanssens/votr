@@ -11,6 +11,7 @@ defmodule Votr.Identity.Phone do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:number, :string)
     field(:label, :string)
@@ -34,6 +35,8 @@ defmodule Votr.Identity.Phone do
       "other"
     ])
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Phone{} = phone) do

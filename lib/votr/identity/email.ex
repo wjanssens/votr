@@ -11,18 +11,22 @@ defmodule Votr.Identity.Email do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:seq, :integer)
     field(:mail, :string)
     field(:label, :string)
-    field(:status, :string)
+    field(:failures, :integer)
   end
+
+  def
 
   def changeset(%Email{} = email, attrs) do
     email
-    |> cast(attrs, [:subject_id, :seq, :mail, :label, :status])
-    |> validate_required([:subject_id, :seq, :mail, :status])
+    |> cast(attrs, [:subject_id, :seq, :mail, :label, :failures])
+    |> validate_required([:subject_id, :seq, :mail, :failures])
     |> validate_inclusion(:label, ["home", "work", "other"])
-    |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Email{} = email) do
@@ -33,7 +37,7 @@ defmodule Votr.Identity.Email do
       seq: email.seq,
       hash: :crypto.hash(:sha512, email.mail),
       value:
-        %{mail: email.mail, label: email.label, status: email.status}
+        %{mail: email.mail, label: email.label, failures: Integer.to_string(email.failures)}
         |> DN.to_string()
         |> AES.encrypt()
         |> Base.encode64(opts)
@@ -52,7 +56,7 @@ defmodule Votr.Identity.Email do
       subject_id: p.subject_id,
       mail: dn.mail,
       label: dn.label,
-      status: dn.status,
+      failures: String.to_integer(dn.failures),
       seq: p.seq
     }
   end

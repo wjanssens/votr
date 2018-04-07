@@ -9,6 +9,7 @@ defmodule Votr.Identity.Username do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:username, :string)
   end
 
@@ -16,6 +17,8 @@ defmodule Votr.Identity.Username do
     username
     |> cast(attrs, [:subject_id, :username])
     |> validate_required([:subject_id, :username])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Username{} = username) do

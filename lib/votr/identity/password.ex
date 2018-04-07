@@ -15,6 +15,7 @@ defmodule Votr.Identity.Password do
 
   embedded_schema do
     field(:subject_id, :integer)
+    field(:version, :integer)
     field(:password, :string)
   end
 
@@ -29,10 +30,12 @@ defmodule Votr.Identity.Password do
     |> Password.from_principal()
   end
 
-  def changeset(attrs \\ %{}) do
-    %Password{}
+  def changeset(%Password{} = password, attrs \\ %{}) do
+    password
     |> cast(attrs, [:subject_id, :password])
     |> validate_required([:subject_id, :password])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%Password{} = password) do

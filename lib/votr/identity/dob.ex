@@ -8,6 +8,8 @@ defmodule Votr.Identity.DateOfBirth do
   alias Votr.Identity.Principal
 
   embedded_schema do
+    field(:subject_id, :integer)
+    field(:version, :integer)
     field(:date, :date)
     field(:subject_id, :integer)
   end
@@ -16,6 +18,8 @@ defmodule Votr.Identity.DateOfBirth do
     dob
     |> cast(attrs, [:subject_id, :date])
     |> validate_required([:subject_id, :date])
+    |> Map.update(:version, 0, &(&1 + 1))
+    |> to_principal
   end
 
   def to_principal(%DateOfBirth{} = dob) do
