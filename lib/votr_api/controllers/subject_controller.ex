@@ -7,4 +7,8 @@ defmodule Votr.Api.SubjectController do
   def index(conn, _params) do
     json(conn, Repo.all(from(s in Subject, select: s.id)))
   end
+
+  # register for a new account
+  def create(conn, _params) do
+  end
 end
