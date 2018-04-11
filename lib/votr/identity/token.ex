@@ -18,21 +18,18 @@ defmodule Votr.Identity.Token do
   embedded_schema do
     field(:subject_id, :integer)
     field(:version, :integer)
-    field(:key, :string)
     field(:value, :string)
     field(:usage, :string)
-    field(:expiry, :date)
+    field(:expiry, :utc_datetime)
   end
 
-  def select(key) do
+  def select(id) do
     """
     select * from principal
-    where kind = 'token' and hash = $1
+    where id = 'token' and id = $1
     """
-    |> Votr.Repo.query(token, :crypto.hash(:sha512, key))
+    |> Votr.Repo.get(Principal, id)
     |> from_principal
-    |> Enum.filter(fn t -> t.key == key end)
-    |> Enum.at(0, nil)
   end
 
   def changeset(%Token{} = token, attrs) do
@@ -51,10 +48,9 @@ defmodule Votr.Identity.Token do
       subject_id: token.subject_id,
       kind: "token",
       seq: nil,
-      hash: :crypto.hash(:sha512, token.key),
+      hash: nil,
       value:
         %{
-          key: token.key,
           value: token.value,
           usage: token.usage,
           expiry: Date.to_iso8601(token.expiry)

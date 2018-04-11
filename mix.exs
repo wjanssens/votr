@@ -20,7 +20,7 @@ defmodule Votr.Mixfile do
   def application do
     [
       mod: {Votr.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :timex]
     ]
   end
 
@@ -43,7 +43,8 @@ defmodule Votr.Mixfile do
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5.2"},
       {:flexid, "~> 0.1.0"},
-      {:hashids, "~> 1.0.0"}
+      {:hashids, "~> 1.0.0"},
+      {:timex, "~> 3.1"}
     ]
   end
 
