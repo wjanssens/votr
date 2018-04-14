@@ -16,31 +16,25 @@ defmodule Votr.Identity.CreditCard do
     field(:exp, :date)
   end
 
-  def changeset(%IdentityCard{} = ic, attrs) do
-    phone
+  def changeset(%CreditCard{} = card, attrs) do
+    card
     |> cast(attrs, [:subject_id, :seq, :number, :exp])
     |> validate_required([:subject_id, :seq, :number, :exp])
     |> Map.update(:version, 0, &(&1 + 1))
     |> to_principal
   end
 
-  def to_principal(%IdentityCard{} = ic) do
+  def to_principal(%CreditCard{} = card) do
     %Principal{
-      id: ic.id,
-      subject_id: ic.subject_id,
-      kind: "identity_card",
-      seq: ic.seq,
-      hash: :crypto.hash(:sha512, ic.number),
+      id: card.id,
+      subject_id: card.subject_id,
+      kind: "credit_card",
+      seq: card.seq,
+      hash: :crypto.hash(:sha512, card.number),
       value:
         %{
-          number: ic.number,
-          exp: Date.to_iso8601(ic.exp),
-          c: ic.c,
-          st: ic.st,
-          dob: Date.to_iso8601(ic.dob),
-          gn: ic.gn,
-          sn: ic.sn,
-          gender: ic.gender
+          number: card.number,
+          exp: Date.to_iso8601(card.exp)
         }
         |> DN.to_string()
         |> AES.encrypt()
@@ -55,12 +49,11 @@ defmodule Votr.Identity.CreditCard do
       |> AES.decrypt()
       |> DN.from_string()
 
-    %Phone{
+    %CreditCard{
       id: p.id,
       subject_id: p.subject_id,
       number: dn.number,
-      label: dn.label,
-      status: dn.status,
+      exp: Date.from_iso8601(dn.exp),
       seq: p.seq
     }
   end

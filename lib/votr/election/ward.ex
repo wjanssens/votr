@@ -52,7 +52,7 @@ defmodule Votr.Election.Ward do
       |> Votr.Repo.query!([voter_id])
 
     results.rows
-    |> Enum.map(&Ecto.Repo.load(Votr.Election.Ward, {ward_results.columns, &1}))
-    |> Enum.group_by(& &1.id, & &1)
+    |> Enum.map(&Ecto.Repo.load(Votr.Election.Ward, {results.columns, &1}))
+    |> Enum.group_by(&(&1.id), &(&1))
   end
 end

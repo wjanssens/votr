@@ -1,6 +1,7 @@
 defmodule Votr.Election.Candidate do
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.Query
+  require Ecto.Changeset
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]

@@ -11,7 +11,6 @@ defmodule Votr.Identity.DateOfBirth do
     field(:subject_id, :integer)
     field(:version, :integer)
     field(:date, :date)
-    field(:subject_id, :integer)
   end
 
   def changeset(%DateOfBirth{} = dob, attrs) do

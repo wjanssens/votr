@@ -40,7 +40,7 @@ defmodule Votr.Identity.PostalAddress do
       kind: "postal_address",
       seq: address.seq,
       value:
-        %{postalAddress: lines, label: address.label, failures: Integer.to_string(email.failures)}
+        %{postalAddress: lines, label: address.label, failures: Integer.to_string(address.failures)}
         |> DN.to_string()
         |> AES.encrypt()
         |> Base.encode64()

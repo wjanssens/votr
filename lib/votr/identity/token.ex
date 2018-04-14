@@ -33,7 +33,7 @@ defmodule Votr.Identity.Token do
   end
 
   def changeset(%Token{} = token, attrs) do
-    card
+    token
     |> cast(attrs, [:subject_id, :key])
     |> validate_required([:subject_id, :key, :usage])
     |> validate_inclusion(:usage, ["email", "password", "totp"])

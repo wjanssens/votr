@@ -18,8 +18,6 @@ defmodule Votr.Identity.Email do
     field(:failures, :integer)
   end
 
-  def
-
   def changeset(%Email{} = email, attrs) do
     email
     |> cast(attrs, [:subject_id, :seq, :address, :label, :failures])

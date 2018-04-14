@@ -25,6 +25,6 @@ defmodule Votr.Vote do
       |> Votr.Repo.stream(ballot_id)
 
     results.rows
-    |> Enum.map(&(&[0]))
+    |> Enum.map(fn row -> row[0] end)
   end
 end

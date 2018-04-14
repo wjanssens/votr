@@ -1,11 +1,11 @@
 defmodule Votr.Election.Ballot do
   use Ecto.Schema
   import Ecto.Changeset
+  require Ecto.Query
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot" do
-    field(:id, :integer)
     field(:version, :integer)
     field(:ward_id, :integer)
     field(:seq, :integer)

@@ -11,7 +11,7 @@ defmodule Votr.Identity.Role do
   end
 
   def changeset(%Role{} = role, attrs) do
-    card
+    role
     |> cast(attrs, [:subject_id, :key])
     |> validate_required([:subject_id, :name])
     |> Map.update(:version, 0, &(&1 + 1))
