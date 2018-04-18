@@ -12,9 +12,9 @@ defmodule Votr.Identity.Password do
   alias Votr.Repo
   alias Votr.Identity.Password
   alias Votr.Identity.Principal
-  alias Comeonin.Argon2
-  alias Comeonin.Bcrypt
-  alias Comeonin.Pbkdf2
+  alias Argon2
+  alias Bcrypt
+  alias Pbkdf2
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -86,15 +86,15 @@ defmodule Votr.Identity.Password do
   end
 
   def pbkdf2(plaintext, opts) do
-    Pbkdf2.hashpwsalt(plaintext, opts)
+    Pbkdf2.hash_pwd_salt(plaintext, opts)
   end
 
   def argon2(plaintext, opts) do
-    Argon2.hashpwsalt(plaintext, opts)
+    Argon2.hash_pwd_salt(plaintext, opts)
   end
 
   def bcrypt(plaintext, opts) do
-    Bcrypt.hashpwsalt(plaintext, opts)
+    Bcrypt.hash_pwd_salt(plaintext, opts)
   end
 
   def verify(plaintext, hash) do

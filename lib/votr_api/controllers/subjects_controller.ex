@@ -18,10 +18,7 @@ defmodule Votr.Api.SubjectsController do
     shard = FlexId.make_partition(params.username)
     subject_id = FlexId.generate(:id_generator, shard)
 
-    existing =
-      Email.select(:crypto.hash(:sha512, params.username))
-      |> Enum.filter(fn e -> e.address == params.username end)
-      |> Enum.at(0, nil)
+    existing = Email.select(params.username)
 
     if is_nil(existing) do
       case Repo.transaction(
@@ -31,26 +28,24 @@ defmodule Votr.Api.SubjectsController do
                }
                |> Repo.insert!()
 
-               %Email{
+               Email.changeset(%Email{}, %{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  seq: 1,
                  address: params.username,
                  label: "other",
                  failures: 10
-               }
-               |> Email.changeset()
+               })
                |> Repo.insert!()
 
-               %Password{
+               Password.changeset(%Password{}, %{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  password: params.password
-               }
-               |> Password.changeset()
+               })
                |> Repo.insert!()
 
-               %Token{
+               Token.changeset(%Token{}, %{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  usage: "email",
@@ -59,8 +54,7 @@ defmodule Votr.Api.SubjectsController do
                    Timex.now()
                    |> Timex.add(Timex.Duration.from_days(4))
                    |> Timex.to_datetime()
-               }
-               |> Token.changeset()
+               })
                |> Repo.insert!()
              end
            ) do

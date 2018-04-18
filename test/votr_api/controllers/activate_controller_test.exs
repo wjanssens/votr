@@ -1,4 +1,4 @@
-defmodule Votr.Api.SubjectsControllerTest do
+defmodule Votr.Api.ActivateControllerTest do
   use ExUnit.Case, async: true
   use Plug.Test
 

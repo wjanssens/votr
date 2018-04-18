@@ -9,6 +9,26 @@ use Mix.Config
 config :votr,
   ecto_repos: [Votr.Repo]
 
+# Ecto configuration
+config :votr, Votr.Repo,
+  migration_primary_key: [id: :id, type: :bigint],
+  migration_timestamps: [type: :utc_datetime]
+
+# keys to encrypt data with
+# only one key is used for encryption
+# the others are used to decrypt data previously encrypted with that key
+config :votr, Votr.AES,
+  keys: %{
+    <<1>> => "e62cf85ce0ff3a1f9f388e9361bd87ad" |> Base.decode16,
+    <<2>> => "4803491d183d2a5cc6f32120ce8a5c1c" |> Base.decode16,
+    <<3>> => "e70870de242a6b4f11a575a79ce0cc0d" |> Base.decode16,
+    <<4>> => "1a56fac07bb700043396b12d0beef709" |> Base.decode16
+  },
+  default_key_id: <<1>>
+
+config :votr, Votr.Identity.Password,
+  algorithm: :bcrypt
+
 # Configures the endpoint
 config :votr, VotrWeb.Endpoint,
   url: [host: "localhost"],

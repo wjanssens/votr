@@ -2,8 +2,7 @@ defmodule Votr.Repo.Migrations.CreatePrincipal do
   use Ecto.Migration
 
   def change do
-    create table(:principal) do
-      add(:id, :bigint, :primary_key)
+    create table(:principal, comment: "Information for a single entity, such as a person") do
       add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:subject_id, references(:subject, on_delete: :delete_all), null: false)
       add(:kind, :varchar, null: false, comment: "Defines the type (eg. phone)")

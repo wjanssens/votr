@@ -9,6 +9,7 @@ defmodule Votr.Identity.Email do
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
   alias Votr.AES
+  alias Votr.Repo
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -19,7 +20,14 @@ defmodule Votr.Identity.Email do
     field(:failures, :integer)
   end
 
-  def changeset(%Email{} = email, attrs) do
+  def select(address) do
+    Repo.get(Principal, :crypto.hash(:sha512, address))
+    |> Email.from_principal()
+    |> Enum.filter(fn e -> e.address == address end)
+    |> Enum.at(0, nil)
+  end
+
+  def changeset(%Email{} = email, attrs \\ %{}) do
     email
     |> cast(attrs, [:subject_id, :seq, :address, :label, :failures])
     |> validate_required([:subject_id, :seq, :address, :failures])

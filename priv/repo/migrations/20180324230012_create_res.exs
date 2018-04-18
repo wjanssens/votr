@@ -3,7 +3,6 @@ defmodule Votr.Repo.Migrations.CreateRes do
 
   def change do
     create table(:res, comment: "Localized, encrypted string values for entities") do
-      add(:id, :bigint, :primary_key)
       add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:entity_id, :bigint)
       add(:tag, :varchar, comment: "Language and Country code (eg. en-CA)")
