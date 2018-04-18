@@ -14,11 +14,11 @@ defmodule Votr.Api.SubjectsController do
   end
 
   # register for a new account
-  def create(conn, params) do
-    shard = FlexId.make_partition(params.username)
+  def create(conn, %{"username" => username, "password" => password}) do
+    shard = FlexId.make_partition(username)
     subject_id = FlexId.generate(:id_generator, shard)
 
-    existing = Email.select(params.username)
+    existing = Email.select(username)
 
     if is_nil(existing) do
       case Repo.transaction(
@@ -32,7 +32,7 @@ defmodule Votr.Api.SubjectsController do
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  seq: 1,
-                 address: params.username,
+                 address: username,
                  label: "other",
                  failures: 10
                })
@@ -41,7 +41,7 @@ defmodule Votr.Api.SubjectsController do
                Password.changeset(%Password{}, %{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
-                 password: params.password
+                 password: password
                })
                |> Repo.insert!()
 
@@ -49,7 +49,7 @@ defmodule Votr.Api.SubjectsController do
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  usage: "email",
-                 value: params.username,
+                 value: username,
                  expiry:
                    Timex.now()
                    |> Timex.add(Timex.Duration.from_days(4))

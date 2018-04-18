@@ -5,14 +5,10 @@ defmodule Votr.Api.SubjectsControllerTest do
   @opts VotrWeb.Router.init([])
 
   describe "create/2" do
-    test "register and activate a new user" do
-      # register
-      body =
-        %{username: "testy.testerton@example.com", password: "p@ssw0rd"}
-        |> Poison.encode!()
-
+    test "register a new user" do
       conn =
-        build_conn(:post, "/api/subjects", body)
+        build_conn(:post, "/api/subjects", %{username: "testy.testerton@example.com", password: "p@ssw0rd"})
+        |> put_req_header("content-type", "application/json")
         |> VotrWeb.Router.call(@opts)
 
       assert conn.state == :sent

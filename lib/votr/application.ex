@@ -15,7 +15,7 @@ defmodule Votr.Application do
       # Start your own worker by calling: Votr.Worker.start_link(arg1, arg2, arg3)
       # worker(Votr.Worker, [arg1, arg2, arg3]),
 
-      # supervisor(FlexId, [946_684_800_000, 6, 6, 4, name: :id_generator])
+      supervisor(FlexId, [946_684_800_000, 6, 6, 4, [name: :id_generator]])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

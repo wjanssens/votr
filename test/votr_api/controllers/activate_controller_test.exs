@@ -6,13 +6,8 @@ defmodule Votr.Api.ActivateControllerTest do
 
   describe "create/2" do
     test "register and activate a new user" do
-      # register
-      body =
-        %{username: "testy.testerton@example.com", password: "p@ssw0rd"}
-        |> Poison.encode!()
-
       conn =
-        build_conn(:post, "/api/subjects", body)
+        build_conn(:post, "/api/subjects", %{username: "testy.testerton@example.com", password: "p@ssw0rd"})
         |> put_req_header("content-type", "application/json")
         |> VotrWeb.Router.call(@opts)
 

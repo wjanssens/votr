@@ -5,9 +5,8 @@ defmodule Votr.Api.BallotController do
   alias Votr.Election.Candidate
   alias Votr.Election.Res
 
-  def index(conn, params) do
+  def index(conn, %{"id" => id}) do
     tags = extract_accept_language(conn)
-    id = params.id
 
     # gets all the ballots for the wards
     wards = Ward.select_for_voter(id)

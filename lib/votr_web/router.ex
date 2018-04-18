@@ -11,7 +11,7 @@ defmodule VotrWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
-    plug(:protect_from_forgery)
+    #plug(:protect_from_forgery)
   end
 
   scope "/", VotrWeb do
