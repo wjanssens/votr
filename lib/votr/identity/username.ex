@@ -6,6 +6,7 @@ defmodule Votr.Identity.Username do
   import Ecto.Changeset
   alias Votr.Identity.Username
   alias Votr.Identity.Principal
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -44,8 +45,7 @@ defmodule Votr.Identity.Username do
     %Username{
       id: p.id,
       subject_id: p.subject_id,
-      username: username,
-      seq: p.seq
+      username: username
     }
   end
 end

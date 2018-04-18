@@ -14,6 +14,8 @@ defmodule Votr.Application do
       supervisor(VotrWeb.Endpoint, []),
       # Start your own worker by calling: Votr.Worker.start_link(arg1, arg2, arg3)
       # worker(Votr.Worker, [arg1, arg2, arg3]),
+
+      FlexId.start_link(946_684_800_000, 6, 6, 4, name: :id_generator)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

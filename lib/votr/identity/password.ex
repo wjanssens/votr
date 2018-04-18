@@ -10,8 +10,11 @@ defmodule Votr.Identity.Password do
   import Ecto.Changeset
   import Ecto.Query
   alias Votr.Repo
-  alias Votr.Accounts.Password
-  alias Votr.Accounts.Principal
+  alias Votr.Identity.Password
+  alias Votr.Identity.Principal
+  alias Comeonin.Argon2
+  alias Comeonin.Bcrypt
+  alias Comeonin.Pbkdf2
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -83,15 +86,15 @@ defmodule Votr.Identity.Password do
   end
 
   def pbkdf2(plaintext, opts) do
-    Pbkdf2.hash_pwd_salt(plaintext, opts)
+    Pbkdf2.hashpwsalt(plaintext, opts)
   end
 
   def argon2(plaintext, opts) do
-    Argon2.hash_pwd_salt(plaintext, opts)
+    Argon2.hashpwsalt(plaintext, opts)
   end
 
   def bcrypt(plaintext, opts) do
-    Bcrypt.hash_pwd_salt(plaintext, opts)
+    Bcrypt.hashpwsalt(plaintext, opts)
   end
 
   def verify(plaintext, hash) do

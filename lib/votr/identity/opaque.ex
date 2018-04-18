@@ -4,9 +4,8 @@ defmodule Votr.Identity.Opaque do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Identity.IdentityCard
+  alias Votr.Identity.Opaque
   alias Votr.Identity.Principal
-  alias Votr.Identity.DN
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -37,7 +36,6 @@ defmodule Votr.Identity.Opaque do
     %Opaque{
       id: p.id,
       subject_id: p.subject_id,
-      seq: p.seq,
       hash: p.hash
     }
   end

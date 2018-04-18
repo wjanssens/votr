@@ -10,6 +10,7 @@ defmodule Votr.Identity.IdentityCard do
   alias Votr.Identity.IdentityCard
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -73,9 +74,9 @@ defmodule Votr.Identity.IdentityCard do
       dob: Date.from_iso8601(dn.dob),
       c: dn.c,
       st: dn.c,
-      gn: ic.gn,
-      sn: ic.sn,
-      gender: ic.gender
+      gn: dn.gn,
+      sn: dn.sn,
+      gender: dn.gender
     }
   end
 end

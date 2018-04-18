@@ -7,6 +7,7 @@ defmodule Votr.Identity.ChallengeResponse do
   alias Votr.Identity.ChallengeResponse
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)

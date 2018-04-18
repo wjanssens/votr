@@ -7,6 +7,7 @@ defmodule Votr.Identity.StructuredAddress do
   alias Votr.Identity.StructuredAddress
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -113,64 +114,64 @@ defmodule Votr.Identity.StructuredAddress do
     # TODO need to format the country name
     country = if same, do: nil, else: a.c
 
-    formatted = fn
-      a when Enum.member?(["AU", "CA", "PR", "US"], c) ->
+    formatted = cond do
+      Enum.member?(["AU", "CA", "PR", "US"], c) ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.l}, #{a.st} #{
           a.pc
         }\n#{country}"
 
-      a when Enum.member?(["AR", "EC", "CL", "CO", "PE", "VE"], c) ->
+      Enum.member?(["AR", "EC", "CL", "CO", "PE", "VE"], c) ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           a.st
         }\n#{country}"
 
-      a when "MX" == c ->
+      "MX" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}, #{
           a.st
         }\n#{country}"
 
-      a when "BR" == c ->
+      "BR" == c ->
         "#{a.o}\n#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.street}\n#{a.po}\n#{a.l} - #{a.st}\n#{
           a.pc
         }\n#{country}"
 
       # western europe
-      a when "AU" == c ->
+      "AU" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.pc} #{
           String.upcase(a.l)
         }\n#{country}"
 
-      a when "BE" == c ->
+      "BE" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           country
         }"
 
-      a when "CH" == c ->
+      "CH" == c ->
         "#{a.title} #{a.gn} #{a.sn}\n#{a.street}\n#{a.pc} #{a.l}\n#{country}"
 
-      a when "CZ" == c ->
+      "CZ" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           country
         }"
 
-      a when "DE" == c ->
+      "DE" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           country
         }"
 
-      a when "DK" == c ->
+      "DK" == c ->
         prefix = if same, do: "", else: "DK-"
 
         "#{a.title} #{a.gn} #{a.initals} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{prefix}#{a.pc} #{
           a.l
         }\n#{country}"
 
-      a when "FI" == c ->
+      "FI" == c ->
         "#{a.o}\n#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           country
         }"
 
-      a when "FR" == c ->
+      "FR" == c ->
         prefix = if same, do: "", else: "FR-"
         surname = a.sn |> String.upcase()
 
@@ -178,36 +179,36 @@ defmodule Votr.Identity.StructuredAddress do
           a.pc
         } #{a.l}\n#{country}"
 
-      a when "HU" == c ->
+      "HU" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.l}\n#{a.street}\n#{a.pc}\n#{
           country
         }"
 
-      a when "IT" == c ->
+      "IT" == c ->
         prefix = if same, do: "", else: "IT-"
 
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{prefix}#{a.pc} #{
           a.l
         } #{a.st}\n#{country}"
 
-      a when "NL" == c ->
+      "NL" == c ->
         "#{a.o}\n#{a.ou}\n#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.street}\n#{a.po}\n#{a.pc} #{
           a.st
         } #{a.l}\n#{country}"
 
-      a when "NO" == c ->
+      "NO" == c ->
         "#{a.o}\n#{a.street}\n#{a.gn} #{a.sn}\n#{a.po}\n#{a.pc} #{a.l}\n#{country}"
 
-      a when "PT" == c ->
+      "PT" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.l}\n#{a.pc}\n#{
           country
         }"
 
-      a when "SE" == c ->
+      "SE" == c ->
         "#{a.o}\n#{a.gn} #{a.sn}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{country}"
 
       # british isles
-      a when "GB" == c ->
+      "GB" == c ->
         post_town = String.upcase(a.po)
 
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.l}\n#{post_town}\n#{
@@ -215,39 +216,39 @@ defmodule Votr.Identity.StructuredAddress do
         }\n#{country}"
 
       # asia
-      a when Enum.member?(["KP", "KR"], c) ->
+      Enum.member?(["KP", "KR"], c) ->
         "#{country}\n#{a.pc}\n#{a.st} #{a.l} #{a.street}\n#{a.o}\n#{a.sn} #{a.gn} #{a.title}"
 
-      a when "CN" == c ->
+      "CN" == c ->
         "#{country}\n#{a.st} #{a.l}\n#{a.street}\n#{a.sn} #{a.gn} #{a.title}"
 
-      a when "JP" == c ->
+      "JP" == c ->
         "#{country}\n#{a.pc} #{a.st} #{a.l}\n#{a.street}\n#{a.o}\n#{a.sn} #{a.gn} #{a.title}"
 
-      a when "MY" == c ->
+      "MY" == c ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.pc} #{a.l}\n#{
           a.st
         } #{country}"
 
       # slavic
-      a when "BG" == c ->
+      "BG" == c ->
         "#{country}\n#{a.st}\n#{a.pc} #{a.l}\n#{a.street}\n#{a.po}\n#{a.o}\n#{a.title} #{a.gn} #{
           a.initals
         } #{a.sn}"
 
-      a when "RU" == c ->
+      "RU" == c ->
         "#{country}\n#{a.pc}\n#{a.st} #{a.l}\n#{a.street}\n#{a.po}\n#{a.o}\n#{a.sn} #{a.gn} #{
           a.initials
         }"
 
-      # international format
+      # fallback international format
       a ->
         "#{a.title} #{a.gn} #{a.initials} #{a.sn}\n#{a.ou}\n#{a.o}\n#{a.street}\n#{a.po}\n#{a.l}, #{
           a.st
         } #{a.pc}\n#{country}"
     end
 
-    formatted.(a)
+    formatted
     # remove extra space at start of line
     |> String.replace(~r{^\s*}, "")
     # remove duplicate spaces

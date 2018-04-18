@@ -6,6 +6,7 @@ defmodule Votr.Identity.DateOfBirth do
   import Ecto.Changeset
   alias Votr.Identity.DateOfBirth
   alias Votr.Identity.Principal
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -46,8 +47,7 @@ defmodule Votr.Identity.DateOfBirth do
     %DateOfBirth{
       id: p.id,
       subject_id: p.subject_id,
-      dob: date,
-      seq: nil
+      date: date
     }
   end
 end

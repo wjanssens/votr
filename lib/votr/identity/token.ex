@@ -14,6 +14,7 @@ defmodule Votr.Identity.Token do
   alias Votr.Identity.Token
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -34,8 +35,8 @@ defmodule Votr.Identity.Token do
 
   def changeset(%Token{} = token, attrs) do
     token
-    |> cast(attrs, [:subject_id, :key])
-    |> validate_required([:subject_id, :key, :usage])
+    |> cast(attrs, [:subject_id, :usage, :value])
+    |> validate_required([:subject_id, :usage])
     |> validate_inclusion(:usage, ["email", "password", "totp"])
     |> Map.update(:version, 0, &(&1 + 1))
     |> to_principal
@@ -72,7 +73,6 @@ defmodule Votr.Identity.Token do
       id: p.id,
       subject_id: p.subject_id,
       version: p.version,
-      key: dn.key,
       value: dn.value,
       usage: dn.usage,
       expiry: Date.from_iso8601(dn.expiry)

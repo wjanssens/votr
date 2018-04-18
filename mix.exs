@@ -44,7 +44,11 @@ defmodule Votr.Mixfile do
       {:distillery, "~> 1.5.2"},
       {:flexid, "~> 0.1.0"},
       {:hashids, "~> 1.0.0"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:comeonin, "~> 4.1.1"},
+      {:argon2_elixir, "~> 1.2"},
+      {:bcrypt_elixir, "~> 1.0.6"},
+      {:pbkdf2_elixir, "~> 0.12.3"}
     ]
   end
 

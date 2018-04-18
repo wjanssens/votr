@@ -50,8 +50,7 @@ defmodule Votr.Identity.Totp do
       id: p.id,
       subject_id: p.subject_id,
       secret_key: secret_key,
-      scratch_codes: scratch_codes,
-      seq: p.seq
+      scratch_codes: scratch_codes
     }
   end
 

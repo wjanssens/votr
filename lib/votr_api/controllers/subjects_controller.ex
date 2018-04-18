@@ -1,6 +1,6 @@
 import Ecto.Query
 
-defmodule Votr.Api.SubjectController do
+defmodule Votr.Api.SubjectsController do
   use VotrWeb, :controller
   use Timex
   alias Votr.Identity.Subject
@@ -16,7 +16,7 @@ defmodule Votr.Api.SubjectController do
   # register for a new account
   def create(conn, params) do
     shard = FlexId.make_partition(params.username)
-    subject_id = FlexId.generate(agent, shard)
+    subject_id = FlexId.generate(:id_generator, shard)
 
     existing =
       Email.select(:crypto.hash(:sha512, params.username))
@@ -32,10 +32,10 @@ defmodule Votr.Api.SubjectController do
                |> Repo.insert!()
 
                %Email{
-                 id: FlexId.generate(agent, shard),
+                 id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  seq: 1,
-                 username: params.username,
+                 address: params.username,
                  label: "other",
                  failures: 10
                }
@@ -43,7 +43,7 @@ defmodule Votr.Api.SubjectController do
                |> Repo.insert!()
 
                %Password{
-                 id: FlexId.generate(agent, shard),
+                 id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  password: params.password
                }
@@ -51,7 +51,7 @@ defmodule Votr.Api.SubjectController do
                |> Repo.insert!()
 
                %Token{
-                 id: FlexId.generate(agent, shard),
+                 id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  usage: "email",
                  value: params.username,

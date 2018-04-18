@@ -1,12 +1,11 @@
 defmodule Votr.Election.Candidate do
   use Ecto.Schema
   import Ecto.Query
-  require Ecto.Changeset
+  import Ecto.Changeset
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "candidate" do
-    # res will join to this table using id to give candidates resource values
     field(:ballot_id, :integer)
     field(:version, :integer)
     field(:ext_id, :string)
@@ -18,14 +17,14 @@ defmodule Votr.Election.Candidate do
   @doc false
   def changeset(candidate, attrs) do
     candidate
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:ballot_id, :version, :ext_id, :withdrawn, :color])
+    |> validate_required([:ballot_id, :version, :withdrawn])
   end
 
   def select(ids) do
     Candidate
-    |> Ecto.Query.where("ballot_id" in ^ids)
-    |> Ecto.Query.order_by([:ballot_id, :seq])
+    |> where("ballot_id" in ^ids)
+    |> order_by([:ballot_id, :seq])
     |> Votr.Repo.all()
   end
 end

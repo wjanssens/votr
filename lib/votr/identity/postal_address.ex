@@ -57,8 +57,8 @@ defmodule Votr.Identity.PostalAddress do
     lines =
       dn.postalAddress
       |> String.split("$")
-      |> Map.map(fn l -> String.replace(l, "\$", "$") end)
-      |> Map.map(fn l -> String.replace(l, "\\\\", "\\") end)
+      |> Enum.map(fn l -> String.replace(l, "\$", "$") end)
+      |> Enum.map(fn l -> String.replace(l, "\\\\", "\\") end)
 
     %PostalAddress{
       id: p.id,

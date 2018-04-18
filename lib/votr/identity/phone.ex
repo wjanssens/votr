@@ -8,6 +8,7 @@ defmodule Votr.Identity.Phone do
   alias Votr.Identity.Phone
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)

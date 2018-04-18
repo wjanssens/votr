@@ -8,6 +8,7 @@ defmodule Votr.Identity.Email do
   alias Votr.Identity.Email
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -38,7 +39,7 @@ defmodule Votr.Identity.Email do
         %{address: email.address, label: email.label, failures: Integer.to_string(email.failures)}
         |> DN.to_string()
         |> AES.encrypt()
-        |> Base.encode64(opts)
+        |> Base.encode64()
     }
   end
 

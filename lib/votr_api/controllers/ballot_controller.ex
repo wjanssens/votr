@@ -1,5 +1,3 @@
-import Ecto.Query
-
 defmodule Votr.Api.BallotController do
   use VotrWeb, :controller
   alias Votr.Election.Ward

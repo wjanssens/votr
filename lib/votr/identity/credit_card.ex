@@ -4,9 +4,10 @@ defmodule Votr.Identity.CreditCard do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias Votr.Identity.IdentityCard
+  alias Votr.Identity.CreditCard
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
+  alias Votr.AES
 
   embedded_schema do
     field(:subject_id, :integer)
