@@ -28,7 +28,8 @@ defmodule Votr.Identity.Username do
       kind: "username",
       seq: nil,
       subject_id: username.subject_id,
-      hash: :crypto.hash(:sha512, username.username),
+      hash: :crypto.hash(:sha256, username.username)
+            |> Base.encode64,
       value:
         username.username
         |> AES.encrypt()

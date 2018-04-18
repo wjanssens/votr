@@ -31,7 +31,8 @@ defmodule Votr.Identity.CreditCard do
       subject_id: card.subject_id,
       kind: "credit_card",
       seq: card.seq,
-      hash: :crypto.hash(:sha512, card.number),
+      hash: :crypto.hash(:sha256, card.number)
+            |> Base.encode64,
       value:
         %{
           number: card.number,

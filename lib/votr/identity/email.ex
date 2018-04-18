@@ -5,6 +5,7 @@ defmodule Votr.Identity.Email do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query #, only: [from: 2, where: 3]
   alias Votr.Identity.Email
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
@@ -21,34 +22,41 @@ defmodule Votr.Identity.Email do
   end
 
   def select(address) do
-    Repo.get(Principal, :crypto.hash(:sha512, address))
-    |> Email.from_principal()
+    hash = :crypto.hash(:sha256, address)
+           |> Base.encode64
+
+    from(Principal)
+    |> where(hash: ^hash)
+    |> Repo.all
+    |> Enum.map(&Email.from_principal(&1))
     |> Enum.filter(fn e -> e.address == address end)
     |> Enum.at(0, nil)
   end
 
-  def changeset(%Email{} = email, attrs \\ %{}) do
-    email
+  def changeset(attrs \\ %{}) do
+    %Email{}
     |> cast(attrs, [:subject_id, :seq, :address, :label, :failures])
     |> validate_required([:subject_id, :seq, :address, :failures])
     |> validate_inclusion(:label, ["home", "work", "other"])
-    |> Map.update(:version, 0, &(&1 + 1))
-    |> to_principal
-  end
 
-  def to_principal(%Email{} = email) do
-    %Principal{
-      id: email.id,
-      subject_id: email.subject_id,
-      kind: "email",
-      seq: email.seq,
-      hash: :crypto.hash(:sha512, email.mail),
-      value:
-        %{address: email.address, label: email.label, failures: Integer.to_string(email.failures)}
-        |> DN.to_string()
-        |> AES.encrypt()
-        |> Base.encode64()
-    }
+    value =
+      %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
+      |> DN.to_string()
+      |> AES.encrypt()
+      |> Base.encode64()
+
+    hash = :crypto.hash(:sha512, attrs.address)
+           |> Base.encode64
+
+    attrs
+    |> Map.merge(
+         %{
+           kind: "email",
+           value: value,
+           hash: hash
+         }
+       )
+    |> Principal.changeset()
   end
 
   def from_principal(%Principal{} = p) do

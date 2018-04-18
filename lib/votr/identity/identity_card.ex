@@ -40,7 +40,8 @@ defmodule Votr.Identity.IdentityCard do
       subject_id: ic.subject_id,
       kind: "identity_card",
       seq: ic.seq,
-      hash: :crypto.hash(:sha512, ic.number),
+      hash: :crypto.hash(:sha256, ic.number)
+            |> Base.encode64,
       value:
         %{
           number: ic.number,

@@ -28,24 +28,24 @@ defmodule Votr.Api.SubjectsController do
                }
                |> Repo.insert!()
 
-               Email.changeset(%Email{}, %{
+               Email.changeset(%{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  seq: 1,
                  address: username,
                  label: "other",
-                 failures: 10
+                 failures: 0
                })
                |> Repo.insert!()
 
-               Password.changeset(%Password{}, %{
+               Password.changeset(%{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  password: password
                })
                |> Repo.insert!()
 
-               Token.changeset(%Token{}, %{
+               Token.changeset(%{
                  id: FlexId.generate(:id_generator, shard),
                  subject_id: subject_id,
                  usage: "email",

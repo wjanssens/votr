@@ -1,6 +1,6 @@
 defmodule Votr.Identity.Opaque do
   @moduledoc """
-  Opaque identity is just an SHA-512 hash.
+  Opaque identity is just an SHA-256 hash.
   """
   use Ecto.Schema
   import Ecto.Changeset

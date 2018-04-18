@@ -23,18 +23,21 @@ defmodule Votr.Identity.Phone do
     phone
     |> cast(attrs, [:subject_id, :seq, :number, :label, :status])
     |> validate_required([:subject_id, :number, :label, :status])
-    |> validate_inclusion(:label, [
-      "mobile",
-      "iphone",
-      "home",
-      "work",
-      "main",
-      "home fax",
-      "work fax",
-      "other fax",
-      "pager",
-      "other"
-    ])
+    |> validate_inclusion(
+         :label,
+         [
+           "mobile",
+           "iphone",
+           "home",
+           "work",
+           "main",
+           "home fax",
+           "work fax",
+           "other fax",
+           "pager",
+           "other"
+         ]
+       )
     |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
     |> Map.update(:version, 0, &(&1 + 1))
     |> to_principal
@@ -46,7 +49,8 @@ defmodule Votr.Identity.Phone do
       subject_id: phone.subject_id,
       kind: "phone",
       seq: phone.seq,
-      hash: :crypto.hash(:sha512, phone.number),
+      hash: :crypto.hash(:sha256, phone.number)
+            |> Base.encode64,
       value:
         %{number: phone.number, label: phone.label, status: phone.status}
         |> DN.to_string()
