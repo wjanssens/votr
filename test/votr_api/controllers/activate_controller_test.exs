@@ -1,26 +1,31 @@
 defmodule Votr.Api.ActivateControllerTest do
+  use VotrWeb.ConnCase
   use ExUnit.Case, async: true
-  use Plug.Test
+
+  @opts VotrWeb.Router.init([])
 
   describe "create/2" do
-    test "register and activate a new user", %{conn: conn} do
+    test "register and activate a new user" do
       # register
       body =
         %{username: "testy.testerton@example.com", password: "p@ssw0rd"}
         |> Poison.encode!()
 
-      response =
-        conn(:post, "/api/subjects", body)
+      conn =
+        build_conn(:post, "/api/subjects", body)
         |> put_req_header("content-type", "application/json")
-        |> send_request
+        |> VotrWeb.Router.call(@opts)
 
-      assert response.status == 200
+      assert conn.state == :sent
+      assert conn.status == 200
 
-      response =
-        conn(:get, "/api/activate/" <> token)
-        |> send_request
+      token = "TODO need a mock email server"
+      conn =
+        build_conn(:get, "/api/activate/" <> token)
+        |> VotrWeb.Router.call(@opts)
 
-      assert response.status == 200
+      assert conn.state == :sent
+      assert conn.status == 200
     end
   end
 end
