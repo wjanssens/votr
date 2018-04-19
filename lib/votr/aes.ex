@@ -19,7 +19,7 @@ defmodule Votr.AES do
   end
 
   def decrypt(ciphertext, aad \\ "") do
-    <<key_id::binary-1, iv::binary-12, tag::binary-16, ciphertext::binary>> = ciphertext
+    <<key_id :: binary - 1, iv :: binary - 12, tag :: binary - 16, ciphertext :: binary>> = ciphertext
     key = @keys[key_id]
     :crypto.block_decrypt(:aes_gcm, key, iv, {aad, ciphertext, tag})
   end

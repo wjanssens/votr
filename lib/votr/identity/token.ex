@@ -33,33 +33,28 @@ defmodule Votr.Identity.Token do
     |> from_principal
   end
 
-  def changeset(%Token{} = token, attrs) do
-    token
-    |> cast(attrs, [:subject_id, :usage, :value])
-    |> validate_required([:subject_id, :usage])
+  def changeset(attrs) do
+    %Token{}
+    |> cast(attrs, [:usage, :value, :expiry])
+    |> validate_required([:usage])
     |> validate_inclusion(:usage, ["email", "password", "totp"])
-    |> Map.update(:version, 0, &(&1 + 1))
-    |> to_principal
-  end
 
-  def to_principal(%Token{} = token) do
-    %Principal{
-      id: token.id,
-      version: token.version,
-      subject_id: token.subject_id,
-      kind: "token",
-      seq: nil,
-      hash: nil,
-      value:
-        %{
-          value: token.value,
-          usage: token.usage,
-          expiry: Date.to_iso8601(token.expiry)
-        }
-        |> DN.to_string()
-        |> AES.encrypt()
-        |> Base.encode64()
-    }
+    attrs
+    |> Map.merge(
+         %{
+           kind: "token",
+           value:
+             %{
+               value: attrs.value,
+               usage: attrs.usage,
+               expiry: Date.to_iso8601(attrs.expiry)
+             }
+             |> DN.to_string()
+             |> AES.encrypt()
+             |> Base.encode64()
+         }
+       )
+    |> Principal.changeset()
   end
 
   def from_principal(%Principal{} = p) do

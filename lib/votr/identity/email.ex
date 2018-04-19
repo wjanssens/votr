@@ -35,25 +35,20 @@ defmodule Votr.Identity.Email do
 
   def changeset(attrs \\ %{}) do
     %Email{}
-    |> cast(attrs, [:subject_id, :seq, :address, :label, :failures])
-    |> validate_required([:subject_id, :seq, :address, :failures])
+    |> cast(attrs, [:seq, :address, :label, :failures])
+    |> validate_required([:seq, :address, :failures])
     |> validate_inclusion(:label, ["home", "work", "other"])
-
-    value =
-      %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
-      |> DN.to_string()
-      |> AES.encrypt()
-      |> Base.encode64()
-
-    hash = :crypto.hash(:sha512, attrs.address)
-           |> Base.encode64
 
     attrs
     |> Map.merge(
          %{
            kind: "email",
-           value: value,
-           hash: hash
+           value: %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
+                  |> DN.to_string()
+                  |> AES.encrypt()
+                  |> Base.encode64(),
+           hash: :crypto.hash(:sha512, attrs.address)
+                 |> Base.encode64
          }
        )
     |> Principal.changeset()

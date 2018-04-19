@@ -33,23 +33,19 @@ defmodule Votr.Identity.Password do
     |> Password.from_principal()
   end
 
-  def changeset(%Password{} = password, attrs \\ %{}) do
-    password
-    |> cast(attrs, [:subject_id, :password])
-    |> validate_required([:subject_id, :password])
-    |> Map.update(:version, 0, &(&1 + 1))
-    |> to_principal
-  end
+  def changeset(attrs \\ %{}) do
+    %Password{}
+    |> cast(attrs, [:password])
+    |> validate_required([:password])
 
-  def to_principal(%Password{} = password) do
-    %Principal{
-      id: password.id,
-      subject_id: password.subject_id,
-      kind: "password",
-      seq: nil,
-      hash: nil,
-      value: hash(password.password)
-    }
+    attrs
+    |> Map.merge(
+         %{
+           kind: "password",
+           value: hash(attrs.password)
+         }
+       )
+    |> Principal.changeset()
   end
 
   def from_principal(%Principal{} = p) do
@@ -71,7 +67,7 @@ defmodule Votr.Identity.Password do
       :argon2 ->
         argon2(plaintext, opts)
 
-      true ->
+      :bcrypt ->
         bcrypt(plaintext, opts)
     end
   end
@@ -81,7 +77,8 @@ defmodule Votr.Identity.Password do
     salt_len = Map.get(opts, :salt_len, 16)
     salt = :crypto.strong_rand_bytes(salt_len)
     hash = :crypto.hash(digest, plaintext <> salt)
-    scheme = ("S" <> digest) |> Atom.to_string()
+    scheme = ("S" <> digest)
+             |> Atom.to_string()
     "$#{scheme}$#{Base.encode64(salt)}$#{Base.encode64(hash)}"
   end
 
@@ -121,7 +118,9 @@ defmodule Votr.Identity.Password do
   defp verify_ldap(plaintext, hash) do
     [scheme, salt, hash] = String.split(hash, ~r{\$})
     salt = Base.decode64(salt)
-    digest = scheme |> String.slice(1..-1) |> String.to_atom()
+    digest = scheme
+             |> String.slice(1..-1)
+             |> String.to_atom()
     hash == :crypto.hash(digest, plaintext <> salt)
   end
 
