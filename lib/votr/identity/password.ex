@@ -12,9 +12,6 @@ defmodule Votr.Identity.Password do
   alias Votr.Repo
   alias Votr.Identity.Password
   alias Votr.Identity.Principal
-  alias Argon2
-  alias Bcrypt
-  alias Pbkdf2
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -22,12 +19,12 @@ defmodule Votr.Identity.Password do
     field(:password, :string)
   end
 
-  def delete_all(subject_id) do
+  def delete_by_subject_id(subject_id) do
     from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
     |> Repo.delete_all()
   end
 
-  def select_one(subject_id) do
+  def select_by_subject_id(subject_id) do
     from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
     |> Repo.one()
     |> Password.from_principal()

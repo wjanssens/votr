@@ -15,75 +15,73 @@ defmodule Votr.Api.SubjectsController do
 
   # register for a new account
   def create(conn, %{"username" => username, "password" => password}) do
-    shard = FlexId.make_partition(username)
-    subject_id = FlexId.generate(:id_generator, shard)
+    case Email.select_by_address(username) do
+      {:ok, email} ->
+        conn
+        |> put_status(409)
+        |> json(
+             %{
+               success: false,
+               error: "already_exists",
+               message: "A user with this email address already exists."
+             }
+           )
+      {:error, :not_found} ->
+        shard = FlexId.make_partition(username)
+        subject_id = FlexId.generate(:id_generator, shard)
 
-    existing = Email.select(username)
+        case Repo.transaction(
+               fn ->
+                 %Subject{
+                   id: subject_id
+                 }
+                 |> Repo.insert!()
 
-    if is_nil(existing) do
-      case Repo.transaction(
-             fn ->
-               %Subject{
-                 id: subject_id
-               }
-               |> Repo.insert!()
+                 email_id = FlexId.generate(:id_generator, shard)
+                 Email.changeset(%Email{},
+                   %{
+                     id: email_id,
+                     subject_id: subject_id,
+                     seq: 1,
+                     address: username,
+                     label: "other",
+                     state: "invalid"
+                   }
+                 )
+                 |> Repo.insert!()
 
-               Email.changeset(%{
-                 id: FlexId.generate(:id_generator, shard),
-                 subject_id: subject_id,
-                 seq: 1,
-                 address: username,
-                 label: "other",
-                 failures: 0
-               })
-               |> Repo.insert!()
+                 Password.changeset(%Password{},
+                   %{
+                     id: FlexId.generate(:id_generator, shard),
+                     subject_id: subject_id,
+                     password: password
+                   }
+                 )
+                 |> Repo.insert!()
 
-               Password.changeset(%{
-                 id: FlexId.generate(:id_generator, shard),
-                 subject_id: subject_id,
-                 password: password
-               })
-               |> Repo.insert!()
-
-               Token.changeset(%{
-                 id: FlexId.generate(:id_generator, shard),
-                 subject_id: subject_id,
-                 usage: "email",
-                 value: username,
-                 expiry:
-                   Timex.now()
-                   |> Timex.add(Timex.Duration.from_days(4))
-                   |> Timex.to_datetime()
-               })
-               |> Repo.insert!()
-             end
-           ) do
-        {:ok, _} ->
-          conn
-          |> Plug.Conn.send_resp(
-               201,
-               %{
-                 success: true
-               }
-             )
-        {:error, _} ->
-          conn
-          |> Plug.Conn.send_resp(
-               409,
-               %{
-                 success: false
-               }
-             )
-      end
-
-
-    else
-      response = %{
-        success: false,
-        message: "A user with this email address already exists."
-      }
-      conn
-      |> Plug.Conn.send_resp(400, response)
+                 Token.changeset(%Token{},
+                   %{
+                     id: FlexId.generate(:id_generator, shard),
+                     subject_id: subject_id,
+                     usage: "email",
+                     value: email_id,
+                     expiry:
+                       Timex.now()
+                       |> Timex.add(Timex.Duration.from_days(4))
+                       |> Timex.to_datetime()
+                   }
+                 )
+                 |> Repo.insert!()
+               end
+             ) do
+          {:ok, _} ->
+            conn
+            |> put_status(201)
+            |> json(%{success: true})
+          {:error, _} ->
+            conn
+            |> put_status(409)
+            |> json(%{success: false, error: "conflict"})
+        end
     end
   end
-end

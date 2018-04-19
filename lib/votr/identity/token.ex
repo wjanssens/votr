@@ -24,53 +24,55 @@ defmodule Votr.Identity.Token do
     field(:expiry, :utc_datetime)
   end
 
-  def select(id) do
-    """
-    select * from principal
-    where id = 'token' and id = $1
-    """
-    |> Votr.Repo.get(Principal, id)
-    |> from_principal
+  def select_by_id(id) do
+    case from(Principal)
+         |> where([kind: "token", id: ^id])
+         |> Repo.all
+         |> Enum.map(&Token.from_principal(&1))
+         |> Enum.at(0, nil)
+      do
+      nil -> {:error, :not_found}
+      email -> {:ok, email}
+    end
+
+    def changeset(attrs) do
+      %Token{}
+      |> cast(attrs, [:usage, :value, :expiry])
+      |> validate_required([:usage])
+      |> validate_inclusion(:usage, ["email", "password", "totp"])
+
+      attrs
+      |> Map.merge(
+           %{
+             kind: "token",
+             value:
+               %{
+                 value: attrs.value,
+                 usage: attrs.usage,
+                 expiry: Date.to_iso8601(attrs.expiry)
+               }
+               |> DN.to_string()
+               |> AES.encrypt()
+               |> Base.encode64()
+           }
+         )
+      |> Principal.changeset()
+    end
+
+    def from_principal(%Principal{} = p) do
+      dn =
+        p.value
+        |> Base.decode64()
+        |> AES.decrypt()
+        |> DN.from_string()
+
+      %Token{
+        id: p.id,
+        subject_id: p.subject_id,
+        version: p.version,
+        value: dn.value,
+        usage: dn.usage,
+        expiry: Date.from_iso8601(dn.expiry)
+      }
+    end
   end
-
-  def changeset(attrs) do
-    %Token{}
-    |> cast(attrs, [:usage, :value, :expiry])
-    |> validate_required([:usage])
-    |> validate_inclusion(:usage, ["email", "password", "totp"])
-
-    attrs
-    |> Map.merge(
-         %{
-           kind: "token",
-           value:
-             %{
-               value: attrs.value,
-               usage: attrs.usage,
-               expiry: Date.to_iso8601(attrs.expiry)
-             }
-             |> DN.to_string()
-             |> AES.encrypt()
-             |> Base.encode64()
-         }
-       )
-    |> Principal.changeset()
-  end
-
-  def from_principal(%Principal{} = p) do
-    dn =
-      p.value
-      |> Base.decode64()
-      |> AES.decrypt()
-      |> DN.from_string()
-
-    %Token{
-      id: p.id,
-      subject_id: p.subject_id,
-      version: p.version,
-      value: dn.value,
-      usage: dn.usage,
-      expiry: Date.from_iso8601(dn.expiry)
-    }
-  end
-end

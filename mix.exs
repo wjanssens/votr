@@ -47,7 +47,8 @@ defmodule Votr.Mixfile do
       {:timex, "~> 3.1"},
       {:argon2_elixir, "~> 1.2"},
       {:bcrypt_elixir, "~> 1.0.6"},
-      {:pbkdf2_elixir, "~> 0.12.3"}
+      {:pbkdf2_elixir, "~> 0.12.3"},
+      {:ok, "~> 1.9.4"}
     ]
   end
 

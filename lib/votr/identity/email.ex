@@ -18,26 +18,42 @@ defmodule Votr.Identity.Email do
     field(:seq, :integer)
     field(:address, :string)
     field(:label, :string)
-    field(:failures, :integer)
+    field(:state, :string)
   end
 
-  def select(address) do
+  def select_by_id(id) do
+    case Repo.get(Principal, ^id)
+      do
+      nil ->
+        {:error, :not_found}
+      email ->
+        {:ok, Email.from_principal(email)}
+    end
+  end
+
+  def select_by_address(address) do
     hash = :crypto.hash(:sha256, address)
            |> Base.encode64
 
-    from(Principal)
-    |> where(hash: ^hash)
-    |> Repo.all
-    |> Enum.map(&Email.from_principal(&1))
-    |> Enum.filter(fn e -> e.address == address end)
-    |> Enum.at(0, nil)
+    case from(Principal)
+         |> where(hash: ^hash)
+         |> Repo.all
+         |> Enum.map(&Email.from_principal(&1))
+         |> Enum.filter(fn e -> e.address == address end)
+         |> Enum.at(0, nil)
+      do
+      nil -> {:error, :not_found}
+      email -> {:ok, email}
+    end
+
   end
 
   def changeset(attrs \\ %{}) do
     %Email{}
-    |> cast(attrs, [:seq, :address, :label, :failures])
-    |> validate_required([:seq, :address, :failures])
+    |> cast(attrs, [:seq, :address, :label, :state])
+    |> validate_required([:seq, :address, :state])
     |> validate_inclusion(:label, ["home", "work", "other"])
+    |> validate_inclusion(:state, ["invalid", "valid"])
 
     attrs
     |> Map.merge(
@@ -66,7 +82,7 @@ defmodule Votr.Identity.Email do
       subject_id: p.subject_id,
       address: dn.address,
       label: dn.label,
-      failures: String.to_integer(dn.failures),
+      state: dn.state,
       seq: p.seq
     }
   end
