@@ -16,7 +16,7 @@ defmodule Votr.Api.SubjectsController do
   # register for a new account
   def create(conn, %{"username" => username, "password" => password}) do
     case Email.select_by_address(username) do
-      {:ok, email} ->
+      {:ok, _} ->
         conn
         |> put_status(409)
         |> json(
@@ -31,11 +31,11 @@ defmodule Votr.Api.SubjectsController do
                fn ->
                  {:ok, subject} = Subject.insert(username)
                  {:ok, email} = Email.insert(subject.id, username)
-                 {:ok, _} = Password.insert(subject.id, password)
+                 {:ok, _} = Password.insert(subject.id, Password.hash(password))
                  token_expiry = Timex.now()
                                 |> Timex.add(Timex.Duration.from_days(2))
                                 |> Timex.to_datetime()
-                 {:ok, _} = Token.insert(subject.id, "email", email.id, token_expiry)
+                 {:ok, _} = Token.insert(subject.id, "email", Integer.to_string(email.id), token_expiry)
                end
              ) do
           {:ok, _} ->

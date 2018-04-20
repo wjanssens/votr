@@ -15,7 +15,7 @@ defmodule Votr.Identity.Password do
   embedded_schema do
     field(:subject_id, :integer)
     field(:version, :integer)
-    field(:password, :string)
+    field(:hash, :string)
   end
 
   def delete_by_subject_id(subject_id) do
@@ -29,10 +29,10 @@ defmodule Votr.Identity.Password do
     |> Password.from_principal()
   end
 
-  def insert(subject_id, password) do
+  def insert(subject_id, hash) do
     %Password{
       subject_id: subject_id,
-      password: password
+      hash: hash
     }
     |> insert()
   end
@@ -47,7 +47,7 @@ defmodule Votr.Identity.Password do
       id: p.id,
       subject_id: p.subject_id,
       kind: "password",
-      value: p.value
+      value: p.hash
     }
   end
 
@@ -55,7 +55,7 @@ defmodule Votr.Identity.Password do
     %Password{
       id: p.id,
       subject_id: p.subject_id,
-      password: p.value
+      hash: p.value
     }
   end
 

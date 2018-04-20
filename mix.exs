@@ -43,7 +43,7 @@ defmodule Votr.Mixfile do
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5.2"},
       {:flexid, "~> 0.1.1"},
-      {:hashids, "~> 1.0.0"},
+      {:hashids, "~> 2.0.4"},
       {:timex, "~> 3.1"},
       {:argon2_elixir, "~> 1.2"},
       {:bcrypt_elixir, "~> 1.0.6"},

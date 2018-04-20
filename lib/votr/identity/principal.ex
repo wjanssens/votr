@@ -61,7 +61,7 @@ defmodule Votr.Identity.Principal do
            value: value,
            hash: hash
          }
-         |> cast([], [:id, :subject_id, :version, :kind, :seq, :value, :hash])
+         |> cast(%{}, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
          |> validate_required([:id, :subject_id, :version, :kind, :value])
          |> Repo.insert() do
       {:ok, p} -> {:ok, map.(p)}

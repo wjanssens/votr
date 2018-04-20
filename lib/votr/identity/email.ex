@@ -64,16 +64,16 @@ defmodule Votr.Identity.Email do
   def from_principal(%Principal{} = p) do
     dn =
       p.value
-      |> Base.decode64()
+      |> Base.decode64!()
       |> AES.decrypt()
       |> DN.from_string()
 
     %Email{
       id: p.id,
       subject_id: p.subject_id,
-      address: dn.address,
-      label: dn.label,
-      state: dn.state,
+      address: dn["address"],
+      label: dn["label"],
+      state: dn["state"],
       seq: p.seq
     }
   end

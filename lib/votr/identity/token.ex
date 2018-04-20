@@ -62,7 +62,7 @@ defmodule Votr.Identity.Token do
   def from_principal(%Principal{} = p) do
     dn =
       p.value
-      |> Base.decode64()
+      |> Base.decode64!()
       |> AES.decrypt()
       |> DN.from_string()
 
@@ -70,9 +70,9 @@ defmodule Votr.Identity.Token do
       id: p.id,
       subject_id: p.subject_id,
       version: p.version,
-      value: dn.value,
-      usage: dn.usage,
-      expiry: Date.from_iso8601(dn.expiry)
+      value: dn["value"],
+      usage: dn["usage"],
+      expiry: Date.from_iso8601(dn["expiry"])
     }
   end
 end
