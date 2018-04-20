@@ -10,7 +10,6 @@ defmodule Votr.Identity.Token do
   - "totp": for totp enrollment
   """
   use Ecto.Schema
-  import Ecto.Changeset
   alias Votr.Identity.Token
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
@@ -25,7 +24,7 @@ defmodule Votr.Identity.Token do
   end
 
   def select(id) do
-    Principal.select(id, &from_principal)
+    Principal.select(id, &from_principal/1)
   end
 
   def insert(subject_id, usage, value, expiry) do
@@ -40,18 +39,19 @@ defmodule Votr.Identity.Token do
 
   def insert(%Token{} = t) do
     to_principal(t)
-    |> Principal.insert(&from_principal)
+    |> Principal.insert(&from_principal/1)
   end
 
   def to_principal(%Token{} = t) do
     %Principal{
       id: t.id,
-      kind: t.kind,
+      subject_id: t.subject_id,
+      kind: "token",
       value:
         %{
-          value: attrs.value,
-          usage: attrs.usage,
-          expiry: Date.to_iso8601(attrs.expiry)
+          value: t.value,
+          usage: t.usage,
+          expiry: Date.to_iso8601(t.expiry)
         }
         |> DN.to_string()
         |> AES.encrypt()

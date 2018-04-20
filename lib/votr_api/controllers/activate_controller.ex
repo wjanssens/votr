@@ -1,18 +1,12 @@
-import Ecto.Query
-
-defmodule Votr.Api.SubjectsController do
+defmodule Votr.Api.ActivateController do
   use VotrWeb, :controller
-  use Timex
-  alias Votr.Identity.Subject
   alias Votr.Identity.Email
-  alias Votr.Identity.Password
   alias Votr.Identity.Token
-  alias Votr.Repo
 
   def show(conn, %{"key" => key}) do
-    cond Token.select_using_key(key) do
+    case Token.select_using_key(key) do
       {:ok, token} ->
-        cond Email.select_by_id(String.to_integer(token.value)) do
+        case Email.select_by_id(String.to_integer(token.value)) do
           {:ok, email} ->
             Map.merge(
               email,

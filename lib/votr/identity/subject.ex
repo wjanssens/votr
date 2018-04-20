@@ -1,6 +1,6 @@
 defmodule Votr.Identity.Subject do
   use Ecto.Schema
-  import Ecto.Changeset
+  alias Votr.Identity.Subject
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]

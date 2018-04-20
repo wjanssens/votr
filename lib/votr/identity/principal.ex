@@ -1,7 +1,8 @@
 defmodule Votr.Identity.Principal do
   use Ecto.Schema
   import Ecto.Changeset
-
+  import Ecto.Query
+  alias Votr.Repo
   alias Votr.Identity.Principal
 
 
@@ -18,7 +19,7 @@ defmodule Votr.Identity.Principal do
   end
 
   def hash(value) do
-    :crypto.hash(:sha256, attrs.address)
+    :crypto.hash(:sha256, value)
     |> Base.encode64
   end
 
@@ -26,16 +27,16 @@ defmodule Votr.Identity.Principal do
     case Repo.get(Principal, id)
       do
       nil -> {:error, :not_found}
-      p -> {:ok, map(p)}
+      p -> {:ok, map.(p)}
     end
   end
 
   def select_by_hash(hash, map, filter) do
     case from(Principal)
-         |> where(hash: ^hash)
-         |> Repo.all
-         |> Enum.map(map(&1))
-         |> Enum.filter(filter(&1))
+         |> where([hash: ^hash])
+         |> Repo.all()
+         |> Enum.map(map)
+         |> Enum.filter(filter)
          |> Enum.at(0, nil)
       do
       nil -> {:error, :not_found}
@@ -51,7 +52,7 @@ defmodule Votr.Identity.Principal do
     shard = FlexId.extract_partition(:id_generator, subject_id)
     id = FlexId.generate(:id_generator, shard)
 
-    cond %Principal{
+    case %Principal{
            id: id,
            subject_id: subject_id,
            version: 0,
@@ -60,10 +61,10 @@ defmodule Votr.Identity.Principal do
            value: value,
            hash: hash
          }
-         |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
+         |> cast({}, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
          |> validate_required([:id, :subject_id, :version, :kind, :value])
          |> Repo.insert() do
-      {:ok, p} -> {:ok, map(p)}
+      {:ok, p} -> {:ok, map.(p)}
       {:error, _} -> {:error, :constraint_error}
     end
   end
@@ -72,34 +73,34 @@ defmodule Votr.Identity.Principal do
     update(p.id, p.subject_id, p.version, p.value, p.hash)
   end
 
-  def update(id, subject_id, version, value, hash, map) do
+  def update(id, version, value, hash, map) do
     case from(p in Principal)
          |> where([id: ^id])
          |> where([version: ^version])
-         |> update(
+         |> Query.update(
               set: [
-                value: ^value
+                value: value
               ]
             )
-         |> update(
+         |> Query.update(
               set: [
-                hash: ^hash
+                hash: hash
               ]
             )
-         |> update(
+         |> Query.update(
               inc: [
                 version: 1
               ]
             )
-         |> update(
+         |> Query.update(
               set: [
-                updated_at: DateTime.utc_now()
+                updated_at: Query.fragment("current_timestamp")
               ]
             )
-         |> update_all([], true)
+         |> Repo.update_all([], true)
       do
       {0, _} -> {:error, :not_found}
-      {1, p} -> {:ok, p}
+      {1, p} -> {:ok, map.(p)}
       {_, _} -> {:error, :too_many_affected}
     end
   end
@@ -116,12 +117,4 @@ defmodule Votr.Identity.Principal do
     end
   end
 
-  @doc false
-  def changeset(attrs \\ %{}) do
-    attrs = Map.update(attrs, :version, 0, &(&1 + 1))
-
-    %Principal{}
-    |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :hash, :value])
-    |> validate_required([:id, :subject_id, :version, :kind, :value])
-  end
 end

@@ -7,7 +7,6 @@ defmodule Votr.Identity.Password do
   @algo @config[:algorithm]
 
   use Ecto.Schema
-  import Ecto.Changeset
   import Ecto.Query
   alias Votr.Repo
   alias Votr.Identity.Password
@@ -38,9 +37,18 @@ defmodule Votr.Identity.Password do
     |> insert()
   end
 
-  def insert(%Token{} = t) do
-    to_principal(t)
-    |> Principal.insert(&from_principal)
+  def insert(%Password{} = p) do
+    to_principal(p)
+    |> Principal.insert(&from_principal/1)
+  end
+
+  def to_principal(%Password{} = p) do
+    %Principal{
+      id: p.id,
+      subject_id: p.subject_id,
+      kind: "password",
+      value: p.value
+    }
   end
 
   def from_principal(%Principal{} = p) do

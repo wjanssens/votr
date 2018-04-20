@@ -4,13 +4,10 @@ defmodule Votr.Identity.Email do
   Email addresses may be used to deliver ballots to voters.
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query #, only: [from: 2, where: 3]
   alias Votr.Identity.Email
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
   alias Votr.AES
-  alias Votr.Repo
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -22,11 +19,11 @@ defmodule Votr.Identity.Email do
   end
 
   def select_by_id(id) do
-    Principal.select(id, &from_principal)
+    Principal.select(id, &from_principal/1)
   end
 
   def select_by_address(address) do
-    Principal.select_by_hash(address, &from_principal, fn e -> e.address == address end)
+    Principal.select_by_hash(address, &from_principal/1, fn e -> e.address == address end)
   end
 
   def insert(subject_id, address, seq \\ 1, label \\ "other", state \\ "invalid") do
@@ -42,24 +39,24 @@ defmodule Votr.Identity.Email do
 
   def insert(%Email{} = e) do
     to_principal(e)
-    |> Principal.insert(&from_principal)
+    |> Principal.insert(&from_principal/1)
   end
 
   def update(%Email{} = e) do
     to_principal(e)
-    |> Principal.update(&from_principal)
+    |> Principal.update(&from_principal/1)
   end
 
   def to_principal(%Email{} = e) do
     %Principal{
-      id: p.id,
-      subject_id: p.subject_id,
+      id: e.id,
+      subject_id: e.subject_id,
       kind: "email",
-      value: %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
+      value: %{address: e.address, label: e.label, failures: Integer.to_string(e.failures)}
              |> DN.to_string()
              |> AES.encrypt()
              |> Base.encode64(),
-      hash: :crypto.hash(:sha256, attrs.address)
+      hash: :crypto.hash(:sha256, e.address)
             |> Base.encode64
     }
   end
