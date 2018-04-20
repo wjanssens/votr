@@ -41,87 +41,87 @@ defmodule Votr.Identity.Principal do
       nil -> {:error, :not_found}
       p -> {:ok, p}
     end
+  end
 
-    def insert(%Principal{} = principal, map \\ &(&1)) do
-      insert(principal.subject_id, principal.kind, principal.seq, principal.value, principal.hash, map) do
+  def insert(%Principal{} = principal, map \\ &(&1)) do
+    insert(principal.subject_id, principal.kind, principal.seq, principal.value, principal.hash, map)
+  end
+
+  def insert(subject_id, kind, seq, value, hash, map \\ &(&1)) do
+    shard = FlexId.extract_partition(:id_generator, subject_id)
+    id = FlexId.generate(:id_generator, shard)
+
+    cond %Principal{
+           id: id,
+           subject_id: subject_id,
+           version: 0,
+           kind: kind,
+           seq: seq,
+           value: value,
+           hash: hash
+         }
+         |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
+         |> validate_required([:id, :subject_id, :version, :kind, :value])
+         |> Repo.insert() do
+      {:ok, p} -> {:ok, map(p)}
+      {:error, _} -> {:error, :constraint_error}
     end
+  end
 
-    def insert(subject_id, kind, seq, value, hash, map \\ &(&1)) do
-      shard = FlexId.extract_partition(:id_generator, subject_id)
-      id = FlexId.generate(:id_generator, shard)
+  def update(%Principal{} = p) do
+    update(p.id, p.subject_id, p.version, p.value, p.hash)
+  end
 
-      cond %Principal{
-             id: id,
-             subject_id: subject_id,
-             version: 0,
-             kind: kind,
-             seq: seq,
-             value: value,
-             hash: hash
-           }
-           |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
-           |> validate_required([:id, :subject_id, :version, :kind, :value])
-           |> Repo.insert() do
-        {:ok, p} -> {:ok, map(p)}
-        {:error, _} -> {:error, :constraint_error}
-      end
+  def update(id, subject_id, version, value, hash, map) do
+    case from(p in Principal)
+         |> where([id: ^id])
+         |> where([version: ^version])
+         |> update(
+              set: [
+                value: ^value
+              ]
+            )
+         |> update(
+              set: [
+                hash: ^hash
+              ]
+            )
+         |> update(
+              inc: [
+                version: 1
+              ]
+            )
+         |> update(
+              set: [
+                updated_at: DateTime.utc_now()
+              ]
+            )
+         |> update_all([], true)
+      do
+      {0, _} -> {:error, :not_found}
+      {1, p} -> {:ok, p}
+      {_, _} -> {:error, :too_many_affected}
     end
+  end
 
-    def update(%Principal{} = p) do
-      update(p.id, p.subject_id, p.version, p.value, p.hash)
+  def delete(id, version) do
+    case from(Principal)
+         |> where([id: ^id])
+         |> where([version: ^version])
+         |> Repo.delete_all
+      do
+      {0, _} -> {:error, :not_found}
+      {1, _} -> {:ok, nil}
+      {_, _} -> {:error, :too_many_affected}
     end
+  end
 
-    def update(id, subject_id, version, value, hash, map) do
-      case from(p in Principal)
-           |> where([id: ^id])
-           |> where([version: ^version])
-           |> update(
-                set: [
-                  value: ^value
-                ]
-              )
-           |> update(
-                set: [
-                  hash: ^hash
-                ]
-              )
-           |> update(
-                inc: [
-                  version: 1
-                ]
-              )
-           |> update(
-                set: [
-                  updated_at: DateTime.utc_now()
-                ]
-              )
-           |> update_all([], true)
-        do
-        {0, _} -> {:error, :not_found}
-        {1, p} -> {:ok, p}
-        {_, _} -> {:error, :too_many_affected}
-      end
-    end
+  @doc false
+  def changeset(attrs \\ %{}) do
+    attrs = Map.update(attrs, :version, 0, &(&1 + 1))
 
-    def delete(id, version) do
-      case from(Principal)
-           |> where([id: ^id])
-           |> where([version: ^version])
-           |> Repo.delete_all
-        do
-        {0, _} -> {:error, :not_found}
-        {1, _} -> {:ok, nil}
-        {_, _} -> {:error, :too_many_affected}
-      end
-    end
-
-    @doc false
-    def changeset(attrs \\ %{}) do
-      attrs = Map.update(attrs, :version, 0, &(&1 + 1))
-
-      %Principal{}
-      |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :hash, :value])
-      |> validate_required([:id, :subject_id, :version, :kind, :value])
-    end
+    %Principal{}
+    |> cast(attrs, [:id, :subject_id, :version, :kind, :seq, :hash, :value])
+    |> validate_required([:id, :subject_id, :version, :kind, :value])
   end
 end
