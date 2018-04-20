@@ -97,7 +97,7 @@ defmodule Votr.Identity.Principal do
                 updated_at: fragment("current_timestamp")
               ]
             )
-         |> Repo.update_all([], true)
+         |> Repo.update_all([], returning: true)
       do
       {0, _} -> {:error, :not_found}
       {1, p} -> {:ok, map.(p)}

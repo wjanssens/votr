@@ -13,6 +13,6 @@ defmodule HashId do
   end
 
   def decode(encoded) do
-    Hashids.decode(@coder, encoded)
+    Enum.at(Hashids.decode!(@coder, encoded), 0)
   end
 end
