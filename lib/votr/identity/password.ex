@@ -30,19 +30,17 @@ defmodule Votr.Identity.Password do
     |> Password.from_principal()
   end
 
-  def changeset(attrs \\ %{}) do
-    %Password{}
-    |> cast(attrs, [:password])
-    |> validate_required([:password])
+  def insert(subject_id, password) do
+    %Password{
+      subject_id: subject_id,
+      password: password
+    }
+    |> insert()
+  end
 
-    attrs
-    |> Map.merge(
-         %{
-           kind: "password",
-           value: hash(attrs.password)
-         }
-       )
-    |> Principal.changeset()
+  def insert(%Token{} = t) do
+    to_principal(t)
+    |> Principal.insert(&from_principal)
   end
 
   def from_principal(%Principal{} = p) do

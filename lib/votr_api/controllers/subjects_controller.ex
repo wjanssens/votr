@@ -27,51 +27,15 @@ defmodule Votr.Api.SubjectsController do
              }
            )
       {:error, :not_found} ->
-        shard = FlexId.make_partition(username)
-        subject_id = FlexId.generate(:id_generator, shard)
-
         case Repo.transaction(
                fn ->
-                 %Subject{
-                   id: subject_id
-                 }
-                 |> Repo.insert!()
-
-                 email_id = FlexId.generate(:id_generator, shard)
-                 Email.changeset(%Email{},
-                   %{
-                     id: email_id,
-                     subject_id: subject_id,
-                     seq: 1,
-                     address: username,
-                     label: "other",
-                     state: "invalid"
-                   }
-                 )
-                 |> Repo.insert!()
-
-                 Password.changeset(%Password{},
-                   %{
-                     id: FlexId.generate(:id_generator, shard),
-                     subject_id: subject_id,
-                     password: password
-                   }
-                 )
-                 |> Repo.insert!()
-
-                 Token.changeset(%Token{},
-                   %{
-                     id: FlexId.generate(:id_generator, shard),
-                     subject_id: subject_id,
-                     usage: "email",
-                     value: email_id,
-                     expiry:
-                       Timex.now()
-                       |> Timex.add(Timex.Duration.from_days(4))
-                       |> Timex.to_datetime()
-                   }
-                 )
-                 |> Repo.insert!()
+                 {:ok, subject} = Subject.insert(username)
+                 {:ok, email} = Email.insert(subject.id, username)
+                 {:ok, _} = Password.insert(subject.id, password)
+                 token_expiry = Timex.now()
+                                |> Timex.add(Timex.Duration.from_days(2))
+                                |> Timex.to_datetime()
+                 {:ok, _} = Token.insert(subject.id, "email", email.id, token_expiry)
                end
              ) do
           {:ok, _} ->
@@ -85,3 +49,4 @@ defmodule Votr.Api.SubjectsController do
         end
     end
   end
+end

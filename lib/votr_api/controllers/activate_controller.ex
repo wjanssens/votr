@@ -18,8 +18,7 @@ defmodule Votr.Api.SubjectsController do
               email,
               %{valid: true}
             )
-            |> Email.changeset()
-            |> Repo.update()
+            |> Email.update()
 
             conn
             |> put_status(200)

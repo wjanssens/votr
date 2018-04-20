@@ -22,52 +22,46 @@ defmodule Votr.Identity.Email do
   end
 
   def select_by_id(id) do
-    case Repo.get(Principal, ^id)
-      do
-      nil ->
-        {:error, :not_found}
-      email ->
-        {:ok, Email.from_principal(email)}
-    end
+    Principal.select(id, &from_principal)
   end
 
   def select_by_address(address) do
-    hash = :crypto.hash(:sha256, address)
-           |> Base.encode64
-
-    case from(Principal)
-         |> where(hash: ^hash)
-         |> Repo.all
-         |> Enum.map(&Email.from_principal(&1))
-         |> Enum.filter(fn e -> e.address == address end)
-         |> Enum.at(0, nil)
-      do
-      nil -> {:error, :not_found}
-      email -> {:ok, email}
-    end
-
+    Principal.select_by_hash(address, &from_principal, fn e -> e.address == address end)
   end
 
-  def changeset(attrs \\ %{}) do
-    %Email{}
-    |> cast(attrs, [:seq, :address, :label, :state])
-    |> validate_required([:seq, :address, :state])
-    |> validate_inclusion(:label, ["home", "work", "other"])
-    |> validate_inclusion(:state, ["invalid", "valid"])
+  def insert(subject_id, address, seq \\ 1, label \\ "other", state \\ "invalid") do
+    %Email{
+      subject_id: subject_id,
+      address: address,
+      seq: seq,
+      label: label,
+      state: state
+    }
+    |> insert()
+  end
 
-    attrs
-    |> Map.merge(
-         %{
-           kind: "email",
-           value: %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
-                  |> DN.to_string()
-                  |> AES.encrypt()
-                  |> Base.encode64(),
-           hash: :crypto.hash(:sha512, attrs.address)
-                 |> Base.encode64
-         }
-       )
-    |> Principal.changeset()
+  def insert(%Email{} = e) do
+    to_principal(e)
+    |> Principal.insert(&from_principal)
+  end
+
+  def update(%Email{} = e) do
+    to_principal(e)
+    |> Principal.update(&from_principal)
+  end
+
+  def to_principal(%Email{} = e) do
+    %Principal{
+      id: p.id,
+      subject_id: p.subject_id,
+      kind: "email",
+      value: %{address: attrs.address, label: attrs.label, failures: Integer.to_string(attrs.failures)}
+             |> DN.to_string()
+             |> AES.encrypt()
+             |> Base.encode64(),
+      hash: :crypto.hash(:sha256, attrs.address)
+            |> Base.encode64
+    }
   end
 
   def from_principal(%Principal{} = p) do

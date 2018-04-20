@@ -8,10 +8,13 @@ defmodule Votr.Identity.Subject do
     timestamps()
   end
 
-  @doc false
-  def changeset(subject, attrs) do
-    subject
-    |> cast(attrs, [])
-    |> validate_required([])
+  def insert(username) do
+    shard = FlexId.make_partition(username)
+    id = FlexId.generate(:id_generator, shard)
+
+    %Subject{
+      id: id
+    }
+    |> Repo.insert()
   end
 end
