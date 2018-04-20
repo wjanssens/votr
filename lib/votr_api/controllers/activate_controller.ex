@@ -4,7 +4,9 @@ defmodule Votr.Api.ActivateController do
   alias Votr.Identity.Token
 
   def show(conn, %{"key" => key}) do
-    case Token.select_using_key(key) do
+    id = HashId.decode(key)
+
+    case Token.select(id) do
       {:ok, token} ->
         case Email.select_by_id(String.to_integer(token.value)) do
           {:ok, email} ->
@@ -34,8 +36,6 @@ defmodule Votr.Api.ActivateController do
                message: "An account activation token with this key was not found."
              }
            )
-
-
     end
   end
 end

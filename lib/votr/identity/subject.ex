@@ -1,6 +1,7 @@
 defmodule Votr.Identity.Subject do
   use Ecto.Schema
   alias Votr.Identity.Subject
+  alias Votr.Repo
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]

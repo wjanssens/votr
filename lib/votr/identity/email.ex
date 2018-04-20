@@ -44,7 +44,7 @@ defmodule Votr.Identity.Email do
 
   def update(%Email{} = e) do
     to_principal(e)
-    |> Principal.update(&from_principal/1)
+    |> Principal.change(&from_principal/1)
   end
 
   def to_principal(%Email{} = e) do
@@ -52,7 +52,7 @@ defmodule Votr.Identity.Email do
       id: e.id,
       subject_id: e.subject_id,
       kind: "email",
-      value: %{address: e.address, label: e.label, failures: Integer.to_string(e.failures)}
+      value: %{address: e.address, label: e.label, state: e.state}
              |> DN.to_string()
              |> AES.encrypt()
              |> Base.encode64(),

@@ -61,7 +61,7 @@ defmodule Votr.Identity.Principal do
            value: value,
            hash: hash
          }
-         |> cast({}, [:id, :subject_id, :version, :kind, :seq, :value, :hash])
+         |> cast([], [:id, :subject_id, :version, :kind, :seq, :value, :hash])
          |> validate_required([:id, :subject_id, :version, :kind, :value])
          |> Repo.insert() do
       {:ok, p} -> {:ok, map.(p)}
@@ -69,32 +69,32 @@ defmodule Votr.Identity.Principal do
     end
   end
 
-  def update(%Principal{} = p) do
-    update(p.id, p.subject_id, p.version, p.value, p.hash)
+  def change(%Principal{} = p, map) do
+    update(p.id, p.version, p.value, p.hash, map)
   end
 
   def update(id, version, value, hash, map) do
     case from(p in Principal)
          |> where([id: ^id])
          |> where([version: ^version])
-         |> Query.update(
+         |> update(
               set: [
-                value: value
+                value: ^value
               ]
             )
-         |> Query.update(
+         |> update(
               set: [
-                hash: hash
+                hash: ^hash
               ]
             )
-         |> Query.update(
+         |> update(
               inc: [
                 version: 1
               ]
             )
-         |> Query.update(
+         |> update(
               set: [
-                updated_at: Query.fragment("current_timestamp")
+                updated_at: fragment("current_timestamp")
               ]
             )
          |> Repo.update_all([], true)

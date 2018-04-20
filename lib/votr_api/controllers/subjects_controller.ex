@@ -7,6 +7,7 @@ defmodule Votr.Api.SubjectsController do
   alias Votr.Identity.Email
   alias Votr.Identity.Password
   alias Votr.Identity.Token
+  alias Votr.Repo
 
   def index(conn, _params) do
     json(conn, Repo.all(from(s in Subject, select: s.id)))

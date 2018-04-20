@@ -2,8 +2,6 @@ defmodule Votr.Api.SubjectsControllerTest do
   use VotrWeb.ConnCase
   use ExUnit.Case, async: true
 
-  @opts VotrWeb.Router.init([])
-
   describe "create/2" do
     test "register a new user" do
       body =

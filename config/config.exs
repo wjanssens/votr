@@ -37,9 +37,16 @@ config :votr,
        },
        default_key_id: <<1>>
 
-config :votr, Votr.Identity.Password,
+config :votr,
+       Votr.Identity.Password,
        algorithm: :argon2,
        options: []
+
+config :votr,
+       Votr.HashId,
+       alphabet: "0123456789abcdef",
+       min_length: 8,
+       salt: "WNj2wx0dl2"
 
 # Configures the endpoint
 config :votr,
