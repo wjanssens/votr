@@ -116,9 +116,15 @@ defmodule Votr.Identity.Totp do
   end
 
   def new(subject_id, algorithm \\ @algorithm, digits \\ @digits, period \\ @period) do
+    bytes = case algorithm do
+      :sha -> 20
+      :sha256 -> 32
+      :sha512 -> 64
+    end
+
     %Totp{
       subject_id: subject_id,
-      secret_key: :crypto.strong_rand_bytes(10),
+      secret_key: :crypto.strong_rand_bytes(bytes),
       scratch_codes: Enum.map(1..@scratch_codes, fn _v -> Enum.random(1_000_000..9_999_999) end),
       algorithm: algorithm,
       digits: digits,
