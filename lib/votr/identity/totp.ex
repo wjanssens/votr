@@ -3,6 +3,13 @@ defmodule Votr.Identity.Totp do
   Time-based one-time passwords may be by election officials as a form of MFA to log in.
   """
 
+  @config Application.get_env(:votr, Votr.Identity.Totp)
+  @issuer @config[:issuer]
+  @algorithm @config[:algorithm]
+  @digits @config[:digits]
+  @period @config[:period]
+  @scratch_codes @config[:scratch_codes]
+
   use Ecto.Schema
   alias Votr.Identity.Totp
   alias Votr.Identity.Principal
@@ -14,6 +21,9 @@ defmodule Votr.Identity.Totp do
     field(:version, :integer)
     field(:secret_key, :binary)
     field(:scratch_codes, {:array, :integer})
+    field(:digits, :integer)
+    field(:algorithm, :string)
+    field(:period, :integer)
   end
 
   def select(id) do
@@ -32,18 +42,18 @@ defmodule Votr.Identity.Totp do
   def verify(%Totp{} = totp, code) do
     cond do
       code < 0 -> false
-      code > 1_000_000 -> false
+      code > :math.pow(10, totp.digits) -> false
       true ->
-        t = div(DateTime.to_unix(DateTime.utc_now()), 30)
+        t = div(DateTime.to_unix(DateTime.utc_now()), totp.period)
         (t - 1)..(t + 1)
-        |> Enum.map(fn t -> calculate_code(totp.secret_key, t) end)
+        |> Enum.map(fn t -> calculate_code(t, totp.secret_key, totp.algorithm, totp.digits) end)
         |> Enum.filter(fn c -> code == c end)
         |> Enum.empty?()
         |> Kernel.not()
     end
   end
 
-  def calculate_code(secret_key, t) do
+  def calculate_code(t, secret_key, algorithm \\ @algorithm, digits \\ @digits) do
 
     # the message to be hashed is the time component as an 0-padded 8-byte bitstring
     l = t
@@ -53,16 +63,21 @@ defmodule Votr.Identity.Totp do
           |> Enum.map(fn i -> Enum.at(l, i, 0) end)
           |> :binary.list_to_bin()
 
-    hs = :crypto.hmac(:sha, secret_key, msg)
+    IO.inspect(algorithm)
+    hs = :crypto.hmac(algorithm, secret_key, msg)
 
     # extract a 31 bit value from the hash
     # the offset of the bytes to use comes from the lowest 4 bits of the last byte
-    <<_ :: binary - 19, offset :: integer>> = hs
+    IO.inspect(hs)
+
+    offset = hs
+             |> :binary.bin_to_list()
+             |> Enum.at(-1)
     offset = (offset &&& 0xF) * 8
 
     <<_ :: size(offset), code_bytes :: binary - 4, _ :: binary>> = hs
     code = :binary.decode_unsigned(code_bytes) &&& 0x7FFFFFFF
-    Integer.mod(code, 1_000_000)
+    Integer.mod(code, round(:math.pow(10, digits)))
   end
 
   def to_principal(%Totp{} = totp) do
@@ -79,49 +94,50 @@ defmodule Votr.Identity.Totp do
   end
 
   def from_principal(%Principal{} = p) do
-    {key, codes} =
+    {key, codes, algorithm, digits, period} =
       p.value
       |> Base.decode64!()
       |> AES.decrypt()
       |> String.split(";")
 
-    {secret_key, scratch_codes} =
-      {
-        Base.decode32(key),
-        codes
-        |> String.split(",")
-        |> Enum.map(fn c -> Integer.parse(c) end)
-      }
+    scratch_codes = codes
+                    |> String.split(",")
+                    |> Enum.map(&String.to_integer/1)
 
     %Totp{
       id: p.id,
       subject_id: p.subject_id,
-      secret_key: secret_key,
-      scratch_codes: scratch_codes
+      secret_key: Base.decode32(key),
+      scratch_codes: scratch_codes,
+      algorithm: String.to_atom(algorithm),
+      digits: String.to_integer(digits),
+      period: String.to_integer(period)
     }
   end
 
-  def new() do
+  def new(subject_id, algorithm \\ @algorithm, digits \\ @digits, period \\ @period) do
     %Totp{
+      subject_id: subject_id,
       secret_key: :crypto.strong_rand_bytes(10),
-      scratch_codes: Enum.map(1..10, fn _v -> Enum.random(1_000_000..9_999_999) end)
+      scratch_codes: Enum.map(1..@scratch_codes, fn _v -> Enum.random(1_000_000..9_999_999) end),
+      algorithm: algorithm,
+      digits: digits,
+      period: period
     }
   end
 
-  def new(str) do
-    [secret, scratch_codes] = String.split(str, ";")
+  def uri(%Totp{} = totp, issuer \\ @issuer) do
+    secret = Base.encode32(totp.secret_key)
+    subject = HashId.encode(totp.subject_id)
+    alg = case totp.algorithm do
+      :sha -> "SHA1"
+      :sha256 -> "SHA256"
+      :sha512 -> "SHA512"
+    end
+    iss = issuer
+    digits = totp.digits
+    period = totp.digits
 
-    %Totp{
-      secret_key: Base.decode32(secret),
-      scratch_codes: scratch_codes
-                     |> String.split(",")
-                     |> Enum.map(&String.to_integer/1)
-    }
-  end
-
-  def uri(secret_key, issuer, uid) do
-    secret = Base.encode32(secret_key)
-
-    "otpauth://totp/#{issuer}:#{uid}?secret=#{secret}&issuer=#{issuer}&algorithm=sha1&digits=6&period=30"
+    "otpauth://totp/#{iss}:#{subject}?secret=#{secret}&issuer=#{iss}&algorithm=#{alg}&digits=#{digits}&period=#{period}"
   end
 end

@@ -48,6 +48,14 @@ config :votr,
        min_length: 8,
        salt: "WNj2wx0dl2"
 
+config :votr,
+       Votr.Identity.Totp,
+       issuer: "votr.com",
+       algorithm: :sha,
+       digits: 6,
+       period: 30,
+       scratch_codes: 10
+
 # Configures the endpoint
 config :votr,
        VotrWeb.Endpoint,
