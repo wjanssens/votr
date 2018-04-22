@@ -87,7 +87,7 @@ defmodule Votr.Identity.Totp do
       kind: "totp",
       seq: nil,
       value:
-        "#{Base.encode32(totp.secret_key)};#{Enum.join(totp.scratch_codes, ",")}"
+        "#{Base.encode32(totp.secret_key)};#{Enum.join(totp.scratch_codes, ",")};#{algorithm};#{digits};#{period}"
         |> AES.encrypt()
         |> Base.encode64()
     }
