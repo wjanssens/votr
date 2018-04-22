@@ -23,11 +23,14 @@ defmodule Votr.Api.TokenController do
                   |> put_status(401)
                   |> json(%{success: false, error: "mfa_required", token: HashId.encode(totp.id)})
                 {:error, :not_found} ->
+                  jwt = JWT.generate(email.subject_id)
+
                   conn
                   |> put_status(200)
+                  |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
                   |> json(
                        %{
-                         access_token: JWT.generate(email.subject_id),
+                         access_token: jwt,
                          token_type: "Bearer",
                          expires_in: JWT.expires_in()
                        }
@@ -56,11 +59,13 @@ defmodule Votr.Api.TokenController do
           {:ok, totp} ->
             case Totp.verify(password, totp.secret_key) do
               true ->
+                jwt = JWT.generate(totp.subject_id)
                 conn
                 |> put_status(200)
+                |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
                 |> json(
                      %{
-                       access_token: JWT.generate(totp.subject_id),
+                       access_token: jwt,
                        token_type: "Bearer",
                        expires_in: JWT.expires_in()
                      }
