@@ -63,12 +63,10 @@ defmodule Votr.Identity.Totp do
           |> Enum.map(fn i -> Enum.at(l, i, 0) end)
           |> :binary.list_to_bin()
 
-    IO.inspect(algorithm)
     hs = :crypto.hmac(algorithm, secret_key, msg)
 
     # extract a 31 bit value from the hash
     # the offset of the bytes to use comes from the lowest 4 bits of the last byte
-    IO.inspect(hs)
 
     offset = hs
              |> :binary.bin_to_list()
@@ -80,14 +78,15 @@ defmodule Votr.Identity.Totp do
     Integer.mod(code, round(:math.pow(10, digits)))
   end
 
-  def to_principal(%Totp{} = totp) do
+  def to_principal(%Totp{} = t) do
     %Principal{
-      id: totp.id,
-      subject_id: totp.subject_id,
+      id: t.id,
+      subject_id: t.subject_id,
+      version: t.version,
       kind: "totp",
       seq: nil,
       value:
-        "#{Base.encode32(totp.secret_key)};#{Enum.join(totp.scratch_codes, ",")};#{algorithm};#{digits};#{period}"
+        "#{Base.encode32(t.secret_key)};#{Enum.join(t.scratch_codes, ",")};#{t.algorithm};#{t.digits};#{t.period}"
         |> AES.encrypt()
         |> Base.encode64()
     }
@@ -107,6 +106,7 @@ defmodule Votr.Identity.Totp do
     %Totp{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       secret_key: Base.decode32(key),
       scratch_codes: scratch_codes,
       algorithm: String.to_atom(algorithm),
@@ -122,19 +122,21 @@ defmodule Votr.Identity.Totp do
       :sha512 -> 64
     end
 
+    ll = :math.pow(10, digits)
+    ul = :math.pow(10, digits + 1) - 1
+
     %Totp{
       subject_id: subject_id,
       secret_key: :crypto.strong_rand_bytes(bytes),
-      scratch_codes: Enum.map(1..@scratch_codes, fn _v -> Enum.random(1_000_000..9_999_999) end),
+      scratch_codes: Enum.map(1..@scratch_codes, fn _v -> Enum.random(ll..ul) end),
       algorithm: algorithm,
       digits: digits,
       period: period
     }
   end
 
-  def uri(%Totp{} = totp, issuer \\ @issuer) do
+  def uri(%Totp{} = totp, subject, issuer \\ @issuer) do
     secret = Base.encode32(totp.secret_key)
-    subject = HashId.encode(totp.subject_id)
     alg = case totp.algorithm do
       :sha -> "SHA1"
       :sha256 -> "SHA256"
