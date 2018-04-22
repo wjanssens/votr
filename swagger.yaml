@@ -664,21 +664,27 @@ paths:
         - name: grant_type
           in: formData
           type: string
-        - name: client_id
+          enum: ["password","otp"]
+          required: true
+        - name: response_type
           in: formData
           type: string
-        - name: client_secret
+          required: false
+          enum: ["code","token"]
+        - name: state
           in: formData
           type: string
+          required: false
+          description: Used by the 'otp' grant type to maintain state between during an OTP callback.
         - name: username
           in: formData
           type: string
+          description: Used by the 'password' grant type to authenticate the resource owner.
         - name: password
           in: formData
           type: string
-        - name: redirect_uri
-          in: formData
-          type: string
+          required: false
+          description: Used by the 'password' grant type to authenticate the resource owner.
       responses:
         '200':
           description: OK
@@ -887,15 +893,24 @@ definitions:
     properties:
       success:
         type: boolean
+        required: true
         description: the value of which indicates whether a given request succeeded or failed
+      error:
+        type: string
+        enum: ["access_denied", "mfa_required", "server_error", "not_found", "conflict"]
+        required: false
+        description: contains an error code for exception handling
       message:
         type: string
+        required: false
         description: contains a response message for exception handling
       type:
         type: string
+        required: false
         description: the type of the model to be created from the data
       total:
         type: integer
+        required: false
         description: the total number of records in the dataset (when paging)
 
   token:
@@ -903,14 +918,14 @@ definitions:
     properties:
       access_token:
         type: string
+        required: true
       token_type:
         type: string
+        required: true
+        enum: ["Bearer"]
       expires_in:
         type: integer
-      refresh_token:
-        type: string
-      example_parameter:
-        type: string
+        required: true
 
   principal:
     type: object

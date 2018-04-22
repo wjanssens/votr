@@ -7,7 +7,8 @@ defmodule Votr.Identity.Token do
   - "phone": for phone number sms verification
   - "email": for new email address verification
   - "password": for password reset
-  - "totp": for totp enrollment
+  - "totp": for totp enrollment and challenge
+  - "access": for access via Bearer token
   """
   use Ecto.Schema
   alias Votr.Identity.Token

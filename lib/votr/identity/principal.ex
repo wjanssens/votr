@@ -31,16 +31,25 @@ defmodule Votr.Identity.Principal do
     end
   end
 
-  def select_by_hash(hash, map, filter) do
+  def select_by_subject_id(subject_id, kind, map \\ &(&1)) do
+    from(Principal)
+    |> where([subject_id: ^subject_id])
+    |> where([kind: ^kind])
+    |> Repo.all()
+    |> Enum.map(map)
+  end
+
+  def select_by_hash(kind, hash, map, filter) do
     case from(Principal)
          |> where([hash: ^hash])
+         |> where([kind: ^kind])
          |> Repo.all()
          |> Enum.map(map)
          |> Enum.filter(filter)
          |> Enum.at(0, nil)
       do
       nil -> {:error, :not_found}
-      p -> {:ok, p}
+      principal -> {:ok, principal}
     end
   end
 

@@ -2,11 +2,12 @@ defmodule Votr.Identity.Totp do
   @moduledoc """
   Time-based one-time passwords may be by election officials as a form of MFA to log in.
   """
+
   use Ecto.Schema
-  import Ecto.Changeset
   alias Votr.Identity.Totp
   alias Votr.Identity.Principal
   alias Votr.AES
+  import Bitwise
 
   embedded_schema do
     field(:subject_id, :integer)
@@ -15,12 +16,53 @@ defmodule Votr.Identity.Totp do
     field(:scratch_codes, {:array, :integer})
   end
 
-  def changeset(%Totp{} = totp, attrs) do
-    totp
-    |> cast(attrs, [:subject_id, :secret_key, :scratch_codes])
-    |> validate_required([:subject_id, :secret_key, :scratch_codes])
-    |> Map.update(:version, 0, &(&1 + 1))
-    |> to_principal
+  def select(id) do
+    Principal.select(id, &from_principal/1)
+  end
+
+  def select_by_subject_id(subject_id) do
+    case Principal.select_by_subject_id(subject_id, "totp", &from_principal/1)
+         |> Enum.at(0)
+      do
+      nil -> {:error, :not_found}
+      totp -> {:ok, totp}
+    end
+  end
+
+  def verify(%Totp{} = totp, code) do
+    cond do
+      code < 0 -> false
+      code > 1_000_000 -> false
+      true ->
+        t = div(DateTime.to_unix(DateTime.utc_now()), 30)
+        (t - 1)..(t + 1)
+        |> Enum.map(fn t -> calculate_code(totp.secret_key, t) end)
+        |> Enum.filter(fn c -> code == c end)
+        |> Enum.empty?()
+        |> Kernel.not()
+    end
+  end
+
+  def calculate_code(secret_key, t) do
+
+    # the message to be hashed is the time component as an 0-padded 8-byte bitstring
+    l = t
+        |> :binary.encode_unsigned()
+        |> :binary.bin_to_list()
+    msg = -8..-1
+          |> Enum.map(fn i -> Enum.at(l, i, 0) end)
+          |> :binary.list_to_bin()
+
+    hs = :crypto.hmac(:sha, secret_key, msg)
+
+    # extract a 31 bit value from the hash
+    # the offset of the bytes to use comes from the lowest 4 bits of the last byte
+    <<_ :: binary - 19, offset :: integer>> = hs
+    offset = (offset &&& 0xF) * 8
+
+    <<_ :: size(offset), code_bytes :: binary - 4, _ :: binary>> = hs
+    code = :binary.decode_unsigned(code_bytes) &&& 0x7FFFFFFF
+    Integer.mod(code, 1_000_000)
   end
 
   def to_principal(%Totp{} = totp) do
@@ -39,12 +81,17 @@ defmodule Votr.Identity.Totp do
   def from_principal(%Principal{} = p) do
     {key, codes} =
       p.value
-      |> Base.decode64()
+      |> Base.decode64!()
       |> AES.decrypt()
       |> String.split(";")
 
     {secret_key, scratch_codes} =
-      {Base.decode32(key), codes |> String.split(",") |> Enum.map(fn c -> Integer.parse(c) end)}
+      {
+        Base.decode32(key),
+        codes
+        |> String.split(",")
+        |> Enum.map(fn c -> Integer.parse(c) end)
+      }
 
     %Totp{
       id: p.id,
@@ -66,7 +113,9 @@ defmodule Votr.Identity.Totp do
 
     %Totp{
       secret_key: Base.decode32(secret),
-      scratch_codes: scratch_codes |> String.split(",") |> Enum.map(&String.to_integer/1)
+      scratch_codes: scratch_codes
+                     |> String.split(",")
+                     |> Enum.map(&String.to_integer/1)
     }
   end
 

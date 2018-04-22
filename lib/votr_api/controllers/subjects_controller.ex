@@ -1,5 +1,3 @@
-import Ecto.Query
-
 defmodule Votr.Api.SubjectsController do
   use VotrWeb, :controller
   use Timex
@@ -8,10 +6,6 @@ defmodule Votr.Api.SubjectsController do
   alias Votr.Identity.Password
   alias Votr.Identity.Token
   alias Votr.Repo
-
-  def index(conn, _params) do
-    json(conn, Repo.all(from(s in Subject, select: s.id)))
-  end
 
   # register for a new account
   def create(conn, %{"username" => username, "password" => password}) do
