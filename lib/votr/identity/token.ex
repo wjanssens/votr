@@ -47,6 +47,7 @@ defmodule Votr.Identity.Token do
     %Principal{
       id: t.id,
       subject_id: t.subject_id,
+      version: t.version,
       kind: "token",
       value:
         %{

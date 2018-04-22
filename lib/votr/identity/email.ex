@@ -51,6 +51,7 @@ defmodule Votr.Identity.Email do
     %Principal{
       id: e.id,
       subject_id: e.subject_id,
+      version: e.version,
       kind: "email",
       value: %{address: e.address, label: e.label, state: e.state}
              |> DN.to_string()
@@ -71,6 +72,7 @@ defmodule Votr.Identity.Email do
     %Email{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       address: dn["address"],
       label: dn["label"],
       state: dn["state"],

@@ -109,7 +109,7 @@ defmodule Votr.Identity.Principal do
          |> Repo.update_all([], returning: true)
       do
       {0, _} -> {:error, :not_found}
-      {1, p} -> {:ok, map.(p)}
+      {1, p} -> {:ok, map.(Enum.at(p, 0))}
       {_, _} -> {:error, :too_many_affected}
     end
   end
