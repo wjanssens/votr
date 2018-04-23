@@ -21,6 +21,10 @@ defmodule Votr.JWT do
     )
   end
 
+  def verify(nil) do
+    {:error, :invalid}
+  end
+
   def verify(jwt) do
     case JsonWebToken.verify(jwt, %{key: @key}) do
       {:ok, claims} ->
