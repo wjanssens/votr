@@ -38,6 +38,11 @@ config :votr,
        default_key_id: <<1>>
 
 config :votr,
+       Votr.JWT,
+       key: "gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C",
+       exp_sec: 3600
+
+config :votr,
        Votr.Identity.Password,
        algorithm: :argon2,
        options: []

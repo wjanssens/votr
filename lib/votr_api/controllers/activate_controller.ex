@@ -3,6 +3,7 @@ defmodule Votr.Api.ActivateController do
   alias Votr.Identity.Email
   alias Votr.Identity.Token
   alias Votr.Identity.Principal
+  alias Votr.HashId
   require OK
 
   def show(conn, %{"id" => id}) do

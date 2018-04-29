@@ -1,4 +1,6 @@
 defmodule Votr.JWT do
+  alias Votr.HashId
+
   @config Application.get_env(:votr, Votr.JWT)
   @key @config[:key]
   @exp_sec @config[:exp_sec]
@@ -10,6 +12,7 @@ defmodule Votr.JWT do
   def generate(subject_id) do
     now = DateTime.utc_now()
           |> DateTime.to_unix()
+
     JsonWebToken.sign(
       %{
         sub: HashId.encode(subject_id),

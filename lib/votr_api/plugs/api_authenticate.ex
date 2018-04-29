@@ -2,6 +2,7 @@ defmodule Votr.Plug.ApiAuthenticate do
   import Plug.Conn
 
   alias Votr.JWT
+  alias Votr.HashId
 
   def init(default), do: default
 
@@ -11,14 +12,16 @@ defmodule Votr.Plug.ApiAuthenticate do
       |> fetch_query_params()
       |> fetch_cookies()
 
-    authorization = get_req_header(conn, "authentication")
+    authorization = Enum.at(get_req_header(conn, "authentication"), 0)
     cookie = conn.params["auth_token"]
 
     jwt = cond do
-      authorization != nil -> authorization
+      authorization != nil -> Enum.at(String.split(authorization, " ", parts: 2), 1)
       cookie == nil -> cookie
       true -> nil
     end
+
+    # TODO verify that the subject is authorized
 
     case JWT.verify(jwt) do
       {:error, :invalid} ->
@@ -28,7 +31,7 @@ defmodule Votr.Plug.ApiAuthenticate do
         |> halt
       {:ok, subject_id} ->
         conn
-        |> assign(:subject_id, subject_id)
+        |> assign(:subject_id, HashId.decode(subject_id))
     end
   end
 end

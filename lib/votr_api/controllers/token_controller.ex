@@ -4,6 +4,7 @@ defmodule Votr.Api.TokenController do
   alias Votr.Identity.Password
   alias Votr.Identity.Totp
   alias Votr.JWT
+  alias Votr.HashId
   require OK
 
   def create(conn, %{"grant_type" => grant_type, "username" => username, "password" => password}) do

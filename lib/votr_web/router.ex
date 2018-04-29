@@ -17,6 +17,7 @@ defmodule VotrWeb.Router do
   pipeline :api_authenticated do
     plug(:accepts, ["json"])
     plug(Votr.Plug.ApiAuthenticate)
+    #plug(:protect_from_forgery)
   end
 
   scope "/", VotrWeb do
@@ -38,7 +39,7 @@ defmodule VotrWeb.Router do
   scope "/api/admin", Votr.Api do
     pipe_through(:api_authenticated)
 
-    resources("/wards", WardController, only: [:index, :create, :update, :delete])
+    resources("/wards", WardsController, only: [:index, :create, :update, :delete])
     resources("/wards/:id/voters", VotersController, only: [:index, :create])
     put("/wards/:id/voters", VotersController, :replace)
     resources("/ballots/:id", BallotController, only: [:update, :delete])

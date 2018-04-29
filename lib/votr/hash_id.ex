@@ -1,4 +1,4 @@
-defmodule HashId do
+defmodule Votr.HashId do
   @moduledoc false
 
   @config Application.get_env(:votr, Votr.HashId)

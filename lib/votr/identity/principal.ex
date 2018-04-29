@@ -74,7 +74,7 @@ defmodule Votr.Identity.Principal do
          |> validate_required([:id, :subject_id, :version, :kind, :value])
          |> Repo.insert() do
       {:ok, p} -> {:ok, map.(p)}
-      {:error, _} -> {:error, :constraint_error}
+      {:error, _} -> {:error, :constraint_violation}
     end
   end
 
