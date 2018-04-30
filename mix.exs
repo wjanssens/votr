@@ -48,7 +48,6 @@ defmodule Votr.Mixfile do
       {:argon2_elixir, "~> 1.2"},
       {:bcrypt_elixir, "~> 1.0.6"},
       {:pbkdf2_elixir, "~> 0.12.3"},
-      {:ok, "~> 1.9.4"},
       {:json_web_token, "~> 0.2.10"}
 
     ]

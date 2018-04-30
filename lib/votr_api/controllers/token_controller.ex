@@ -5,15 +5,12 @@ defmodule Votr.Api.TokenController do
   alias Votr.Identity.Totp
   alias Votr.JWT
   alias Votr.HashId
-  require OK
 
   def create(conn, %{"grant_type" => grant_type, "username" => username, "password" => password}) do
     case grant_type do
       "password" ->
-        OK.try do
-          email <- Email.select_by_address(username)
-          expected <- Password.select_by_subject_id(email.subject_id)
-        after
+        with {:ok, email} <- Email.select_by_address(username),
+             {:ok, expected} <- Password.select_by_subject_id(email.subject_id) do
           case Password.verify(password, expected.hash) do
             true ->
               # valid password
@@ -45,7 +42,7 @@ defmodule Votr.Api.TokenController do
               |> put_status(401)
               |> json(%{success: false, error: "unauthorized"})
           end
-        rescue
+        else
           # email and/or password were not found
           _ ->
             conn
