@@ -40,12 +40,16 @@ config :votr,
 config :votr,
        Votr.JWT,
        key: "gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C",
-       exp_sec: 3600
+       exp_sec: 7200
 
 config :votr,
        Votr.Identity.Password,
        algorithm: :argon2,
        options: []
+
+config :votr,
+       Votr.Identity.Controls,
+       lock_sec: 3600
 
 config :votr,
        Votr.HashId,

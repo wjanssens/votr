@@ -3,6 +3,8 @@ defmodule Votr.Plug.ApiAuthenticate do
 
   alias Votr.JWT
   alias Votr.HashId
+  alias Votr.Identity.Controls
+  alias Votr.Identity.Email
 
   def init(default), do: default
 
@@ -21,17 +23,18 @@ defmodule Votr.Plug.ApiAuthenticate do
       true -> nil
     end
 
-    # TODO verify that the subject is authorized
-
-    case JWT.verify(jwt) do
-      {:error, :invalid} ->
+    with {:ok, sub} <- JWT.verify(jwt),
+         subject_id <- HashId.decode(sub),
+         {:ok, _} <- Controls.verify(subject_id),
+         {:ok, _} <- Email.select_valid_by_subject_id(subject_id) do
+      conn
+      |> assign(:subject_id, subject_id)
+    else
+      _ ->
         conn
         |> put_status(401)
-        |> Phoenix.Controller.json(%{success: false, error: "unauthorized", message: "Invalid authentication token"})
+        |> Phoenix.Controller.json(%{success: false, error: "unauthorized"})
         |> halt
-      {:ok, subject_id} ->
-        conn
-        |> assign(:subject_id, HashId.decode(subject_id))
     end
   end
 end

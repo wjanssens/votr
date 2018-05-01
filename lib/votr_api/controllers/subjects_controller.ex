@@ -4,6 +4,7 @@ defmodule Votr.Api.SubjectsController do
   alias Votr.Identity.Subject
   alias Votr.Identity.Email
   alias Votr.Identity.Password
+  alias Votr.Identity.Controls
   alias Votr.Identity.Token
   alias Votr.Repo
 
@@ -23,13 +24,16 @@ defmodule Votr.Api.SubjectsController do
       {:error, :not_found} ->
         case Repo.transaction(
                fn ->
-                 {:ok, subject} = Subject.insert(username)
-                 {:ok, email} = Email.insert(subject.id, username)
-                 {:ok, _} = Password.insert(subject.id, Password.hash(password))
-                 token_expiry = Timex.now()
-                                |> Timex.add(Timex.Duration.from_days(2))
-                                |> Timex.to_datetime()
-                 {:ok, _} = Token.insert(subject.id, "email", Integer.to_string(email.id), token_expiry)
+                 with {:ok, subject} = Subject.insert(username),
+                      {:ok, email} = Email.insert(subject.id, username),
+                      {:ok, _} = Password.insert(subject.id, Password.hash(password)),
+                      {:ok, _} = Controls.insert(%Controls{subject_id: subject.id, failures: 0}),
+                      token_expiry = Timex.now()
+                                     |> Timex.add(Timex.Duration.from_days(2))
+                                     |> Timex.to_datetime(),
+                      {:ok, _} = Token.insert(subject.id, "email", Integer.to_string(email.id), token_expiry) do
+                   # TODO send the user an email
+                 end
                end
              ) do
           {:ok, _} ->

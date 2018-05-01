@@ -36,14 +36,13 @@ defmodule Votr.Api.AuthenticationTest do
 
     # unauthenticated request for an activated subject
     build_conn()
-    |> put_req_header("authentication", "Bearer " <> jwt)
-    |> get("/api/wards")
+    |> get("/api/admin/wards")
     |> json_response(401)
 
     # authenticated request for an activated subject
     build_conn()
     |> put_req_header("authentication", "Bearer " <> jwt)
-    |> get("/api/wards")
+    |> get("/api/admin/wards")
     |> json_response(200)
 
   end

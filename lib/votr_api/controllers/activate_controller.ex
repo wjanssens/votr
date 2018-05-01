@@ -8,10 +8,7 @@ defmodule Votr.Api.ActivateController do
   def show(conn, %{"id" => id}) do
     with {:ok, token} <- Token.select(HashId.decode(id)),
          {:ok, email} <- Email.select_by_id(String.to_integer(token.value)),
-         _ <- Map.merge(
-                email,
-                %{valid: true}
-              )
+         _ <- Map.put(email, :state, "valid")
               |> Email.update(),
          _ <- Principal.delete(token.id, token.version) do
       conn

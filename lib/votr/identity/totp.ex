@@ -40,7 +40,7 @@ defmodule Votr.Identity.Totp do
   end
 
   def verify(%Totp{} = totp, code) do
-    cond do
+    valid = cond do
       code < 0 -> false
       code > :math.pow(10, totp.digits) -> false
       true ->
@@ -51,6 +51,8 @@ defmodule Votr.Identity.Totp do
         |> Enum.empty?()
         |> Kernel.not()
     end
+
+    if valid, do: {:ok, :valid}, else: {:error, :invalid}
   end
 
   def calculate_code(t, secret_key, algorithm \\ @algorithm, digits \\ @digits) do

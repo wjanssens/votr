@@ -97,25 +97,28 @@ defmodule Votr.Identity.Password do
     Bcrypt.hash_pwd_salt(plaintext, opts)
   end
 
-  def verify(plaintext, hash) do
-    [scheme | _rest] = String.split(hash, ~r{\$})
+  def verify(subject_id, plaintext) do
+    with {:ok, password} <- Password.select_by_subject_id(subject_id) do
+      [scheme | _rest] = String.split(password.hash, ~r{\$})
 
-    cond do
-      Enum.member?(["smd5", "ssha", "ssha224", "ssha256", "ssha384", "ssha512"], scheme) ->
-        verify_ldap(plaintext, hash)
+      valid = cond do
+        Enum.member?(["smd5", "ssha", "ssha224", "ssha256", "ssha384", "ssha512"], scheme) ->
+          verify_ldap(plaintext, password.hash)
 
-      Enum.member?(["argon2d", "argon2i", "argon2id"], scheme) ->
-        verify_argon2(plaintext, hash)
+        Enum.member?(["argon2d", "argon2i", "argon2id"], scheme) ->
+          verify_argon2(plaintext, password.hash)
 
-      Enum.member?(["2a", "2b"], scheme) ->
-        verify_bcrypt(plaintext, hash)
+        Enum.member?(["2a", "2b"], scheme) ->
+          verify_bcrypt(plaintext, password.hash)
 
-      String.match?(scheme, ~r{pbkdf2-}) ->
-        verify_pbkdf2(plaintext, hash)
+        String.match?(scheme, ~r{pbkdf2-}) ->
+          verify_pbkdf2(plaintext, password.hash)
 
-      true ->
-        false
-    end
+        true ->
+          false
+      end
+
+      if valid, do: {:ok, :valid}, else: {:error, :invalid} end
   end
 
   defp verify_ldap(plaintext, hash) do

@@ -2,6 +2,7 @@ defmodule Votr.Api.TokenController do
   use VotrWeb, :controller
   alias Votr.Identity.Email
   alias Votr.Identity.Password
+  alias Votr.Identity.Controls
   alias Votr.Identity.Totp
   alias Votr.JWT
   alias Votr.HashId
@@ -10,71 +11,53 @@ defmodule Votr.Api.TokenController do
     case grant_type do
       "password" ->
         with {:ok, email} <- Email.select_by_address(username),
-             {:ok, expected} <- Password.select_by_subject_id(email.subject_id) do
-          case Password.verify(password, expected.hash) do
-            true ->
-              # valid password
-              case Totp.select_by_subject_id(email.subject_id) do
-                {:ok, totp} ->
-                  # TODO is it OK to give the client the token ID?
-                  conn
-                  |> put_status(401)
-                  |> json(%{success: false, error: "mfa_required", token: HashId.encode(totp.id)})
-                {:error, :not_found} ->
-                  jwt = JWT.generate(email.subject_id)
+             {:ok, controls} <- Controls.verify(email.subject_id),
+             {:ok, :valid} <- Password.verify(email.subject_id, password),
+             {:error, :not_found} <- Totp.select_by_subject_id(email.subject_id) do
+          jwt = JWT.generate(email.subject_id)
 
-                  conn
-                  |> put_status(200)
-                  |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
-                  |> json(
-                       %{
-                         access_token: jwt,
-                         token_type: "Bearer",
-                         expires_in: JWT.expires_in()
-                       }
-                     )
+          Controls.update(Map.put(controls, :login_at, DateTime.utc_now()))
 
-              end
-
-            false ->
-              # invalid password
-              conn
-              |> put_status(401)
-              |> json(%{success: false, error: "unauthorized"})
-          end
+          conn
+          |> put_status(200)
+          |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
+          |> json(
+               %{
+                 access_token: jwt,
+                 token_type: "Bearer",
+                 expires_in: JWT.expires_in()
+               }
+             )
         else
-          # email and/or password were not found
+          {:ok, %Totp{} = totp} ->
+            # this subject has a TOTP token, so prompt them for it
+            # TODO is it OK to give the client the token ID?
+            conn
+            |> put_status(401)
+            |> json(%{success: false, error: "mfa_required", token: HashId.encode(totp.id)})
           _ ->
             conn
             |> put_status(401)
             |> json(%{success: false, error: "unauthorized"})
         end
-
       "otp" ->
         # the username is the totp token id
         # the password is the one time password
-        case Totp.select(HashId.decode(username)) do
-          {:ok, totp} ->
-            case Totp.verify(password, totp.secret_key) do
-              true ->
-                jwt = JWT.generate(totp.subject_id)
-                conn
-                |> put_status(200)
-                |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
-                |> json(
-                     %{
-                       access_token: jwt,
-                       token_type: "Bearer",
-                       expires_in: JWT.expires_in()
-                     }
-                   )
-              false ->
-                conn
-                |> put_status(401)
-                |> json(%{success: false, error: "unauthorized"})
-            end
-          {:error, _} ->
-            # the token wasn't found
+        with {:ok, totp} <- Totp.select(HashId.decode(username)),
+             {:ok, :valid} <- Totp.verify(password, totp.secret_key) do
+          jwt = JWT.generate(totp.subject_id)
+          conn
+          |> put_status(200)
+          |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
+          |> json(
+               %{
+                 access_token: jwt,
+                 token_type: "Bearer",
+                 expires_in: JWT.expires_in()
+               }
+             )
+        else
+          _ ->
             conn
             |> put_status(401)
             |> json(%{success: false, error: "unauthorized"})
