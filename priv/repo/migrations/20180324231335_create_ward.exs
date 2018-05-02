@@ -9,8 +9,8 @@ defmodule Votr.Repo.Migrations.CreateElection do
       add(:ext_id, :varchar, null: true, comment: "External reference")
       add(:seq, :integer, null: false, comment: "Permits wards to be ordered")
       add(:name, :varchar, null: false, comment: "Path segment name")
-      add(:start_time, :timestamptz, null: false, comment: "When voting starts in this ward")
-      add(:end_time, :timestamptz, null: false, comment: "When voting ends in this ward")
+      add(:start_time, :timestamptz, null: true, comment: "When voting starts in this ward")
+      add(:end_time, :timestamptz, null: true, comment: "When voting ends in this ward")
       timestamps()
     end
   end

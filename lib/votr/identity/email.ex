@@ -26,15 +26,6 @@ defmodule Votr.Identity.Email do
     Principal.select_by_hash(address, "email", &from_principal/1, fn e -> e.address == address end)
   end
 
-  def select_valid_by_subject_id(subject_id) do
-    valid = Principal.select_by_subject_id(subject_id, "email", &from_principal/1)
-            |> Enum.filter(fn e -> e.state == "valid" end)
-    case Enum.any?(valid) do
-      false -> {:error, 0}
-      true -> {:ok, valid}
-    end
-  end
-
   def insert(subject_id, address, seq \\ 1, label \\ "other", state \\ "invalid") do
     %Email{
       subject_id: subject_id,

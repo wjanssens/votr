@@ -112,7 +112,7 @@ paths:
                     items:
                       $ref: '#/definitions/result'
 
-  /wards:
+  /admin/wards:
     get:
       tags:
         - CRUD Elections / Wards
@@ -153,7 +153,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /wards/{id}:
+  /admin/wards/{id}:
     put:
       tags:
         - CRUD Elections / Wards
@@ -202,7 +202,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /wards/{id}/ballots:
+  /admin/wards/{id}/ballots:
     get:
       tags:
         - CRUD Ballots
@@ -256,7 +256,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /wards/{id}/voters:
+  /admin/wards/{id}/voters:
     get:
       tags:
         - CRUD Voters
@@ -349,7 +349,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /voters/{id}:
+  /admin/voters/{id}:
     put:
       tags:
         - CRUD Voters
@@ -394,7 +394,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /ballots/{id}:
+  /admin/ballots/{id}:
     put:
       tags:
         - CRUD Ballots
@@ -443,7 +443,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /ballots/{id}/candidates:
+  /admin/ballots/{id}/candidates:
     get:
       tags:
         - CRUD Candidates
@@ -492,7 +492,7 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
-  /candidates/{id}:
+  /admin/candidates/{id}:
     put:
       tags:
         - CRUD Candidates
@@ -541,7 +541,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /res/{id}:
+  /admin/res/{id}:
     get:
       tags:
         - CRUD Localization
@@ -570,7 +570,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /res/{id}/{key}/{tag}:
+  /admin/res/{id}/{key}/{tag}:
     put:
       tags:
         - CRUD Localization
@@ -779,7 +779,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /subject/{id}/principals:
+  /admin/subject/{id}/principals:
     get:
       tags:
         - Account
@@ -834,7 +834,7 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response'
-  /principals/{id}:
+  /admin/principals/{id}:
     put:
       tags:
         - Account
@@ -1057,9 +1057,6 @@ definitions:
         description: when voting closes, null to inherit
         type: string
         format: datetime
-      priv:
-        description: results availability, null to inherit
-        type: boolean
       leaf:
         description: this ward has no children
         type: boolean

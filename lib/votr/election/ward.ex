@@ -86,10 +86,13 @@ defmodule Votr.Election.Ward do
            ward_id: parent_id,
            seq: seq,
            ext_id: ext_id,
-           name: AES.encrypt(name),
+           name: name
+                 |> AES.encrypt
+                 |> Base.encode64,
            start_time: start_time,
            end_time: end_time
          }
+         |> IO.inspect()
          |> cast(%{}, [:id, :version, :subject_id, :ward_id, :seq, :ext_id, :name, :start_time, :end_time])
          |> validate_required([:id, :version, :subject_id, :seq, :name])
          |> Repo.insert() do

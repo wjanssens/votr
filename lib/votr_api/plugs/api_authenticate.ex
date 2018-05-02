@@ -4,7 +4,6 @@ defmodule Votr.Plug.ApiAuthenticate do
   alias Votr.JWT
   alias Votr.HashId
   alias Votr.Identity.Controls
-  alias Votr.Identity.Email
 
   def init(default), do: default
 
@@ -25,8 +24,7 @@ defmodule Votr.Plug.ApiAuthenticate do
 
     with {:ok, sub} <- JWT.verify(jwt),
          subject_id <- HashId.decode(sub),
-         {:ok, _} <- Controls.verify(subject_id),
-         {:ok, _} <- Email.select_valid_by_subject_id(subject_id) do
+         {:ok, _} <- Controls.verify(subject_id) do
       conn
       |> assign(:subject_id, subject_id)
     else

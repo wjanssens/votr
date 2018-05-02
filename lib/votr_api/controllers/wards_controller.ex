@@ -13,27 +13,27 @@ defmodule Votr.Api.WardsController do
   end
 
   # create a new election or ward
-  def create(
-        conn,
-        %{
-          "parent_id" => parent_id,
-          "ext_id" => ext_id,
-          "name" => name,
-          "start_time" => start_time,
-          "end_time" => end_time
-        }
-      ) do
-
+  def create(conn, body) do
     subject_id = conn.assigns[:subject_id]
 
-    case Ward.insert(subject_id, parent_id, ext_id, name, start_time, end_time) do
+    case Ward.insert(
+           subject_id,
+           body["parent_id"],
+           body["ext_id"],
+           body["name"],
+           body["start_time"],
+           body["end_time"]
+         ) do
       {:ok, ward} ->
         conn
         |> put_status(201)
         |> json(
              %{
                success: true,
-               ward: ward
+               ward: %{
+                id: ward.id
+                # TODO include the other fields?
+               }
              }
            )
       {:error, _} ->

@@ -23,12 +23,6 @@ defmodule Votr.Api.AuthenticationTest do
 
     jwt = JWT.generate(token.subject_id)
 
-    # authenticated request for an unactivated subject
-    build_conn()
-    |> put_req_header("authentication", "Bearer " <> jwt)
-    |> get("/api/admin/wards")
-    |> json_response(401)
-
     # activate the subject
     build_conn()
     |> get("/api/activate/" <> HashId.encode(token.id))

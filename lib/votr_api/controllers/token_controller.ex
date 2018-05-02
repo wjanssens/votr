@@ -11,6 +11,7 @@ defmodule Votr.Api.TokenController do
     case grant_type do
       "password" ->
         with {:ok, email} <- Email.select_by_address(username),
+             "valid" <- email.state,
              {:ok, controls} <- Controls.verify(email.subject_id),
              {:ok, :valid} <- Password.verify(email.subject_id, password),
              {:error, :not_found} <- Totp.select_by_subject_id(email.subject_id) do
