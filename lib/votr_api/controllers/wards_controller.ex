@@ -7,6 +7,7 @@ defmodule Votr.Api.WardsController do
     subject_id = conn.assigns[:subject_id]
 
     wards = Ward.select_for_subject(subject_id)
+
     conn
     |> put_status(200)
     |> json(%{success: true, wards: wards})

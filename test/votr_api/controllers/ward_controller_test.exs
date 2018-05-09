@@ -1,23 +1,34 @@
 defmodule Votr.Api.WardsControllerTest do
+  require Votr.Api.Fixture
+  import Votr.Api.Fixture
   use VotrWeb.ConnCase
   use ExUnit.Case, async: true
 
-  alias Votr.Identity.Subject
-  alias Votr.Identity.Controls
-  alias Votr.JWT
-
   test "create a new ward" do
-    {:ok, subject} = Subject.insert("testy.testerton@example.com")
-    {:ok, _} = Controls.insert(%Controls{subject_id: subject.id, failures: 0})
-    token = JWT.generate(subject.id)
+    with_subject fn (token) ->
+      body =
+        build_conn()
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("authentication", "Bearer " <> token)
+        |> post("/api/admin/wards", %{name: "test"})
+        |> json_response(201)
 
-    body =
-      build_conn()
-      |> put_req_header("content-type", "application/json")
-      |> put_req_header("authentication", "Bearer " <> token)
-      |> post("/api/admin/wards", %{name: "test"})
-      |> json_response(201)
+      assert body["success"] == true
+      ward_id = body["ward"]["id"]
 
-    assert body["success"] == true
+      body =
+        build_conn()
+        |> put_req_header("authentication", "Bearer " <> token)
+        |> get("/api/admin/wards")
+        |> json_response(200)
+
+      assert body["success"] == true
+      wards = body["wards"]
+      assert Enum.count(wards) == 1
+      ward = Enum.at(wards, 0)
+      assert ward["id"] == ward_id
+      assert ward["name"] == "test"
+      assert ward["parent_id"] == nil
+    end
   end
 end

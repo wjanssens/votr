@@ -3,7 +3,6 @@ defmodule Votr.Election.Ward do
   import Ecto.Changeset
   alias Votr.Repo
   alias Votr.Election.Ward
-  alias Votr.AES
 
   # wards are heirarchical
   # a federal election may have a national referendum, provincial MPs by ward
@@ -16,13 +15,14 @@ defmodule Votr.Election.Ward do
   # eg. all Alberta wards should be have the same time
 
   @timestamps_opts [type: :utc_datetime, usec: true]
+  @derive {Poison.Encoder, only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time]}
   schema "ward" do
     field(:version, :integer)
     field(:subject_id, :integer)
-    field(:ward_id, :integer)
+    field(:parent_id, :integer)
     field(:seq, :integer)
     field(:ext_id, :string)
-    field(:name, :string)
+    field(:name, Votr.EncryptedBinary)
     field(:start_time, :utc_datetime)
     field(:end_time, :utc_datetime)
     timestamps()
@@ -31,16 +31,16 @@ defmodule Votr.Election.Ward do
   def select_for_subject(subject_id) do
     results =
       """
-      with recursive heirarchy (id, version, ward_id, seq, ext_id, name, start_time, end_time) as (
-        select id, version, ward_id, seq, ext_id, name, start_time, end_time
+      with recursive heirarchy (id, version, parent_id, seq, ext_id, name, start_time, end_time) as (
+        select id, version, parent_id, seq, ext_id, name, start_time, end_time
         from ward w
-        where ward_id is null and subject_id = $1
+        where parent_id is null and subject_id = $1
         union all
-        select p.id, p.version, p.ward_id, p.seq, p.ext_id, p.name, p.start_time, p.end_time
+        select p.id, p.version, p.parent_id, p.seq, p.ext_id, p.name, p.start_time, p.end_time
         from ward p
-        inner join heirarchy h on p.id = h.ward_id
+        inner join heirarchy h on p.id = h.parent_id
       )
-      select id, ward_id, start_time, end_time
+      select id, version, parent_id, seq, ext_id, name, start_time, end_time
       from heirarchy
       """
       |> Votr.Repo.query!([subject_id])
@@ -49,22 +49,21 @@ defmodule Votr.Election.Ward do
     |> Enum.map(&Repo.load(Ward, {results.columns, &1}))
   end
 
-  #TODO is this needed?
   def select_for_voter(voter_id) do
     # get all the wards a voter belongs to
     results =
       """
-      with recursive heirarchy (id, ward_id, start_time, end_time) as (
-        select id, ward_id, start_time, duration
+      with recursive heirarchy (id, parent_id, start_time, end_time) as (
+        select id, parent_id, start_time, end_time
         from ward w
-        inner join voter v on v.ward_id = w.id
+        inner join voter v on v.parent_id = w.id
         where v.id = $1
         union all
-        select p.id, p.ward_id, p.start_time, p.duration
+        select p.id, p.parent_id, p.start_time, p.end_time
         from ward p
-        inner join heirarchy h on p.id = h.ward_id
+        inner join heirarchy h on p.id = h.parent_id
       )
-      select id, ward_id, max(start_time), min(end_time)
+      select id, parent_id, max(start_time), min(end_time)
       from heirarchy
       """
       |> Votr.Repo.query!([voter_id])
@@ -83,17 +82,14 @@ defmodule Votr.Election.Ward do
            id: id,
            version: 0,
            subject_id: subject_id,
-           ward_id: parent_id,
+           parent_id: parent_id,
            seq: seq,
            ext_id: ext_id,
-           name: name
-                 |> AES.encrypt
-                 |> Base.encode64,
+           name: name,
            start_time: start_time,
            end_time: end_time
          }
-         |> IO.inspect()
-         |> cast(%{}, [:id, :version, :subject_id, :ward_id, :seq, :ext_id, :name, :start_time, :end_time])
+         |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time])
          |> validate_required([:id, :version, :subject_id, :seq, :name])
          |> Repo.insert() do
       {:ok, ward} -> {:ok, ward}
