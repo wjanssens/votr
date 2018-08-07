@@ -10,9 +10,9 @@ defmodule Votr.Election.Res do
   schema "res" do
     field(:version, :integer)
     field(:entity_id, :string)
-    field(:tag, :string)
-    field(:key, :string)
-    field(:value, :string)
+    field(:tag, :string)        # the resource language (eg. fr)
+    field(:key, :string)        # the resource key (eg. name)
+    field(:value, :string)      # the resource value (eg. Libéral)
     timestamps()
   end
 

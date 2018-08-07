@@ -6,11 +6,16 @@ defmodule Votr.Election.Candidate do
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "candidate" do
-    field(:ballot_id, :integer)
+    # res will join to this table using id to give candidate a localized name and description (party affiliation)
+    # the seq is important even if candidates are shuffled for display on a ballot
+    #   since the votes are recorded using the index of the candidate on the ballot
+    #   and so the sequence cannot be changed once voting starts
     field(:version, :integer)
-    field(:ext_id, :string)
-    field(:withdrawn, :boolean)
-    field(:color, :string)
+    field(:ballot_id, :integer)  # the ballot this candidate appears on
+    field(:seq, :integer)        # the order in which candidates appear on the ballot
+    field(:ext_id, :string)      # reference to an external system
+    field(:withdrawn, :boolean)  # this candidate has withdrawn
+    field(:color, :string)       # the color to use in the result charts (not on the ballot)
     timestamps()
   end
 

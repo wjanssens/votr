@@ -6,7 +6,7 @@ info:
 schemes:
   - https
 paths:
-  /voters/{id}/ballots:
+  /api/voters/{id}/ballots:
     get:
       tags:
         - Voters
@@ -61,7 +61,7 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /ballots/{id}/votes:
+  /api/ballots/{id}/votes:
     get:
       tags:
         - Public
@@ -86,7 +86,7 @@ paths:
                     items:
                       type: string
 
-  /ballots/{id}/result:
+  /api/ballots/{id}/result:
     get:
       tags:
         - Public

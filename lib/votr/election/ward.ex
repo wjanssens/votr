@@ -18,13 +18,13 @@ defmodule Votr.Election.Ward do
   @derive {Poison.Encoder, only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time]}
   schema "ward" do
     field(:version, :integer)
-    field(:subject_id, :integer)
-    field(:parent_id, :integer)
-    field(:seq, :integer)
-    field(:ext_id, :string)
-    field(:name, Votr.EncryptedBinary)
-    field(:start_time, :utc_datetime)
-    field(:end_time, :utc_datetime)
+    field(:subject_id, :integer)       # the owner / adminstrator for the election
+    field(:parent_id, :integer)        # parent ward, null for elections
+    field(:seq, :integer)              # the order in which wards are presented
+    field(:ext_id, :string)            # reference to an external system
+    field(:name, Votr.EncryptedBinary) # the administrators name of for election / ward
+    field(:start_time, :utc_datetime)  # the date/time at which voting starts
+    field(:end_time, :utc_datetime)    # the date/time at which voting ends
     timestamps()
   end
 

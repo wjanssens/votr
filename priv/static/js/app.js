@@ -1,3 +1,18 @@
-// for phoenix_html support, including form and button helpers
-// copy the following scripts into your javascript bundle:
-// * https://raw.githubusercontent.com/phoenixframework/phoenix_html/v2.10.0/priv/static/phoenix_html.js
+Ext.application({
+    name: 'Votr',
+    appFolder: 'js',
+    controllers: ['Main','Wards'],
+    requires: [
+        'Votr.view.Main'
+    ],
+    launch: function () {
+        Ext.Viewport.add(Ext.create('Votr.view.Main'))
+    }
+});
+
+Ext.onReady(function () {
+    Ext.get(window.document).on('contextmenu', function (e) {
+        e.preventDefault();
+        return false;
+    });
+});

@@ -4,11 +4,11 @@ defmodule Votr.Vote do
 
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot_log" do
-    # voter_id is an optional link to voter only when the ballot is mutable
     field(:ballot_id, :integer)
     field(:version, :integer)
-    field(:voter_id, :integer)
-    field(:value, :string)
+    field(:voter_id, :integer) # an optional link to voter only when the ballot is mutable
+    field(:weight, :integer)   # used to compact identical votes from multiple voters
+    field(:value, :string)     # a vote rank string (eg. 3 4 1 2)
     timestamps()
   end
 

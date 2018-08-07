@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
+<head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-    <title>Hello Votr!</title>
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-  </head>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/ext-modern-all-debug.js"></script>
 
-  <body>
-    <div class="container">
-      <header class="header">
-        <nav role="navigation">
-          <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
-          </ul>
-        </nav>
-        <span class="logo"></span>
-      </header>
+    <link rel="stylesheet" type="text/css"
+          href="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/modern/theme-material/resources/theme-material-all-debug.css">
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/modern/theme-material/theme-material-debug.js"></script>
 
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/modern/modern-neptune/resources/charts-all-debug.css">
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/modern/charts-debug.js"></script>
 
-      <main role="main">
-        <%= render @view_module, @view_template, assigns %>
-      </main>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet" />
 
-    </div> <!-- /container -->
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-  </body>
+
+    <style>
+        :root {
+            --base-color: #607D8B;
+            --listitem-selected-background-color: #CFD8DC;
+        }
+        .x-tool {
+            font-size: 1em !important;
+            font-weight: normal !important;
+        }
+    </style>
+</head>
+
+<body>
+</body>
 </html>
