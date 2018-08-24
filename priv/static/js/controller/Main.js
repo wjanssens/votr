@@ -1,12 +1,12 @@
 Ext.define('Votr.controller.Main', {
     extend: 'Ext.app.Controller',
+
+    requires: [
+        "Votr.view.MainController"
+    ],
+
     views: [
-        'Main', 'Wards', 'Ward', 'Ballots', 'Ballot', 'Voters', 'Voter'
-    ],
-    models: [
-        'Ward', 'Ballot', 'Voter'
-    ],
-    stores: [
-        'Wards', 'Ballots', 'Voters'
+        'Login', 'Main', 'Admin', 'Elector', 'Vote'
     ]
+
 })

@@ -1,7 +1,6 @@
 Ext.define('Votr.view.Ward', {
     extend: 'Ext.Panel',
     alias: 'widget.ward',
-    layout: 'hbox',
     items: [
         {
             xtype: 'panel',

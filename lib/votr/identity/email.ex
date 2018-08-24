@@ -4,6 +4,7 @@ defmodule Votr.Identity.Email do
   Email addresses may be used to deliver ballots to voters.
   """
   use Ecto.Schema
+  import Ecto.Changeset
   alias Votr.Identity.Email
   alias Votr.Identity.Principal
   alias Votr.Identity.DN
@@ -37,13 +38,17 @@ defmodule Votr.Identity.Email do
     |> insert()
   end
 
-  def insert(%Email{} = e) do
-    to_principal(e)
+  def insert(%Email{} = email) do
+    email
+    |> validate_inclusion(:label, ["home", "work", "other"])
+    |> to_principal
     |> Principal.insert(&from_principal/1)
   end
 
-  def update(%Email{} = e) do
-    to_principal(e)
+  def update(%Email{} = email) do
+    email
+    |> validate_inclusion(:label, ["home", "work", "other"])
+    |> to_principal
     |> Principal.change(&from_principal/1)
   end
 
