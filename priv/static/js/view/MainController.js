@@ -4,13 +4,10 @@ Ext.define('Votr.view.MainController', {
 
     routes : {
         // login
-        'voter': 'onVoterLogin',
         'login': 'onLogin',
-        'register': 'onRegister',
-        'reset': 'onPasswordReset',
 
         // voters
-        'ballots': 'onBallots',
+        'vote': 'onVote',
 
         // officials
         'profile': 'onProfile',
@@ -23,39 +20,21 @@ Ext.define('Votr.view.MainController', {
         'ballots/:id/results': 'onResults',
         'voters:/id': 'onVoter',
         'candidates/:id': 'onCandidate',
-
-        // administrators
-        'users': 'onUsers',
-        'users/:id': 'onUser'
     },
+
+    // login
 
     onLogin() {
         this.getView().setActiveItem(0);
     },
 
-    onVoterLogin() {
+    // voters
 
+    onVote() {
+        this.getView().setActiveItem(2);
     },
 
-    onRegister() {
-
-    },
-
-    onPasswordReset() {
-
-    },
-
-    onProfile() {
-
-    },
-
-    onUsers() {
-
-    },
-
-    onUser() {
-
-    },
+    // officials
 
     onWards() {
         this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(0);

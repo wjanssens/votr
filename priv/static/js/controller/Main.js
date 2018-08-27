@@ -6,7 +6,7 @@ Ext.define('Votr.controller.Main', {
     ],
 
     views: [
-        'Login', 'Main', 'Admin', 'Elector', 'Vote'
+        'Main', 'login.Login', 'admin.Main'
     ]
 
 })

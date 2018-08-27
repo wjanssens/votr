@@ -1,12 +1,12 @@
-Ext.define('Votr.view.Elector', {
+Ext.define('Votr.view.admin.Main', {
     extend: 'Ext.Panel',
-    alias: 'widget.elector',
+    alias: 'widget.admin.main',
     padding: 0,
     layout: 'hbox',
     requires: [
-        "Votr.view.ElectorController"
+        "Votr.view.admin.MainController"
     ],
-    controller: 'elector',
+    controller: 'admin.main',
     items: [
         {
             xtype: 'toolbar',
@@ -50,10 +50,10 @@ Ext.define('Votr.view.Elector', {
             layout: 'card',
             padding: 0,
             items: [
-                {xtype: 'wards'},
-                {xtype: 'ballots'},
-                {xtype: 'voters'},
-                {xtype: 'candidates'}
+                {xtype: 'admin.wards'},
+                {xtype: 'admin.ballots'},
+                {xtype: 'admin.voters'},
+                {xtype: 'admin.candidates'}
             ]
         }
     ]

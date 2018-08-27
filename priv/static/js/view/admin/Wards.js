@@ -1,10 +1,10 @@
-Ext.define('Votr.view.Wards', {
+Ext.define('Votr.view.admin.Wards', {
     extend: 'Ext.Panel',
-    alias: 'widget.wards',
+    alias: 'widget.admin.wards',
     requires: [
-        'Votr.view.WardsController'
+        'Votr.view.admin.WardsController'
     ],
-    controller: 'wards',
+    controller: 'admin.wards',
     padding: 0,
     layout: 'hbox',
     items: [{
@@ -13,7 +13,7 @@ Ext.define('Votr.view.Wards', {
         rootVisible: false,
         store: 'Wards'
     }, {
-        xtype: 'ward',
+        xtype: 'admin.ward',
         flex: 1
     }, {
         xtype: 'toolbar',
@@ -35,6 +35,12 @@ Ext.define('Votr.view.Wards', {
             itemId: 'ballots',
             text: 'Ballots',
             handler: 'onBallots'
+        }, {
+            xtype: 'button',
+            itemId: 'save',
+            text: 'Save',
+            ui: 'action',
+            handler: 'onSave'
         }]
     }]
 });

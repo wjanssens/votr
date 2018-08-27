@@ -6,8 +6,7 @@ Ext.define('Votr.view.Main', {
     itemId: 'main_cards',
     items: [
         {xtype: 'login'},
-        {xtype: 'elector'},
-        {xtype: 'admin'},
-        {xtype: 'vote'}
+        {xtype: 'admin.main'},
+        {xtype: 'voter.ballots'}
     ]
 });

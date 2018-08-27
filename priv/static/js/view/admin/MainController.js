@@ -1,6 +1,6 @@
-Ext.define('Votr.view.ElectorController', {
+Ext.define('Votr.view.admin.MainController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.elector',
+    alias: 'controller.admin.main',
 
     onHome() {
         this.redirectTo('#wards');

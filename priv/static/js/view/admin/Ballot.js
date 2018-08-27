@@ -1,6 +1,6 @@
-Ext.define('Votr.view.Ballot', {
+Ext.define('Votr.view.admin.Ballot', {
     extend: 'Ext.Panel',
-    alias: 'widget.ballot',
+    alias: 'widget.admin.ballot',
     layout: 'vbox',
     items: [
         {

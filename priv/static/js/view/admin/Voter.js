@@ -1,10 +1,7 @@
-Ext.define('Votr.view.Voter', {
+Ext.define('Votr.view.admin.Voter', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.voter',
+    alias: 'widget.admin.voter',
     layout: 'vbox',
-    tools: [
-        { type: 'save'}
-    ],
     items: [
         {
             xtype: 'formpanel',

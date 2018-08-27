@@ -1,4 +1,4 @@
-Ext.define('Votr.view.LoginController', {
+Ext.define('Votr.view.login.LoginController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.login',
 
@@ -17,7 +17,7 @@ Ext.define('Votr.view.LoginController', {
     onVoterCredentials: function() {
         // send the voter credentials to the server
         // 200: -> #ballots
-        this.redirectTo("#ballots")
+        this.redirectTo("#vote")
         // 401: show error message
     },
 

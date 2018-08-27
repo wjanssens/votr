@@ -1,7 +1,7 @@
 Ext.application({
     name: 'Votr',
     appFolder: 'js',
-    controllers: ['Main', 'Elector', 'Admin'],
+    controllers: ['Main', 'Admin', 'Voter'],
     requires: [
         'Votr.view.Main'
     ],

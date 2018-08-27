@@ -1,6 +1,6 @@
-Ext.define('Votr.view.BallotsController', {
+Ext.define('Votr.view.admin.BallotsController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.ballots',
+    alias: 'controller.admin.ballots',
 
     onCandidates: function() {
         this.redirectTo('#ballots/1/candidates')

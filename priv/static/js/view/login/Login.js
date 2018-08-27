@@ -1,9 +1,9 @@
-Ext.define('Votr.view.Login', {
+Ext.define('Votr.view.login.Login', {
     extend: 'Ext.Panel',
     alias: 'widget.login',
     layout: 'hbox',
     requires: [
-        "Votr.view.LoginController"
+        "Votr.view.login.LoginController"
     ],
     controller: 'login',
     items: [{

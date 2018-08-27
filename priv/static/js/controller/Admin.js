@@ -1,12 +1,19 @@
 Ext.define('Votr.controller.Admin', {
     extend: 'Ext.app.Controller',
     views: [
-        'Users', 'User'
+        'admin.Wards',
+        'admin.Ward',
+        'admin.Ballots',
+        'admin.Ballot',
+        'admin.Candidates',
+        'admin.Candidate',
+        'admin.Voters',
+        'admin.Voter'
     ],
     models: [
-        'User'
+        'Ward', 'Ballot', 'Voter', 'Candidate'
     ],
     stores: [
-        'Users'
+        'Wards', 'Ballots', 'Voters', 'Candidates'
     ]
 })

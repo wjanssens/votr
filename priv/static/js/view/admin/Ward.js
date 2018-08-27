@@ -1,6 +1,6 @@
-Ext.define('Votr.view.Ward', {
+Ext.define('Votr.view.admin.Ward', {
     extend: 'Ext.Panel',
-    alias: 'widget.ward',
+    alias: 'widget.admin.ward',
     items: [
         {
             xtype: 'panel',
