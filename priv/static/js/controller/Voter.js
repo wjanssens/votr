@@ -3,7 +3,8 @@ Ext.define('Votr.controller.Voter', {
     views: [
         'voter.Ballots',
         'voter.Ballot',
-        'voter.Candidate'
+        'voter.Candidate',
+        'voter.RankField'
     ],
     models: [
     ],

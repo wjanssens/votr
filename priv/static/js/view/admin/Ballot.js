@@ -23,13 +23,22 @@ Ext.define('Votr.view.admin.Ballot', {
                 queryMode: 'local',
                 name: 'method',
                 options: [
-                    {value: 'STVD', text: 'STV (Droop)'},
-                    {value: 'STVH', text: 'STV (Hare)'},
-                    {value: 'STVI', text: 'STV (Imperator)'},
-                    {value: 'STVB', text: 'STV (Hagenbach Bischoff)'},
+                    {value: 'SSTV', text: 'Scottish STV'},
+                    {value: 'MSTV', text: 'Meek STV'},
                     {value: 'IRV', text: 'Instant Runoff'},
                     {value: 'FPTP', text: 'Plurality'},
                     {value: 'AV', text: 'Approval'}
+                ]
+            }, {
+                xtype: 'selectfield',
+                label: 'Quota *',
+                queryMode: 'local',
+                name: 'quota',
+                options: [
+                    {value: 'droop', text: 'Droop [ (v / (s + 1)) + 1 ]'},
+                    {value: 'hare', text: 'Hare [ v / s ]'},
+                    {value: 'imperator', text: 'Imperator [ v / (s + 2) ]'},
+                    {value: 'hagenback-bischoff', text: 'Hagenbach Bischoff [ v / (s + 1) ]'},
                 ]
             }, {
                 xtype: 'spinnerfield',
@@ -38,7 +47,7 @@ Ext.define('Votr.view.admin.Ballot', {
                 value: 1,
                 stepValue: 1,
                 name: 'elect',
-                tooltip: 'How many candidates are being selected'
+                tooltip: 'How many candidates are being elected'
             }, {
                 xtype: 'checkboxfield',
                 name: 'shuffle',

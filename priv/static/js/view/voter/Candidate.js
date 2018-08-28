@@ -2,10 +2,10 @@ Ext.define('Votr.view.voter.Candidate', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.candidate',
     layout: 'hbox',
-    padding: 0,
     border: 1,
     items: [{
         xtype: 'panel',
+        flex: 1,
         padding: 0,
         layout: 'vbox',
         items: [{
@@ -19,7 +19,6 @@ Ext.define('Votr.view.voter.Candidate', {
             html: 'Description'
         }]
     },{
-        xtype: 'panel',
-        width: 32
+        xtype: 'voter.rankfield'
     }]
 });
