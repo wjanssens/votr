@@ -4,9 +4,8 @@ Ext.define('Votr.view.voter.Candidate', {
     layout: 'hbox',
     data: {value: 0},
     padding: '8px',
-    constructor: function () {
+    setData: function(data) {
         this.callParent(arguments);
-        var data = this.getData();
         this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked});
         this.down('#name').setHtml(data.name);
         this.down("#desc").setHtml(data.description);

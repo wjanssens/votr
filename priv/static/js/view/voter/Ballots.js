@@ -4,7 +4,6 @@ Ext.define('Votr.view.voter.Ballots', {
     layout: 'hbox',
     scrollable: true,
     data: {
-        instructions: 'Instructions',
         ballots: [
             {
                 title: 'Title',
@@ -32,7 +31,12 @@ Ext.define('Votr.view.voter.Ballots', {
             }
         ]
     },
-    setData: function() {
+    setData: function(data) {
+        this.callParent(arguments);
+        var c = this.down("#ballots");
+        data.ballots.forEach(ballot => {
+            c.add(new Votr.view.voter.Ballot({ data: ballot }));
+        });
     },
     items: [
         {
@@ -42,21 +46,9 @@ Ext.define('Votr.view.voter.Ballots', {
         {
             xtype: 'panel',
             padding: 0,
+            layout: 'vbox',
+            itemId: 'ballots',
             items: [
-                {
-                    xtype: 'panel',
-                    padding: '16px auto',
-                    html: 'Instructions'
-                },
-                {
-                    xtype: 'voter.ballot'
-                }, {
-                    xtype: 'voter.ballot'
-                }, {
-                    xtype: 'voter.ballot'
-                }, {
-                    xtype: 'voter.ballot'
-                }
             ]
         },
         {

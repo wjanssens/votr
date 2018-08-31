@@ -3,10 +3,6 @@ Ext.define('Votr.view.voter.RankField', {
     alias: 'widget.voter.rankfield',
     layout: 'hbox',
     data: { rank: 0, max: 0, ranked: true },
-    constructor: function() {
-        this.callParent(arguments);
-        this.down('#value').setData(this.getData());
-    },
     setData: function(data) {
         this.callParent(arguments);
         this.down('#value').setData(data);
