@@ -18,7 +18,13 @@ Ext.define('Votr.view.voter.Ballot', {
             xtype: 'component',
             itemId: 'instructions',
             padding: '8px',
-            html: 'Instructions (how votes are counted, how to rank)'
+            html: '<ul>' +
+            '<li>Votes are counted using the Scottish STV method (Droop quota)</li>' +
+            '<li>Rank at least one candidate (with no duplicates)</li>' +
+            '<li>You may only vote once (you cannot change your vote)</li>' +
+            '<li>Your vote is anonymous</li>' +
+            '<li>Candidates are presented in a random order</li>' +
+            '</ul>'
         },
         {
             xtype: 'component',
