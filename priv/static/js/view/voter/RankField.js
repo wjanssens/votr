@@ -36,10 +36,10 @@ Ext.define('Votr.view.voter.RankField', {
     },
     items: [{
         xtype: 'button',
-        iconCls: 'x-fa fa-plus',
+        iconCls: 'x-fa fa-minus',
         ui: 'action',
         width: 48,
-        handler: function() { this.up().increment(); }
+        handler: function() { this.up().decrement(); }
     },{
         xtype: 'component',
         itemId: 'value',
@@ -57,9 +57,9 @@ Ext.define('Votr.view.voter.RankField', {
         width: 32
     },{
         xtype: 'button',
-        iconCls: 'x-fa fa-minus',
+        iconCls: 'x-fa fa-plus',
         ui: 'action',
         width: 48,
-        handler: function() { this.up().decrement(); }
+        handler: function() { this.up().increment(); }
     }]
 });

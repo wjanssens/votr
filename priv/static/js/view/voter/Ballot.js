@@ -7,6 +7,19 @@ Ext.define('Votr.view.voter.Ballot', {
     padding: '8px',
     margin: '16px 0',
     title: 'Title',
+    getBlt: function() {
+        // returns a string representation of the candidate ranking
+        // https://www.opavote.com/help/overview#blt-file-format
+        var candidates = getData().candidates
+            .filter(v => { return v.rank > 0; })
+            .reduce((acc, v) => {
+                acc[v.rank - 1] = acc[v.rank - 1].concat([v.index]);
+                return acc;
+            }, new Array(3).fill([]))
+            .map(a => { return a.length == 0 ? '-' : a.join('='); })
+            .join(' ');
+        return `1 ${candidates} 0`;
+    },
     items: [
         {
             xtype: 'component',
