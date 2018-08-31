@@ -10,6 +10,7 @@ Ext.define('Votr.view.voter.Ballots', {
         },
         {
             xtype: 'panel',
+            padding: 0,
             items: [
                 {
                     xtype: 'panel',

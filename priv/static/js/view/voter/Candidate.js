@@ -2,8 +2,8 @@ Ext.define('Votr.view.voter.Candidate', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.candidate',
     layout: 'hbox',
-    border: 1,
     data: {value: 0},
+    padding: '8px',
     constructor: function () {
         this.callParent(arguments);
         var data = this.getData();
@@ -13,13 +13,14 @@ Ext.define('Votr.view.voter.Candidate', {
     },
     items: [
         {
-            xtype: 'panel',
+            xtype: 'image',
             itemId: 'avatar',
             width: 48,
             height: 48,
             border: 1,
             padding: 0,
-            margin: 0
+            margin: 0,
+            src: 'images/guy.png'
         }, {
             xtype: 'panel',
             flex: 1,
@@ -27,6 +28,7 @@ Ext.define('Votr.view.voter.Candidate', {
             layout: 'vbox',
             items: [{
                 xtype: 'component',
+                padding: '0 0 8px 0',
                 itemId: 'name',
                 style: 'font-size: 1.5em;',
             }, {
