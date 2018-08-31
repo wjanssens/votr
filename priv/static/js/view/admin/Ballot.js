@@ -25,7 +25,6 @@ Ext.define('Votr.view.admin.Ballot', {
                 options: [
                     {value: 'SSTV', text: 'Scottish STV'},
                     {value: 'MSTV', text: 'Meek STV'},
-                    {value: 'IRV', text: 'Instant Runoff'},
                     {value: 'FPTP', text: 'Plurality'},
                     {value: 'AV', text: 'Approval'}
                 ]

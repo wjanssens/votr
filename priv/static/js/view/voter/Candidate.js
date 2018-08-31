@@ -3,22 +3,40 @@ Ext.define('Votr.view.voter.Candidate', {
     alias: 'widget.voter.candidate',
     layout: 'hbox',
     border: 1,
-    items: [{
-        xtype: 'panel',
-        flex: 1,
-        padding: 0,
-        layout: 'vbox',
-        items: [{
-            padding: 0,
+    data: {value: 0},
+    constructor: function () {
+        this.callParent(arguments);
+        var data = this.getData();
+        this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked});
+        this.down('#name').setHtml(data.name);
+        this.down("#desc").setHtml(data.description);
+    },
+    items: [
+        {
             xtype: 'panel',
-            style: 'font-size: 1.5em;',
-            html: 'Name'
-        },{
+            itemId: 'avatar',
+            width: 48,
+            height: 48,
+            border: 1,
             padding: 0,
+            margin: 0
+        }, {
             xtype: 'panel',
-            html: 'Description'
-        }]
-    },{
-        xtype: 'voter.rankfield'
-    }]
+            flex: 1,
+            padding: '0 16px',
+            layout: 'vbox',
+            items: [{
+                xtype: 'component',
+                itemId: 'name',
+                style: 'font-size: 1.5em;',
+            }, {
+                xtype: 'component',
+                itemId: 'desc'
+            }]
+        }, {
+            xtype: 'voter.rankfield',
+            itemId: 'controls',
+            padding: 0,
+        }
+    ]
 });
