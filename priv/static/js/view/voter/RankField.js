@@ -41,9 +41,8 @@ Ext.define('Votr.view.voter.RankField', {
         itemId: 'value',
         tpl: new Ext.XTemplate(
             '<tpl for=".">',
-                '<tpl if="ranked && rank == 0"><p>&mdash;</p></tpl>',
+                '<tpl if="rank == 0"><p>&mdash;</p></tpl>',
                 '<tpl if="ranked && rank &gt; 0"><p>{rank}</p></tpl>',
-                '<tpl if="!ranked && rank == 0"><p>&cross;</p></tpl>',
                 '<tpl if="!ranked && rank &gt; 0"><p>&check;</p></tpl>',
             '</tpl>'
         ),

@@ -4,6 +4,13 @@ Ext.define('Votr.view.voter.Candidate', {
     layout: 'hbox',
     data: {value: 0},
     padding: '8px',
+    constructor() {
+        this.callParent(arguments);
+        this.down('#controls').addListener('rank', function(newValue, oldValue) {
+            this.getData().rank = newValue;
+            this.fireEvent('rank', newValue, oldValue);
+        }, this);
+    },
     setData: function(data) {
         this.callParent(arguments);
         this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked});
@@ -37,7 +44,7 @@ Ext.define('Votr.view.voter.Candidate', {
         }, {
             xtype: 'voter.rankfield',
             itemId: 'controls',
-            padding: 0,
+            padding: 0
         }
     ]
 });
