@@ -40,14 +40,21 @@ Ext.define('Votr.view.voter.Ballot', {
         // returns a string representation of the candidate ranking
         // https://www.opavote.com/help/overview#blt-file-format
         // no leading weight or trailing 0 included
-        return this.getData().candidates
+        var data = this.getData();
+        var maxRank = data.candidates
+            .reduce((acc, v) => {
+                return acc > v.rank ? acc : v.rank;
+            }, 0);
+        return data.candidates
             .filter(v => { return v.rank > 0; })
             .reduce((acc, v) => {
                 acc[v.rank - 1] = acc[v.rank - 1].concat([v.index]);
                 return acc;
-            }, new Array(this.getData().candidates.length).fill([]))
+            }, new Array(maxRank).fill([]))
             .map(a => { return a.length == 0 ? '-' : a.join('='); })
             .join(' ');
+    },
+    validate: function() {
     },
     getMessages: function() {
         return '';

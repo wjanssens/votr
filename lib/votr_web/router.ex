@@ -7,6 +7,7 @@ defmodule VotrWeb.Router do
     plug(:fetch_flash)
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
+    plug SetLocale, gettext: VotrWeb.Gettext, default_locale: "en", cookie_key: "votr_locale"
   end
 
   pipeline :api do
@@ -24,7 +25,11 @@ defmodule VotrWeb.Router do
     # Use the default browser stack
     pipe_through(:browser)
 
-    get("/", PageController, :index)
+    get("/", IndexController, :index)
+    get("/:locale", IndexController, :index)
+    get("/:locale/admin/", AdminController, :index)
+    get("/:locale/voter", VoterController, :index)
+    get("/:locale/i18n.json", I18nController, :index)
   end
 
   scope "/api", Votr.Api do

@@ -1,8 +1,6 @@
 Ext.define('Votr.view.voter.Ballots', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.ballots',
-    layout: 'hbox',
-    scrollable: true,
     data: {
         ballots: [
             {
@@ -11,11 +9,15 @@ Ext.define('Votr.view.voter.Ballots', {
                 description: 'Description',
                 method: 'SSTV',
                 ranked: true,
-                full: false,
-                duplicates: true,
                 anonymous: true,
                 mutable: false,
                 shuffled: true,
+                expected: {
+                    full: false,
+                    strict: false,
+                    min: 1,
+                    max: 4,
+                },
                 instructions: [
                     'Votes are counted using the Scottish STV method (Droop quota)',
                     'Rank at least one candidate (with no duplicates)',
@@ -38,6 +40,8 @@ Ext.define('Votr.view.voter.Ballots', {
                 ranked: false,
                 full: false,
                 duplicates: false,
+                min: 1,
+                max: 1,
                 anonymous: true,
                 mutable: false,
                 shuffled: true,
@@ -70,33 +74,34 @@ Ext.define('Votr.view.voter.Ballots', {
             c.add(new Votr.view.voter.Ballot({ data: ballot }));
         });
     },
+    padding: 0,
+    layout: 'vbox',
     items: [
         {
-            xtype: 'panel',
-            flex: 1
+            xtype: 'selectfield',
+            label: 'Choose one',
+            options: [{
+                text: 'English',
+                value: 'en'
+            }, {
+                text: 'French',
+                value: 'fr'
+            }, {
+                text: 'Third Option',
+                value: 'third'
+            }]
         },
         {
             xtype: 'panel',
             padding: 0,
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'panel',
-                    padding: 0,
-                    itemId: 'ballots',
-                },
-                {
-                    xtype: 'button',
-                    text: 'Vote',
-                    height: 32,
-                    ui: 'action',
-                    itemId: 'voteButton',
-                }
-            ]
+            itemId: 'ballots',
         },
         {
-            xtype: 'panel',
-            flex: 1
+            xtype: 'button',
+            text: 'Vote',
+            height: 32,
+            ui: 'action',
+            itemId: 'voteButton',
         }
     ]
 });

@@ -1,14 +1,14 @@
 Ext.application({
     name: 'Votr',
     appFolder: 'js',
-    controllers: ['Main', 'Admin', 'Voter'],
+    controllers: ['Login'],
     requires: [
-        'Votr.view.Main'
+        'Votr.view.login.Main'
     ],
-    defaultToken: 'login',
+    defaultToken: 'ballot',
 
     launch: function () {
-        Ext.Viewport.add(Ext.create('Votr.view.Main'))
+        Ext.Viewport.add(Ext.create('Votr.view.login.Main'))
     }
 });
 

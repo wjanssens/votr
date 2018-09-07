@@ -1,0 +1,9 @@
+#, elixir-format
+#: lib/votr_web/controllers/json_controller.ex:8
+msgid "Bar"
+msgstr "Le Bar"
+
+#, elixir-format
+#: lib/votr_web/controllers/json_controller.ex:7
+msgid "Foo"
+msgstr "Le Foo"

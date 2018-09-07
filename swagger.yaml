@@ -48,9 +48,12 @@ paths:
           in: body
           description: A ballot with votes.
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/ballot_vote'
+            type: object
+            additionalProperties:
+              type: string
+            example:
+              ballot_id_1: 3 2 5
+              ballot_id_2: 1=2
       responses:
         '201':
           description: Created
@@ -1013,23 +1016,6 @@ definitions:
             affiliation:
               type: string
               description: the affiliation of the candidate
-
-  ballot_vote:
-    type: object
-    required:
-      - ranking
-      - identity
-    properties:
-      ranking:
-        description: a ranking of candidates
-        type: array
-        items:
-          type: integer
-      identity:
-        description: an array of SHA-512 hashes
-        type: array
-        items:
-          type: string
 
   ward:
     type: object

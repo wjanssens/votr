@@ -1,62 +1,60 @@
 Ext.define('Votr.view.login.LoginController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.login',
+    alias: 'controller.login.login',
 
-    onVoterLogin: function() {
-        // show voter login
-        this.getView().down('#login_cards').setActiveItem(0);
-    },
-
-    onVoterId: function() {
+    onBallotId: function() {
         // send the voter id to the server
         // 200: prompt for voter credentials
-        this.getView().down('#login_cards').setActiveItem(1);
+        this.redirectTo("#voter");
         // 404: show error message
     },
 
     onVoterCredentials: function() {
         // send the voter credentials to the server
         // 200: -> #ballots
-        this.redirectTo("#vote")
+        window.location.href = '/voter';
         // 401: show error message
     },
 
-    onOfficialsLogin: function() {
-        this.getView().down('#login_cards').setActiveItem(2);
+    onAdmin: function() {
+        this.redirectTo("#admin");
     },
 
-    onOfficialCredentials: function() {
+    onAdminCredentials: function() {
         // send the administrator credentials to the server
         // 200: redirect to #wards
         // this.redirectTo("#wards")
         // 401: prompt for mfa
-        this.getView().down('#login_cards').setActiveItem(6);
+        this.redirectTo("#mfa");
         // 401: show error message
     },
 
-    onMfaCode: function() {
+    onAdminForgotPassword: function() {
+        this.redirectTo("#forgot");
+    },
+
+    onAdminMfa: function() {
         // send mfa to server
         // 200: redirect to #wards
-        this.redirectTo("#wards")
+        window.location.href = '/admin';
         // 401: show error message
     },
 
-    onRegister: function() {
-        this.getView().down('#login_cards').setActiveItem(3);
+    onAdminRegister: function() {
+        this.redirectTo("#register")
     },
 
-    onSendResetToken: function() {
-        this.getView().down('#login_cards').setActiveItem(5);
+    onAdminRegistration: function() {
+        // send the new registration to the server
+        // 200: redirect to wards
+        window.location.href = '/admin';
+        // 400: show error message
     },
 
-    onForgotPassword: function() {
-        this.getView().down('#login_cards').setActiveItem(4);
-    },
-
-    onResetPassword: function() {
+    onAdminResetPassword: function() {
         // send new password to server
         // 200: redirect to #wards
-        this.redirectTo("#wards")
+        window.location.href = '/admin';
         // 401: show error message
     }
 
