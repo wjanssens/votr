@@ -1,28 +1,31 @@
 Ext.define('Votr.view.login.VoterBallot', {
     extend: 'Ext.form.Panel',
     alias: 'widget.login.voterballot',
-    title: 'Voter Login',
     requires: [
         'Votr.view.login.LoginController'
     ],
     controller: 'login.login',
     tools: [{
-        iconCls: 'x-fa fa-language'
+        xtype: 'selectfield',
+        label: 'ズA',
+        labelAlign: 'left',
+        store: 'Languages'
     }],
+    title: 'Voter Login'.translate(),
     items: [{
         xtype: 'textfield',
         name: 'ballot_id',
-        label: 'Ballot ID'
+        label: 'Ballot ID'.translate()
     },{
         xtype : 'toolbar',
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            text: 'Officials',
+            text: 'Officials'.translate(),
             handler: 'onAdmin'
         }, '->', {
             xtype: 'button',
-            text: 'Next',
+            text: 'Next'.translate(),
             handler: 'onBallotId'
         }]
     }]

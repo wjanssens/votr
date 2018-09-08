@@ -8,12 +8,14 @@ Ext.define('Votr.controller.Admin', {
         'admin.Candidates',
         'admin.Candidate',
         'admin.Voters',
-        'admin.Voter'
+        'admin.Voter',
+        'admin.Results',
+        'admin.Result'
     ],
     models: [
-        'Ward', 'Ballot', 'Voter', 'Candidate'
+        'Ward', 'Ballot', 'Voter', 'Candidate', 'Language', 'Result'
     ],
     stores: [
-        'Wards', 'Ballots', 'Voters', 'Candidates'
+        'Wards', 'Ballots', 'Voters', 'Candidates', 'Languages', 'Results'
     ]
 })

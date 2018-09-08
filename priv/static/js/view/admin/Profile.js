@@ -1,6 +1,6 @@
-Ext.define('Votr.view.Profile', {
+Ext.define('Votr.view.admin.Profile', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.profile',
+    alias: 'widget.admin.profile',
     layout: 'vbox',
     items: [
         {

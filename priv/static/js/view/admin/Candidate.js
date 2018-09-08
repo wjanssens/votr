@@ -6,13 +6,37 @@ Ext.define('Votr.view.admin.Candidate', {
         {
             xtype: 'formpanel',
             items: [{
-                xtype: 'textfield',
-                name: 'name',
-                label: 'Name *'
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'name',
+                    label: 'Name *',
+                    flex: 1,
+                    bind: '{candidateList.selection.name}'
+                }, {
+                    xtype: 'selectfield',
+                    label: 'Language',
+                    width: 128,
+                    store: 'Languages'
+                }]
             }, {
-                xtype: 'textfield',
-                name: 'desc',
-                label: 'Description'
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'desc',
+                    label: 'Description *',
+                    flex: 1,
+                    bind: '{candidateList.selection.description}'
+                }, {
+                    xtype: 'selectfield',
+                    label: 'Language',
+                    width: 128,
+                    store: 'Languages'
+                }]
             }, {
                 xtype: 'textfield',
                 name: 'ext_id',
@@ -21,28 +45,6 @@ Ext.define('Votr.view.admin.Candidate', {
                 xtype: 'checkboxfield',
                 name: 'withdrawn',
                 label: 'Withdrawn'
-            }, {
-                xtype: 'fieldset',
-                title: 'Results',
-                items: [
-                    {
-                        xtype: 'textfield',
-                        name: 'votes',
-                        label: 'Votes'
-                    }, {
-                        xtype: 'textfield',
-                        name: 'percentage',
-                        label: 'Percentage'
-                    }, {
-                        xtype: 'textfield',
-                        name: 'status',
-                        label: 'Status'
-                    }, {
-                        xtype: 'textfield',
-                        name: 'round',
-                        label: 'Round'
-                    }
-                ]
             }]
         }
     ]

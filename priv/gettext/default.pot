@@ -10,12 +10,18 @@
 msgid ""
 msgstr ""
 
-#, elixir-format
-#: lib/votr_web/controllers/json_controller.ex:8
-msgid "Bar"
+#: lib/votr_web/controllers/i18n_controller.ex:10
+msgid "Ballot ID"
 msgstr ""
 
-#, elixir-format
-#: lib/votr_web/controllers/json_controller.ex:7
-msgid "Foo"
+#: lib/votr_web/controllers/i18n_controller.ex:11
+msgid "Next"
+msgstr ""
+
+#: lib/votr_web/controllers/i18n_controller.ex:9
+msgid "Officials"
+msgstr ""
+
+#: lib/votr_web/controllers/i18n_controller.ex:8
+msgid "Voter Login"
 msgstr ""

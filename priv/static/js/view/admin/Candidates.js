@@ -3,11 +3,18 @@ Ext.define('Votr.view.admin.Candidates', {
     alias: 'widget.admin.candidates',
     layout: 'hbox',
     padding: 0,
+    referenceHolder: true,
+    viewModel: {
+        stores: {
+            candidates: 'Candidates'
+        }
+    },
     items: [{
         xtype: 'list',
+        reference: 'candidateList',
         width: 384,
-        itemTpl: '<div><p>{name}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{desc}</p></div>',
-        store: 'Candidates'
+        itemTpl: '<div><p>{name}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{description}</p></div>',
+        bind: '{candidates}'
     }, {
         xtype: 'admin.candidate',
         flex: 1

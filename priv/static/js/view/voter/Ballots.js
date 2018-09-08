@@ -74,23 +74,9 @@ Ext.define('Votr.view.voter.Ballots', {
             c.add(new Votr.view.voter.Ballot({ data: ballot }));
         });
     },
-    padding: 0,
     layout: 'vbox',
+    padding: 0,
     items: [
-        {
-            xtype: 'selectfield',
-            label: 'Choose one',
-            options: [{
-                text: 'English',
-                value: 'en'
-            }, {
-                text: 'French',
-                value: 'fr'
-            }, {
-                text: 'Third Option',
-                value: 'third'
-            }]
-        },
         {
             xtype: 'panel',
             padding: 0,
@@ -100,6 +86,7 @@ Ext.define('Votr.view.voter.Ballots', {
             xtype: 'button',
             text: 'Vote',
             height: 32,
+            margin: '16 0',
             ui: 'action',
             itemId: 'voteButton',
         }

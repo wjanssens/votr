@@ -3,7 +3,6 @@ Ext.define('Votr.view.admin.Voters', {
     alias: 'widget.admin.voters',
     padding: 0,
     layout: 'hbox',
-    padding: 0,
     items: [{
         xtype: 'list',
         width: 384,

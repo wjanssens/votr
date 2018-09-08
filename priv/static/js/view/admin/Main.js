@@ -19,20 +19,7 @@ Ext.define('Votr.view.admin.Main', {
                     iconCls: 'x-fa fa-home',
                     tooltip: 'Home',
                     handler: 'onHome'
-                },
-                {
-                    xtype: 'button',
-                    iconCls: 'x-fa fa-chevron-left',
-                    tooltip: 'Back',
-                    handler: function () {
-                        Ext.util.History.back();
-                    }
                 }, '->', {
-                    xtype: 'button',
-                    iconCls: 'x-fa fa-language',
-                    tooltip: 'Language'
-                },
-                {
                     xtype: 'button',
                     iconCls: 'x-fa fa-user-circle',
                     tooltip: 'Account'
@@ -53,7 +40,8 @@ Ext.define('Votr.view.admin.Main', {
                 {xtype: 'admin.wards'},
                 {xtype: 'admin.ballots'},
                 {xtype: 'admin.voters'},
-                {xtype: 'admin.candidates'}
+                {xtype: 'admin.candidates'},
+                {xtype: 'admin.results'}
             ]
         }
     ]

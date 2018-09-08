@@ -4,6 +4,7 @@ Ext.define('Votr.model.Ballot', {
         {name: 'ward_id', type: 'integer'},
         {name: 'title', type: 'string'},
         {name: 'description', type: 'string'},
+        {name: 'ext_id', type: 'string'},
         {name: 'method', type: 'string'},
         {name: 'elect', type: 'integer'},
         {name: 'color', type: 'string'},

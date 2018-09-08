@@ -6,9 +6,21 @@ Ext.define('Votr.view.admin.Ward', {
             xtype: 'panel',
             padding: 0,
             items: [{
-                xtype: 'textfield',
-                name: 'title',
-                label: 'Title *'
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'title',
+                    label: 'Title *',
+                    flex: 1
+                },
+                {
+                    xtype: 'selectfield',
+                    label: 'Language',
+                    width: 128,
+                    store: 'Languages'
+                }]
             }, {
                 xtype: 'textfield',
                 name: 'startTime',

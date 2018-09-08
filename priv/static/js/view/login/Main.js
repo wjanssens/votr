@@ -6,6 +6,7 @@ Ext.define('Votr.view.login.Main', {
         "Votr.view.login.MainController"
     ],
     controller: 'login.main',
+    padding: 0,
     items: [{
         xtype: 'panel',
         flex: 1,
@@ -16,7 +17,7 @@ Ext.define('Votr.view.login.Main', {
         items: [
             {
                 xtype: 'panel',
-                height: 64,
+                flex: 1
             },
             {
                 xtype: 'panel',
@@ -33,7 +34,11 @@ Ext.define('Votr.view.login.Main', {
                     { xtype: 'login.adminforgotpassword' },
                     { xtype: 'login.adminresetpassword' }
                 ]
-            }
+            },
+            {
+                xtype: 'panel',
+                flex: 1
+            },
         ]
     }, {
         xtype: 'panel',

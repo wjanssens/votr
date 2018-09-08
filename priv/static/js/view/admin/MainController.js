@@ -11,6 +11,7 @@ Ext.define('Votr.view.admin.MainController', {
         'ballots/:id': 'onBallot',
         'ballots/:id/candidates': 'onCandidates',
         'ballots/:id/results': 'onResults',
+        'ballots/:id/log': 'onLog',
         'voters:/id': 'onVoter',
         'candidates/:id': 'onCandidate',
     },

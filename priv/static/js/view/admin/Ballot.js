@@ -6,17 +6,44 @@ Ext.define('Votr.view.admin.Ballot', {
         {
             xtype: 'formpanel',
             items: [{
-                xtype: 'textfield',
-                name: 'title',
-                label: 'Title *'
-            }, {
-                xtype: 'textfield',
-                name: 'desc',
-                label: 'Description'
-            }, {
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'title',
+                    label: 'Title *',
+                    flex: 1,
+                    bind: '{ballotList.selection.title}'
+                },
+                    {
+                        xtype: 'selectfield',
+                        label: 'Language',
+                        width: 128,
+                        store: 'Languages'
+                    }]
+            },{
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'description',
+                    label: 'Description *',
+                    flex: 1,
+                    bind: '{ballotList.selection.description}'
+                },
+                    {
+                        xtype: 'selectfield',
+                        label: 'Language',
+                        width: 128,
+                        store: 'Languages'
+                    }]
+            },{
                 xtype: 'textfield',
                 name: 'ext_id',
-                label: 'External ID'
+                label: 'External ID',
+                bind: '{ballotList.selection.ext_id}'
             }, {
                 xtype: 'selectfield',
                 label: 'Method *',
@@ -27,7 +54,8 @@ Ext.define('Votr.view.admin.Ballot', {
                     {value: 'MSTV', text: 'Meek STV'},
                     {value: 'FPTP', text: 'Plurality'},
                     {value: 'AV', text: 'Approval'}
-                ]
+                ],
+                bind: '{ballotList.selection.method}'
             }, {
                 xtype: 'selectfield',
                 label: 'Quota *',
@@ -38,57 +66,33 @@ Ext.define('Votr.view.admin.Ballot', {
                     {value: 'hare', text: 'Hare [ v / s ]'},
                     {value: 'imperator', text: 'Imperator [ v / (s + 2) ]'},
                     {value: 'hagenback-bischoff', text: 'Hagenbach Bischoff [ v / (s + 1) ]'},
-                ]
+                ],
+                bind: '{ballotList.selection.quota}'
             }, {
                 xtype: 'spinnerfield',
                 label: 'Electing',
                 minValue: 1,
                 value: 1,
                 stepValue: 1,
-                name: 'elect',
-                tooltip: 'How many candidates are being elected'
+                name: 'electing',
+                tooltip: 'How many candidates are being elected',
+                bind: '{ballotList.selection.electing}'
             }, {
                 xtype: 'checkboxfield',
                 name: 'shuffle',
-                label: 'Shuffle',
+                label: 'Shuffle Candidates',
                 value: 'shuffle',
                 checked: false,
-                tooltip: 'Candidates are shown in a random order'
+                tooltip: 'Candidates are shown in a random order',
+                bind: '{ballotList.selection.shuffle}'
             }, {
                 xtype: 'checkboxfield',
                 name: 'mutable',
                 label: 'Mutable',
                 value: 'mutable',
                 checked: false,
-                tooltip: 'Voters can change their vote'
-            }]
-        }, {
-            xtype: 'polar',
-            reference: 'chart',
-            width: '100%',
-            height: 256,
-            insetPadding: 20,
-            innerPadding: 20,
-            background: 'transparent',
-            store: {
-                fields: ['os', 'data1' ],
-                data: [
-                    { candidate: 'Candidate 1', votes: 68.3 },
-                    { candidate: 'Candidate 3', votes: 17.9 },
-                    { candidate: 'Candidate 4', votes: 10.2 },
-                    { candidate: 'Candidate 5', votes: 1.9 },
-                    { candidate: 'Candidate 2', votes: 1.7 },
-                    { candidate: 'Exhausted', votes: 1.9 }
-                ]
-            },
-            interactions: ['rotate'],
-            series: [{
-                type: 'pie',
-                angleField: 'votes',
-                label: {
-                    field: 'candidate'
-                },
-                highlight: true
+                tooltip: 'Voters can change their vote',
+                bind: '{ballotList.selection.mutable}'
             }]
         }
     ]

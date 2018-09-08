@@ -3,15 +3,22 @@ Ext.define('Votr.view.admin.Ballots', {
     alias: 'widget.admin.ballots',
     layout: 'hbox',
     padding: 0,
+    referenceHolder: true,
+    viewModel: {
+        stores: {
+            ballots: 'Ballots'
+        }
+    },
     requires: [
         "Votr.view.admin.BallotsController"
     ],
     controller: 'admin.ballots',
     items: [{
         xtype: 'list',
+        reference: 'ballotList',
         width: 384,
         itemTpl: '<div><p>{title}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description}</p></div>',
-        store: 'Ballots'
+        bind: '{ballots}'
     }, {
         xtype: 'admin.ballot',
         flex: 1

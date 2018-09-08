@@ -26,7 +26,7 @@ Ext.define('Votr.view.voter.Candidate', {
             border: 1,
             padding: 0,
             margin: 0,
-            src: 'images/guy.png'
+            src: '../images/guy.png'
         }, {
             xtype: 'panel',
             flex: 1,

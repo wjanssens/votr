@@ -13,6 +13,11 @@ Ext.define('Votr.controller.Login', {
         'login.AdminMfa',
         'login.AdminForgotPassword',
         'login.AdminResetPassword'
+    ],
+    models: [
+        'Language'
+    ],
+    stores: [
+        'Languages'
     ]
-
 })
