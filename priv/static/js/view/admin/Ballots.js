@@ -5,20 +5,23 @@ Ext.define('Votr.view.admin.Ballots', {
     padding: 0,
     referenceHolder: true,
     viewModel: {
+        data: {
+            lang: 'default'
+        },
         stores: {
             ballots: 'Ballots',
             languages: 'Languages'
         },
         formulas: {
-            lang: {
+            language: {
                 bind: {
-                    lang: '{ballotList.selection.lang}'
+                    lang: '{lang}'
                 },
                 get: function(data) {
                     return data.lang;
                 },
                 set: function(selection) {
-                    this.set('ballotList.selection.lang', selection.id)
+                    this.set('lang', selection.id)
                 }
             },
             method: {
@@ -47,13 +50,13 @@ Ext.define('Votr.view.admin.Ballots', {
             title: {
                 bind: {
                     title: '{ballotList.selection.title}',
-                    lang: '{ballotList.selection.lang}'
+                    lang: '{lang}'
                 },
                 get: function(data) {
                     return data.title[data.lang];
                 },
                 set: function(value) {
-                    var lang = this.get('ballotList.selection.lang');
+                    var lang = this.get('lang');
                     var title = this.get('ballotList.selection.title');
                     title[lang] = value;
                 }
@@ -61,13 +64,13 @@ Ext.define('Votr.view.admin.Ballots', {
             description: {
                 bind: {
                     description: '{ballotList.selection.description}',
-                    lang: '{ballotList.selection.lang}'
+                    lang: '{lang}'
                 },
                 get: function(data) {
                     return data.description[data.lang];
                 },
                 set: function(value) {
-                    var lang = this.get('ballotList.selection.lang');
+                    var lang = this.get('lang');
                     var description = this.get('ballotList.selection.description');
                     description[lang] = value;
                 }

@@ -14,12 +14,18 @@ Ext.define('Votr.view.admin.Candidate', {
                     name: 'name',
                     label: 'Name *',
                     flex: 1,
-                    bind: '{candidateList.selection.name}'
+                    bind: {
+                        value: '{name}',
+                        placeHolder: '{candidateList.selection.name.default}'
+                    }
                 }, {
                     xtype: 'selectfield',
                     label: 'Language',
                     width: 128,
-                    store: 'Languages'
+                    bind: {
+                        store: '{languages}',
+                        value: '{language}'
+                    }
                 }]
             }, {
                 xtype: 'panel',
@@ -30,12 +36,18 @@ Ext.define('Votr.view.admin.Candidate', {
                     name: 'desc',
                     label: 'Description *',
                     flex: 1,
-                    bind: '{candidateList.selection.description}'
+                    bind: {
+                        value: '{description}',
+                        placeHolder: '{candidateList.selection.description.default}'
+                    }
                 }, {
                     xtype: 'selectfield',
                     label: 'Language',
                     width: 128,
-                    store: 'Languages'
+                    bind: {
+                        store: '{languages}',
+                        value: '{language}'
+                    }
                 }]
             }, {
                 xtype: 'textfield',

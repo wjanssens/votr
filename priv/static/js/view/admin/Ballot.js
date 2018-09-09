@@ -22,9 +22,9 @@ Ext.define('Votr.view.admin.Ballot', {
                     xtype: 'selectfield',
                     label: 'Language',
                     width: 128,
-                    store: 'Languages',
                     bind: {
-                        value: '{lang}'
+                        store: '{languages}',
+                        value: '{language}'
                     }
                 }]
             }, {
@@ -46,7 +46,8 @@ Ext.define('Votr.view.admin.Ballot', {
                     width: 128,
                     store: 'Languages',
                     bind: {
-                        value: '{lang}'
+                        store: '{languages}',
+                        value: '{language}'
                     }
                 }]
             }, {

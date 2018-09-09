@@ -11,17 +11,46 @@ Ext.define('Votr.view.admin.Ward', {
                 padding: 0,
                 items: [{
                     xtype: 'textfield',
-                    name: 'title',
-                    label: 'Title *',
+                    name: 'name',
+                    label: 'Name *',
                     flex: 1,
-                    bind: '{wardList.selection.text}'
+                    bind: {
+                        value: '{name}',
+                        placeHolder: '{wardList.selection.name.default}'
+                    }
                 },
                 {
                     xtype: 'selectfield',
                     label: 'Language',
                     width: 128,
-                    store: 'Languages'
+                    bind: {
+                        store: '{languages}',
+                        value: '{language}'
+                    }
                 }]
+            }, {
+                xtype: 'panel',
+                layout: 'hbox',
+                padding: 0,
+                items: [{
+                    xtype: 'textfield',
+                    name: 'description',
+                    label: 'Description *',
+                    flex: 1,
+                    bind: {
+                        value: '{description}',
+                        placeHolder: '{wardList.selection.description.default}'
+                    }
+                },
+                    {
+                        xtype: 'selectfield',
+                        label: 'Language',
+                        width: 128,
+                        bind: {
+                            store: '{languages}',
+                            value: '{language}'
+                        }
+                    }]
             }, {
                 xtype: 'textfield',
                 name: 'ext_id',
