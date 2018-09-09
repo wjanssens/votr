@@ -13,7 +13,8 @@ Ext.define('Votr.view.admin.Ward', {
                     xtype: 'textfield',
                     name: 'title',
                     label: 'Title *',
-                    flex: 1
+                    flex: 1,
+                    bind: '{wardList.selection.text}'
                 },
                 {
                     xtype: 'selectfield',
@@ -23,12 +24,19 @@ Ext.define('Votr.view.admin.Ward', {
                 }]
             }, {
                 xtype: 'textfield',
+                name: 'ext_id',
+                label: 'External ID',
+                bind: '{wardList.selection.ext_id}'
+            }, {
+                xtype: 'textfield',
                 name: 'startTime',
-                label: 'Start Date/Time *'
+                label: 'Start Date/Time *',
+                bind: '{wardList.selection.start_time}'
             }, {
                 xtype: 'textfield',
                 name: 'endTime',
-                label: 'End Date/Time *'
+                label: 'End Date/Time *',
+                bind: '{wardList.selection.end_time}'
             }]
         }
     ]

@@ -14,15 +14,20 @@ Ext.define('Votr.view.admin.Ballot', {
                     name: 'title',
                     label: 'Title *',
                     flex: 1,
-                    bind: '{ballotList.selection.title}'
-                },
-                    {
-                        xtype: 'selectfield',
-                        label: 'Language',
-                        width: 128,
-                        store: 'Languages'
-                    }]
-            },{
+                    bind: {
+                        value: '{title}',
+                        placeHolder: '{ballotList.selection.title.default}'
+                    }
+                }, {
+                    xtype: 'selectfield',
+                    label: 'Language',
+                    width: 128,
+                    store: 'Languages',
+                    bind: {
+                        value: '{lang}'
+                    }
+                }]
+            }, {
                 xtype: 'panel',
                 layout: 'hbox',
                 padding: 0,
@@ -31,15 +36,20 @@ Ext.define('Votr.view.admin.Ballot', {
                     name: 'description',
                     label: 'Description *',
                     flex: 1,
-                    bind: '{ballotList.selection.description}'
-                },
-                    {
-                        xtype: 'selectfield',
-                        label: 'Language',
-                        width: 128,
-                        store: 'Languages'
-                    }]
-            },{
+                    bind: {
+                        value: '{description}',
+                        placeHolder: '{ballotList.selection.description.default}'
+                    }
+                }, {
+                    xtype: 'selectfield',
+                    label: 'Language',
+                    width: 128,
+                    store: 'Languages',
+                    bind: {
+                        value: '{lang}'
+                    }
+                }]
+            }, {
                 xtype: 'textfield',
                 name: 'ext_id',
                 label: 'External ID',
@@ -47,7 +57,6 @@ Ext.define('Votr.view.admin.Ballot', {
             }, {
                 xtype: 'selectfield',
                 label: 'Method *',
-                queryMode: 'local',
                 name: 'method',
                 options: [
                     {value: 'SSTV', text: 'Scottish STV'},
@@ -55,7 +64,7 @@ Ext.define('Votr.view.admin.Ballot', {
                     {value: 'FPTP', text: 'Plurality'},
                     {value: 'AV', text: 'Approval'}
                 ],
-                bind: '{ballotList.selection.method}'
+                bind: '{method}'
             }, {
                 xtype: 'selectfield',
                 label: 'Quota *',
@@ -67,7 +76,7 @@ Ext.define('Votr.view.admin.Ballot', {
                     {value: 'imperator', text: 'Imperator [ v / (s + 2) ]'},
                     {value: 'hagenback-bischoff', text: 'Hagenbach Bischoff [ v / (s + 1) ]'},
                 ],
-                bind: '{ballotList.selection.quota}'
+                bind: '{quota}'
             }, {
                 xtype: 'spinnerfield',
                 label: 'Electing',

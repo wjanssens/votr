@@ -6,7 +6,72 @@ Ext.define('Votr.view.admin.Ballots', {
     referenceHolder: true,
     viewModel: {
         stores: {
-            ballots: 'Ballots'
+            ballots: 'Ballots',
+            languages: 'Languages'
+        },
+        formulas: {
+            lang: {
+                bind: {
+                    lang: '{ballotList.selection.lang}'
+                },
+                get: function(data) {
+                    return data.lang;
+                },
+                set: function(selection) {
+                    this.set('ballotList.selection.lang', selection.id)
+                }
+            },
+            method: {
+                bind: {
+                    method: '{ballotList.selection.method}'
+                },
+                get: function(data) {
+                    return data.method;
+                },
+                set: function(selection) {
+                    console.log(selection);
+                    this.set('ballotList.selection.method', selection.data.value)
+                }
+            },
+            quota: {
+                bind: {
+                    quota: '{ballotList.selection.quota}'
+                },
+                get: function(data) {
+                    return data.quota;
+                },
+                set: function(selection) {
+                    this.set('ballotList.selection.quota', selection.data.value)
+                }
+            },
+            title: {
+                bind: {
+                    title: '{ballotList.selection.title}',
+                    lang: '{ballotList.selection.lang}'
+                },
+                get: function(data) {
+                    return data.title[data.lang];
+                },
+                set: function(value) {
+                    var lang = this.get('ballotList.selection.lang');
+                    var title = this.get('ballotList.selection.title');
+                    title[lang] = value;
+                }
+            },
+            description: {
+                bind: {
+                    description: '{ballotList.selection.description}',
+                    lang: '{ballotList.selection.lang}'
+                },
+                get: function(data) {
+                    return data.description[data.lang];
+                },
+                set: function(value) {
+                    var lang = this.get('ballotList.selection.lang');
+                    var description = this.get('ballotList.selection.description');
+                    description[lang] = value;
+                }
+            }
         }
     },
     requires: [
@@ -17,7 +82,7 @@ Ext.define('Votr.view.admin.Ballots', {
         xtype: 'list',
         reference: 'ballotList',
         width: 384,
-        itemTpl: '<div><p>{title}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description}</p></div>',
+        itemTpl: '<div><p>{title.default}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
         bind: '{ballots}'
     }, {
         xtype: 'admin.ballot',
@@ -29,8 +94,7 @@ Ext.define('Votr.view.admin.Ballots', {
         items: [{
             xtype: 'button',
             itemId: 'add',
-            iconCls: 'x-fa fa-plus',
-            tooltip: 'Add Ballot',
+            text: 'Add Ballot',
             handler: 'onAdd'
         }, {
             xtype: 'button',

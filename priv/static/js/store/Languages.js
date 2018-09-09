@@ -2,7 +2,7 @@ Ext.define('Votr.store.Languages', {
     extend: 'Ext.data.Store',
     model: 'Votr.model.Language',
     data: [
-        {value: '*',  text: '* Default *', default: true},
+        {value: 'default',  text: '* Default *'},
         {value: 'zh', text: '中文'},
         {value: 'es', text: 'Español'},
         {value: 'en', text: 'English'},

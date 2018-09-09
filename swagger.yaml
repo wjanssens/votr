@@ -544,116 +544,6 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
-  /admin/res/{id}:
-    get:
-      tags:
-        - CRUD Localization
-      summary: All localized strings for an entity
-      produces:
-        - application/json
-      parameters:
-        - name: id
-          description: Owning entity identifier
-          in: path
-          required: true
-          type: string
-      responses:
-        '200':
-          description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/response'
-              - properties:
-                  tags:
-                    type: array
-                    items:
-                      $ref: '#/definitions/res'
-        '404':
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response'
-
-  /admin/res/{id}/{key}/{tag}:
-    put:
-      tags:
-        - CRUD Localization
-      summary: Add / update a string for a resource tag
-      produces:
-        - application/json
-      parameters:
-        - name: id
-          description: Owning entity identifier
-          in: path
-          required: true
-          type: string
-        - name: key
-          description: Resource key (eg. name)
-          in: path
-          required: true
-          type: string
-        - name: tag
-          description: Language tag (eg. en-CA)
-          in: path
-          required: true
-          type: string
-        - name: value
-          description: Localized string
-          in: body
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          schema:
-            $ref: '#/definitions/response'
-        '201':
-          description: Created
-          schema:
-            $ref: '#/definitions/response'
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response'
-        '404':
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response'
-    delete:
-      tags:
-        - CRUD Localization
-      summary: Delete a string for a resource tag
-      produces:
-        - application/json
-      parameters:
-        - name: id
-          description: Owning entity identifier
-          in: path
-          required: true
-          type: string
-        - name: key
-          description: Resource key (eg. name)
-          in: path
-          required: true
-          type: string
-        - name: tag
-          description: Language tag (eg. en-CA)
-          in: path
-          required: true
-          type: string
-      responses:
-        '200':
-          description: OK
-          schema:
-            $ref: '#/definitions/response'
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response'
-        '404':
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response'
-
   /token:
     post:
       tags:
@@ -1033,8 +923,11 @@ definitions:
         description: external identifier
         type: string
       name:
-        description: the name to show in the tree
-        type: string
+        description: the name of the ward
+        $ref: '#definitions/localized_string'
+      description:
+        description: a description of the ward
+        $ref: '#definitions/localized_string'
       start_time:
         description: when voting opens, null to inherit
         type: string
@@ -1056,14 +949,24 @@ definitions:
       ext_id:
         description: external identifier
         type: string
-      kind:
+      name:
+        description: the name of the ballot
+        $ref: '#/definitions/localized_string'
+      description:
+        description: the description of the ballot
+        $ref: '#/definitions/localized_string'
+      method:
         description: the type of ballot
         type: string
-        enum: ['unranked', 'fully_ranked', 'partially_ranked', 'approval']
+        enum: ['SSTV', 'MSTV', 'plurality', 'approval']
+      quota:
+        description: the quota to use
+        type: string
+        enum: ['droop', 'hare', 'imperator', 'hagenback-bischoff']
       seq:
         description: used to sort ballots in a ward
         type: integer
-      elect:
+      electing:
         description: how many candidates to elect
         type: integer
       shuffle:
@@ -1085,6 +988,12 @@ definitions:
       ext_id:
         description: external identifier
         type: string
+      name:
+        description: the name of the candidate
+        $ref: '#definitions/localized_string'
+      description:
+        description: a description of the candidate (eg. party affiliation)
+        $ref: '#definitions/localized_string'
       seq:
         description: used to sort candidates on a ballot
         type: integer
@@ -1130,16 +1039,11 @@ definitions:
       exhausted:
         type: integer
 
-  res:
+  localized_string:
     type: object
-    required:
-      - key
-      - tag
-      - value
-    properties:
-      key:
-        type: string
-      tag:
-        type: string
-      value:
-        type: string
+    additionalProperties:
+      type: string
+    example:
+      en: 'example',
+      fr: 'exemple',
+      es: 'ejemplo'

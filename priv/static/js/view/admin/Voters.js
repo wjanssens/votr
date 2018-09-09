@@ -3,11 +3,18 @@ Ext.define('Votr.view.admin.Voters', {
     alias: 'widget.admin.voters',
     padding: 0,
     layout: 'hbox',
+    referernceHolder: true,
+    viewModel: {
+        stores: {
+            voters: 'Voters'
+        }
+    },
     items: [{
         xtype: 'list',
+        reference: 'voterList',
         width: 384,
         itemTpl: '<div><p>{name}<span style="float:right">{voted}</span></p></div>',
-        store: 'Voters'
+        bind: '{voters}'
     }, {
         xtype: 'admin.voter',
         flex: 1

@@ -25,8 +25,7 @@ Ext.define('Votr.view.admin.Candidates', {
         items: [{
             xtype: 'button',
             itemId: 'add',
-            iconCls: 'x-fa fa-plus',
-            tooltip: 'Add Candidate',
+            text: 'Add Candidate',
             handler: 'onAdd'
         }, '->', {
             xtype: 'button',

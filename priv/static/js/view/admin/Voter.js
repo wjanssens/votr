@@ -8,11 +8,13 @@ Ext.define('Votr.view.admin.Voter', {
             items: [{
                 xtype: 'textfield',
                 name: 'name',
-                label: 'Name'
+                label: 'Name',
+                bind: '{voterList.selection.name}'
             }, {
                 xtype: 'textfield',
                 name: 'ext_id',
-                label: 'External ID'
+                label: 'External ID',
+                bind: '{voterList.selection.ext_id}'
             }, {
                 xtype: 'fieldset',
                 title: 'Address Information',
@@ -21,17 +23,20 @@ Ext.define('Votr.view.admin.Voter', {
                     {
                         xtype: 'emailfield',
                         name: 'email',
-                        label: 'Email'
+                        label: 'Email',
+                        bind: '{voterList.selection.email}'
                     }, {
                         xtype: 'textfield',
                         name: 'phone',
                         label: 'Mobile Phone (E.164)',
-                        placeHolder: 'e.g. +1 415 555 2671 ; +44 20 7183 8750'
+                        placeHolder: 'e.g. +1 415 555 2671 ; +44 20 7183 8750',
+                        bind: '{voterList.selection.phone}'
                     }, {
                         xtype: 'textareafield',
                         name: 'postal address',
                         label: 'Postal Address',
-                        maxRows: 5
+                        maxRows: 5,
+                        bind: '{voterList.selection.postal_address}'
                     }
                 ]
             }, {
@@ -43,11 +48,13 @@ Ext.define('Votr.view.admin.Voter', {
                         xtype: 'textfield',
                         name: 'dob',
                         label: 'Date of Birth',
+                        bind: '{voterList.selection.dob}'
                     }, {
                         xtype: 'textfield',
                         tooltip: 'Citizen Card, Passport Card, Voter Card, PAN card, Drivers License, Passport, Tax Number, etc...',
                         name: 'identity_card_number',
                         label: 'Identity Card Number',
+                        bind: '{voterList.selection.identity_card}'
                     }, {
                         xtype: 'panel',
                         layout: 'hbox',

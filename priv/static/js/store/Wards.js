@@ -1,12 +1,10 @@
 Ext.define('Votr.store.Wards', {
     extend: 'Ext.data.TreeStore',
-    rootVisible: true,
-    expanded: true,
     root: {
-        text: 'Root',
+        text: 'All',
         expanded: true,
         children: [
-            {text: 'Ward 1', description: 'Description 1', leaf: true},
+            {text: 'Ward 1', description: 'Description 1', leaf: true, iconCls: 'x-fa fa-home'},
             {
                 text: 'Ward 2', description: 'Description 2', leaf: false, children:
                     [
