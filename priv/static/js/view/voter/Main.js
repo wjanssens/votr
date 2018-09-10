@@ -7,13 +7,23 @@ Ext.define('Votr.view.voter.Main', {
     controller: 'voter.main',
     scrollable: true,
     layout: 'hbox',
+    padding: 0,
     items: [{
         xtype: 'panel',
         flex: 1,
     }, {
         xtype: 'voter.ballots',
         itemId: 'ballots',
-        width: 512
+        padding: 0,
+        plugins: 'responsive',
+        responsiveConfig: {
+            'width < 512': {
+                width: '100%'
+            },
+            'width >= 512': {
+                width: 512
+            },
+        }
     }, {
         xtype: 'panel',
         flex: 1,

@@ -2,9 +2,8 @@ Ext.define('Votr.view.voter.Ballot', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.ballot',
     layout: 'vbox',
-    width: 512,
     border: 1,
-    padding: '8px',
+    padding: 0,
     margin: '16px 0',
     title: 'Title',
     setData: function(data) {

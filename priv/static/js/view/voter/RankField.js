@@ -34,7 +34,8 @@ Ext.define('Votr.view.voter.RankField', {
         xtype: 'button',
         iconCls: 'x-fa fa-minus',
         ui: 'action',
-        width: 48,
+        width: 32,
+        height: 32,
         handler: function() { this.up().decrement(); }
     },{
         xtype: 'component',
@@ -46,15 +47,17 @@ Ext.define('Votr.view.voter.RankField', {
                 '<tpl if="!ranked && rank &gt; 0"><p>&check;</p></tpl>',
             '</tpl>'
         ),
-        style: 'font-size: 1.5em; text-align: center; margin-top: 16px;',
+        style: 'font-size: 1.5em; text-align: center; margin-top: 8px;',
         styleHtmlContent: true,
         readOnly: true,
-        width: 32
+        width: 32,
+        height: 32
     },{
         xtype: 'button',
         iconCls: 'x-fa fa-plus',
         ui: 'action',
-        width: 48,
+        width: 32,
+        height: 32,
         handler: function() { this.up().increment(); }
     }]
 });

@@ -6,9 +6,6 @@ Ext.define('Votr.view.login.AdminLogin', {
         'Votr.view.login.LoginController'
     ],
     controller: 'login.login',
-    tools: [{
-        iconCls: 'x-fa fa-language'
-    }],
     items: [{
         xtype: 'textfield',
         name: 'username',
