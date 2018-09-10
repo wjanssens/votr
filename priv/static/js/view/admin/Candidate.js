@@ -1,63 +1,68 @@
 Ext.define('Votr.view.admin.Candidate', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.form.Panel',
     alias: 'widget.admin.candidate',
     layout: 'vbox',
+    bind: {
+        disabled: '{!candidateList.selection}'
+    },
     items: [
         {
-            xtype: 'formpanel',
+            xtype: 'panel',
+            layout: 'hbox',
+            padding: 0,
             items: [{
-                xtype: 'panel',
-                layout: 'hbox',
-                padding: 0,
-                items: [{
-                    xtype: 'textfield',
-                    name: 'name',
-                    label: 'Name *',
-                    flex: 1,
-                    bind: {
-                        value: '{name}',
-                        placeHolder: '{candidateList.selection.name.default}'
-                    }
-                }, {
-                    xtype: 'selectfield',
-                    label: 'Language',
-                    width: 128,
-                    bind: {
-                        store: '{languages}',
-                        value: '{language}'
-                    }
-                }]
-            }, {
-                xtype: 'panel',
-                layout: 'hbox',
-                padding: 0,
-                items: [{
-                    xtype: 'textfield',
-                    name: 'desc',
-                    label: 'Description *',
-                    flex: 1,
-                    bind: {
-                        value: '{description}',
-                        placeHolder: '{candidateList.selection.description.default}'
-                    }
-                }, {
-                    xtype: 'selectfield',
-                    label: 'Language',
-                    width: 128,
-                    bind: {
-                        store: '{languages}',
-                        value: '{language}'
-                    }
-                }]
-            }, {
                 xtype: 'textfield',
-                name: 'ext_id',
-                label: 'External ID'
+                name: 'name',
+                label: 'Name *',
+                flex: 1,
+                bind: {
+                    value: '{name}',
+                    placeHolder: '{candidateList.selection.name.default}'
+                }
             }, {
-                xtype: 'checkboxfield',
-                name: 'withdrawn',
-                label: 'Withdrawn'
+                xtype: 'selectfield',
+                label: 'Language',
+                width: 128,
+                bind: {
+                    store: '{languages}',
+                    value: '{language}'
+                }
             }]
+        }, {
+            xtype: 'panel',
+            layout: 'hbox',
+            padding: 0,
+            items: [{
+                xtype: 'textfield',
+                name: 'desc',
+                label: 'Description *',
+                flex: 1,
+                bind: {
+                    value: '{description}',
+                    placeHolder: '{candidateList.selection.description.default}'
+                }
+            }, {
+                xtype: 'selectfield',
+                label: 'Language',
+                width: 128,
+                bind: {
+                    store: '{languages}',
+                    value: '{language}'
+                }
+            }]
+        }, {
+            xtype: 'textfield',
+            name: 'ext_id',
+            label: 'External ID'
+        }, {
+            xtype: 'filefield',
+            label: "Avatar (48x48)",
+            name: 'avatar',
+            accept: 'image'
+        }, {
+            xtype: 'checkboxfield',
+            name: 'withdrawn',
+            label: 'Withdrawn'
         }
     ]
 });

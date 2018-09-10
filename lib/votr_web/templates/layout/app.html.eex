@@ -27,6 +27,9 @@
             --base-color: #607D8B;
             --listitem-selected-background-color: #CFD8DC;
         }
+        .x-pressed {
+            background-color: #fd9726 !important;
+        }
         .x-tool {
             font-size: 1em !important;
             font-weight: normal !important;

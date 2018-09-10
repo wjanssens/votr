@@ -8,12 +8,12 @@ Ext.define('Votr.view.login.VoterCredentials', {
     controller: 'login.login',
     items: [{
         xtype: 'textfield',
-        name: 'challenge',
-        label: 'challenge'
+        name: 'identity_card',
+        label: 'Identity Card'
     }, {
         xtype: 'textfield',
-        name: 'response',
-        label: 'response'
+        name: 'access_code',
+        label: 'Access Code'
     }, {
         xtype: 'toolbar',
         docked: 'bottom',

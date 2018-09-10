@@ -6,6 +6,7 @@ Ext.define('Votr.model.Voter', {
         {name: 'ext_id', type: 'string'},
         {name: 'voted', type: 'number'},
         {name: 'identity_card', type: 'string'},
+        {name: 'access_code', type: 'string'},
         {name: 'dob', type: 'string'},
         {name: 'email', type: 'string'},
         {name: 'phone', type: 'string'},

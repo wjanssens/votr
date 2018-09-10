@@ -2,7 +2,8 @@ Ext.define('Votr.view.admin.Wards', {
     extend: 'Ext.Panel',
     alias: 'widget.admin.wards',
     requires: [
-        'Votr.view.admin.WardsController'
+        'Votr.view.admin.WardsController',
+        'Ext.grid.plugin.MultiSelection'
     ],
     controller: 'admin.wards',
     padding: 0,
@@ -16,6 +17,7 @@ Ext.define('Votr.view.admin.Wards', {
             wards: {
                 type: 'tree',
                 model: 'Votr.model.Ward',
+                rootVisible: false,
                 root: {
                     text: 'All',
                     expanded: true,
@@ -78,11 +80,12 @@ Ext.define('Votr.view.admin.Wards', {
         }
     },
     items: [{
-        xtype: 'treelist',
+        xtype: 'tree',
         reference: 'wardList',
         width: 384,
-        bind: '{wards}',
-        itemTpl: '<div class="item"><p>{name.default}</p><p style="color: var(--highlight-color)">{description.default}</p></div>',
+        bind: {
+            store: '{wards}'
+        }
     }, {
         xtype: 'admin.ward',
         flex: 1
@@ -92,29 +95,40 @@ Ext.define('Votr.view.admin.Wards', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            itemId: 'addElection',
             text: 'Add Election',
             handler: 'onAddElection'
         }, {
             xtype: 'button',
-            itemId: 'addWard',
             text: 'Add Ward',
-            handler: 'onAddWard'
+            handler: 'onAddWard',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
+        }, {
+            xtype: 'button',
+            text: 'delete',
+            ui: 'decline',
+            handler: 'delete',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
         }, '->', {
             xtype: 'button',
             itemId: 'voters',
             text: 'Voters',
+            ui: 'forward',
             handler: 'onVoters'
         }, {
             xtype: 'button',
             itemId: 'ballots',
             text: 'Ballots',
+            ui: 'forward',
             handler: 'onBallots'
         }, {
             xtype: 'button',
             itemId: 'save',
             text: 'Save',
-            ui: 'action',
+            ui: 'confirm',
             handler: 'onSave'
         }]
     }]

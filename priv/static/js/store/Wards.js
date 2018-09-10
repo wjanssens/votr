@@ -1,6 +1,7 @@
 Ext.define('Votr.store.Wards', {
     extend: 'Ext.data.TreeStore',
     model: 'Votr.model.Ward',
+    rootVisible: false,
     root: {
         text: 'All',
         expanded: true,
