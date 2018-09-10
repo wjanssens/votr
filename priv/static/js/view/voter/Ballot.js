@@ -3,23 +3,20 @@ Ext.define('Votr.view.voter.Ballot', {
     alias: 'widget.voter.ballot',
     layout: 'vbox',
     border: 1,
-    padding: 0,
+    padding: '8px',
     margin: '16px 0',
     title: 'Title',
     setData: function(data) {
         this.callParent(arguments);
         this.setTitle(data.title);
         this.down('#description').setHtml(data.description);
-        this.down('#instructions').setHtml(data.instructions
-            .map(i => `<p>${i}</p>`)
-            .join(''));
-        this.down('#messages').setHtml(this.getMessages());
+        this.down('#messages').setHtml(this.getMessage());
 
         var c = this.down('#candidates');
         data.candidates.forEach(candidate => {
-            candidate.ranked = data.ranked;
+            candidate.ranked = data.method == 'stv' || data.method == 'borda' || data.method == 'condorcet';
             candidate.rank = 0;
-            candidate.max = data.ranked ? data.candidates.length : 1;
+            candidate.max = candidate.ranked ? data.candidates.length : 1;
             c.add(new Votr.view.voter.Candidate({
                 data: candidate,
                 listeners: {
@@ -28,6 +25,7 @@ Ext.define('Votr.view.voter.Ballot', {
                         fn: function(newValue) {
                             candidate.rank = newValue;
                             this.getData().blt = this.getBlt();
+                            this.down('#messages').setHtml(this.getMessage());
                             console.log(this.getData().blt);
                         }
                     }
@@ -53,10 +51,33 @@ Ext.define('Votr.view.voter.Ballot', {
             .map(a => { return a.length == 0 ? '-' : a.join('='); })
             .join(' ');
     },
-    validate: function() {
-    },
-    getMessages: function() {
-        return '';
+    getMessage: function() {
+        var data = this.getData();
+        var blt = data.blt;
+        var selected = data.candidates
+            .filter(v => { return v.rank > 0; })
+            .length;
+        if (data.method == 'plurality' && selected < data.electing) {
+            return '<p style="color: #fc5457;">Select more candidates</p>';
+        } else if (data.method == 'plurality' && selected > data.electing) {
+            return '<p style="color: #fc5457;">Select fewer candidates</p>';
+        } else if (data.method == 'stv' && selected == 0) {
+            return '<p style="color: #fc5457;">Rank at least one candidate</p>';
+        } else if (data.method == 'stv' && blt.indexOf('=') >= 0) {
+            return '<p style="color: #fc5457;">Rankings must be unique</p>'; // no overvoting
+        } else if (data.method == 'approval' && selected == 0) {
+            return '<p style="color: #fc5457;">Select at least one candidate</p>';
+        } else if (data.method == 'condorcet' && selected != data.candidates.length) {
+            return '<p style="color: #fc5457;">Rank all candidates</p>';
+        } else if (data.method == 'condorcet' && blt.indexOf('=') >= 0) {
+            return '<p style="color: #fc5457;">Rankings must be unique</p>'; // no overvoting
+        } else if (data.method == 'condorcet' && blt.indexOf('-') >= 0) {
+            return '<p style="color: #fc5457;">Rankings must be strictly increasing</p>'; // no undervoting
+        } else if (data.method == 'borda' && selected != data.candidates.length) {
+            return '<p style="color: #fc5457;">Rank all candidates</p>';
+        } else {
+            return '&nbsp;';
+        }
     },
     items: [
         {
@@ -70,11 +91,6 @@ Ext.define('Votr.view.voter.Ballot', {
                     itemId: 'description',
                     padding: '8px',
                     html: 'Description'
-                },
-                {
-                    xtype: 'component',
-                    itemId: 'instructions',
-                    padding: '8px'
                 },
                 {
                     xtype: 'component',
