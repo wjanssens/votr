@@ -40,14 +40,15 @@ defmodule Votr.Identity.Email do
 
   def insert(%Email{} = email) do
     email
-    |> validate_inclusion(:label, ["home", "work", "other"])
+    # TODO this broke with the latest Ecto update -- how to fix?
+    #|> validate_inclusion(:label, ["home", "work", "other"])
     |> to_principal
     |> Principal.insert(&from_principal/1)
   end
 
   def update(%Email{} = email) do
     email
-    |> validate_inclusion(:label, ["home", "work", "other"])
+    #|> validate_inclusion(:label, ["home", "work", "other"])
     |> to_principal
     |> Principal.change(&from_principal/1)
   end
