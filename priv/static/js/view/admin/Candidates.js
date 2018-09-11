@@ -69,15 +69,24 @@ Ext.define('Votr.view.admin.Candidates', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            itemId: 'add',
             text: 'Add Candidate',
             handler: 'onAdd'
         }, '->', {
             xtype: 'button',
-            itemId: 'save',
+            text: 'Delete',
+            ui: 'decline',
+            handler: 'onDelete',
+            bind: {
+                disabled: '{!candidateList.selection}'
+            }
+        }, '->', {
+            xtype: 'button',
             text: 'Save',
-            ui: 'action',
-            handler: 'onSave'
+            ui: 'confirm',
+            handler: 'onSave',
+            bind: {
+                disabled: '{!candidateList.selection}'
+            }
         }]
     }]
 });

@@ -24,22 +24,29 @@ Ext.define('Votr.view.admin.Voters', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            itemId: 'add',
-            iconCls: 'x-fa fa-plus',
-            tooltip: 'Add Voter',
+            text: 'Add Voter',
             handler: 'onSave'
         }, {
             xtype: 'button',
-            itemId: 'import',
             text: 'Import',
             tooltip: 'Import',
             handler: 'onImport'
         }, '->', {
             xtype: 'button',
-            itemId: 'save',
+            text: 'Delete',
+            ui: 'decline',
+            handler: 'onDelete',
+            bind: {
+                disabled: '{!voterList.selection}'
+            }
+        }, '->', {
+            xtype: 'button',
             text: 'Save',
-            ui: 'action',
-            handler: 'onSave'
+            ui: 'confirm',
+            handler: 'onSave',
+            bind: {
+                disabled: '{!voterList.selection}'
+            }
         }]
     }]
 });

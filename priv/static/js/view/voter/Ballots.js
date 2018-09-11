@@ -5,8 +5,8 @@ Ext.define('Votr.view.voter.Ballots', {
         ballots: [
             {
                 id: '1ab2c3',
-                title: 'Title',
-                description: 'Description',
+                title: 'STV',
+                description: 'This is a sample STV ranked ballot',
                 method: 'stv',
                 electing: 3,
                 anonymous: true,
@@ -21,10 +21,10 @@ Ext.define('Votr.view.voter.Ballots', {
             },
             {
                 id: '4d5e6f',
-                title: 'Title',
-                description: 'Description',
+                title: 'Plurality',
+                description: 'This is a sample plurality ballot',
                 method: 'plurality',
-                electing: 1,
+                electing: 2,
                 anonymous: true,
                 mutable: false,
                 shuffled: true,
@@ -32,6 +32,22 @@ Ext.define('Votr.view.voter.Ballots', {
                     { index: 2, withdrawn: false, name: 'Guy F.', description: 'Republican', id: '1234a1234a' },
                     { index: 3, withdrawn: false, name: 'Guy F.', description: 'Democrat', id: '1234a1234a' },
                     { index: 1, withdrawn: true, name: 'Guy F.', description: 'Independent', id: '1234a1234a' }
+                ]
+            },{
+                id: '4d5e6f',
+                title: 'Approval',
+                description: 'This is a sample approval ballot',
+                method: 'approval',
+                electing: 1,
+                anonymous: true,
+                mutable: false,
+                shuffled: true,
+                candidates: [
+                    { index: 2, withdrawn: false, name: 'Sushi', id: '1234a1234a' },
+                    { index: 3, withdrawn: false, name: 'Pizza', id: '1234a1234a' },
+                    { index: 1, withdrawn: true, name: 'Burgers', id: '1234a1234a' },
+                    { index: 5, withdrawn: false, name: 'Chinese', id: '1234a1234a' },
+                    { index: 4, withdrawn: false, name: 'Italian', id: '1234a1234a' }
                 ]
             }
         ]

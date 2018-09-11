@@ -58,23 +58,23 @@ Ext.define('Votr.view.voter.Ballot', {
             .filter(v => { return v.rank > 0; })
             .length;
         if (data.method == 'plurality' && selected < data.electing) {
-            return '<p style="color: #fc5457;">Select more candidates</p>';
+            return '<p style="color: var(--alert-color);">Select more candidates</p>';
         } else if (data.method == 'plurality' && selected > data.electing) {
-            return '<p style="color: #fc5457;">Select fewer candidates</p>';
+            return '<p style="color: var(--alert-color);">Select fewer candidates</p>';
         } else if (data.method == 'stv' && selected == 0) {
-            return '<p style="color: #fc5457;">Rank at least one candidate</p>';
+            return '<p style="color: var(--alert-color);">Rank at least one candidate</p>';
         } else if (data.method == 'stv' && blt.indexOf('=') >= 0) {
-            return '<p style="color: #fc5457;">Rankings must be unique</p>'; // no overvoting
+            return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
         } else if (data.method == 'approval' && selected == 0) {
-            return '<p style="color: #fc5457;">Select at least one candidate</p>';
+            return '<p style="color: var(--alert-color);">Select at least one candidate</p>';
         } else if (data.method == 'condorcet' && selected != data.candidates.length) {
-            return '<p style="color: #fc5457;">Rank all candidates</p>';
+            return '<p style="color: var(--alert-color);">Rank all candidates</p>';
         } else if (data.method == 'condorcet' && blt.indexOf('=') >= 0) {
-            return '<p style="color: #fc5457;">Rankings must be unique</p>'; // no overvoting
+            return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
         } else if (data.method == 'condorcet' && blt.indexOf('-') >= 0) {
-            return '<p style="color: #fc5457;">Rankings must be strictly increasing</p>'; // no undervoting
+            return '<p style="color: var(--alert-color);">Rankings must be strictly increasing</p>'; // no undervoting
         } else if (data.method == 'borda' && selected != data.candidates.length) {
-            return '<p style="color: #fc5457;">Rank all candidates</p>';
+            return '<p style="color: var(--alert-color);">Rank all candidates</p>';
         } else {
             return '&nbsp;';
         }

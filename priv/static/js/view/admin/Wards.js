@@ -104,32 +104,38 @@ Ext.define('Votr.view.admin.Wards', {
             bind: {
                 disabled: '{!wardList.selection}'
             }
-        }, {
+        }, '->', {
             xtype: 'button',
-            text: 'delete',
+            text: 'Delete',
             ui: 'decline',
-            handler: 'delete',
+            handler: 'onDelete',
             bind: {
                 disabled: '{!wardList.selection}'
             }
         }, '->', {
             xtype: 'button',
-            itemId: 'voters',
             text: 'Voters',
             ui: 'forward',
-            handler: 'onVoters'
+            handler: 'onVoters',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
         }, {
             xtype: 'button',
-            itemId: 'ballots',
             text: 'Ballots',
             ui: 'forward',
-            handler: 'onBallots'
-        }, {
+            handler: 'onBallots',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
+        }, '->', {
             xtype: 'button',
-            itemId: 'save',
             text: 'Save',
             ui: 'confirm',
-            handler: 'onSave'
+            handler: 'onSave',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
         }]
     }]
 });

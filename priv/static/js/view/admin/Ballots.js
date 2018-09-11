@@ -96,37 +96,55 @@ Ext.define('Votr.view.admin.Ballots', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            itemId: 'add',
             text: 'Add Ballot',
             handler: 'onAdd'
         }, {
             xtype: 'button',
             enableToggle: true,
-            itemId: 'filter',
             iconCls: 'x-fa fa-filter',
+            text: 'Filter',
             tooltip: 'Show All Ballots',
             handler: 'onFilter'
         }, '->', {
             xtype: 'button',
+            text: 'Delete',
+            ui: 'decline',
+            handler: 'onDelete',
+            bind: {
+                disabled: '{!ballotList.selection}'
+            }
+        }, '->', {
+            xtype: 'button',
             itemId: 'candidates',
             text: 'Candidates',
-            handler: 'onCandidates'
+            handler: 'onCandidates',
+            bind: {
+                disabled: '{!ballotList.selection}'
+            }
         }, {
             xtype: 'button',
             itemId: 'results',
             text: 'Results',
-            handler: 'onResults'
+            handler: 'onResults',
+            bind: {
+                disabled: '{!ballotList.selection}'
+            }
         }, {
             xtype: 'button',
             itemId: 'log',
             text: 'Log',
-            handler: 'onLog'
-        }, {
+            handler: 'onLog',
+            bind: {
+                disabled: '{!ballotList.selection}'
+            }
+        }, '->', {
             xtype: 'button',
-            itemId: 'save',
             text: 'Save',
-            ui: 'action',
-            handler: 'onSave'
+            ui: 'confirm',
+            handler: 'onSave',
+            bind: {
+                disabled: '{!ballotList.selection}'
+            }
         }]
     }]
 });

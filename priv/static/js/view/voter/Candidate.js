@@ -2,7 +2,6 @@ Ext.define('Votr.view.voter.Candidate', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.candidate',
     layout: 'hbox',
-    data: {value: 0},
     padding: '8px',
     constructor() {
         this.callParent(arguments);
@@ -13,9 +12,14 @@ Ext.define('Votr.view.voter.Candidate', {
     },
     setData: function(data) {
         this.callParent(arguments);
-        this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked});
-        this.down('#name').setHtml(data.name);
-        this.down("#desc").setHtml(data.description);
+        this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked, withdrawn: data.withdrawn});
+        if (data.withdrawn) {
+            this.down('#name').setHtml('<p style="background-color: var(--highlight-color); color: white;">' + data.name + '</p>');
+            this.down('#desc').setHtml('<p style="background-color: var(--highlight-color); color: white;">' + (data.description || '') + '</p>');
+        } else {
+            this.down('#name').setHtml(data.name);
+            this.down("#desc").setHtml(data.description || '');
+        }
     },
     items: [
         {
@@ -36,7 +40,7 @@ Ext.define('Votr.view.voter.Candidate', {
                 xtype: 'component',
                 padding: '0 0 8px 0',
                 itemId: 'name',
-                style: 'font-size: 1.5em;',
+                style: 'font-size: 1.5em;'
             }, {
                 xtype: 'component',
                 itemId: 'desc'
