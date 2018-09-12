@@ -154,8 +154,16 @@ defmodule Votr.Blt do
   with the candidate keys from `candidates`.
   """
   def rekey(result, candidates) do
-    Enum.reduce(result, %{}, fn {i, v}, a ->
-      Map.put(a, Enum.at(candidates, i - 1), v)
-    end)
+    Enum.reduce(
+      result,
+      %{},
+      fn {i, v}, a ->
+        if i == :exhausted do
+          Map.put(a, :exhausted, v)
+        else
+          Map.put(a, Enum.at(candidates, i - 1), v)
+        end
+      end
+    )
   end
 end

@@ -108,23 +108,28 @@ defmodule Votr.Stv do
 
     # IO.puts "round #{round}"
     # IO.inspect result
+    remaining = last_round
+                |> Stream.filter(fn {k, _} -> k != :exhausted end)
+                |> Enum.count(fn {_, v} -> !Map.has_key?(v, :status) end)
+
     cond do
       seats == elected ->
         # all the seats are filled so end the recursion
         result
 
-      Enum.count(last_round, fn {_, v} -> !Map.has_key?(v, :status) end) == 1 ->
+      remaining == 1 ->
         # only one canditate left standing, so they are elected regardless of meeting quota
         {elected_candidate, elected_result} =
           last_round
+          |> Stream.filter(fn {k, _} -> k != :exhausted end)
           |> Enum.find(fn {_, v} -> !Map.has_key?(v, :status) end)
 
         elected_result =
           elected_result
+          |> Map.delete(:received)
           |> Map.put(:surplus, elected_result.votes - quota)
           |> Map.put(:status, :elected)
-          |> Map.put(:quota, quota)
-          |> Map.put(:round, round)
+          |> Map.put(:votes, quota)
 
         this_round = Map.put(last_round, elected_candidate, elected_result)
         [ this_round | result ]
@@ -150,10 +155,9 @@ defmodule Votr.Stv do
           # update the result for the elected candidate
           elected_result =
             elected_result
+            |> Map.delete(:received)
             |> Map.put(:status, :elected)
             |> Map.put(:surplus, surplus)
-#            |> Map.put(:weight, weight)
-            |> Map.put(:round, round)
             |> Map.put(:votes, quota)
 
           this_round = last_round
@@ -181,9 +185,8 @@ defmodule Votr.Stv do
           # update the result for the excluded candidate
           excluded_result =
             excluded_result
+            |> Map.delete(:received)
             |> Map.put(:status, :excluded)
-#            |> Map.put(:weight, weight)
-            |> Map.put(:round, round)
             |> Map.put(:surplus, votes)
             |> Map.put(:votes, 0)
 
