@@ -10,20 +10,18 @@
 
 defmodule Votr.Stv do
   @moduledoc """
-  Provides Ranked (STV, AV), and Unranked (FPTP) ballot evaluation.
+  Provides Ranked (STV, IRV), and Unranked (FPTP) ballot evaluation.
   * STV uses a quota to determine when a candidate is elected in rounds.
   	Droop, Hare, Impirali, and Hagenbach Bischoff quotas are available.
   * IRV is a degenerate case of STV where only one seat is elected,
-  	and all rounds are evaluated until the candidate with the majority is elected
-  	or the last candidate standing with the most votes is elected.
-  * FPTP is a degenerate case of AV where ballots have no rankings and thus
+  * FPTP is a degenerate case of IRV where ballots have no rankings and thus
     no distribution can be performed.
   """
 
   @doc """
   Evaluates an election.
   * `ballots` a list of ballots;
-  	with ranked votes for STV and AV, or unranked votes for FPTP.
+  	with ranked votes for STV and IRV, or unranked votes for FPTP.
   * `seats` the number of seats to elect; 1 for AV and FPTP, or > 1 for STV
   * Undervoting is handled by always choosing the candidate with least rank
   	(i.e. absolute rank isn't important, only relative rank is)
@@ -79,12 +77,10 @@ defmodule Votr.Stv do
 
     # create a result that has an empty entry for every candidate
     # and perform the initial vote distribution
-    round_1 =
+    this_round =
       candidates
       |> Enum.reduce(%{}, fn c, acc -> Map.put(acc, c, %{votes: 0}) end)
       |> distribute(ranked_votes(ballots))
-
-    result = [round_1]
 
     quota =
       case seats do
@@ -102,7 +98,7 @@ defmodule Votr.Stv do
           end
       end
 
-    eval(result, ballots, 1, 0, seats, quota, options)
+    eval([this_round], ballots, 1, 0, seats, quota, options)
   end
 
   # Recursively evaluate the subsequent rounds of the ranked election.
@@ -137,6 +133,7 @@ defmodule Votr.Stv do
         # find the candidate with the most votes
         {elected_candidate, elected_result} =
           last_round
+          |> Stream.filter(fn {k, _} -> k != :exhausted end)
           |> Stream.filter(fn {_, v} -> !Map.has_key?(v, :status) end)
           |> Enum.max_by(fn {_, v} -> v.votes end)
 
@@ -155,14 +152,13 @@ defmodule Votr.Stv do
             elected_result
             |> Map.put(:status, :elected)
             |> Map.put(:surplus, surplus)
-            |> Map.put(:distributed, distributed)
-            |> Map.put(:weight, weight)
-            |> Map.put(:quota, quota)
+#            |> Map.put(:weight, weight)
             |> Map.put(:round, round)
+            |> Map.put(:votes, quota)
 
           this_round = last_round
-          |> Map.put(elected_candidate, elected_result)
           |> distribute(electing_ballots, elected_candidate, weight)
+          |> Map.put(elected_candidate, elected_result)
 
           # perform the next round using ballots that exclude the elected candidate
           next_ballots = filter_candidates(ballots, [elected_candidate])
@@ -172,26 +168,28 @@ defmodule Votr.Stv do
           # find the candidate with the least votes
           {excluded_candidate, excluded_result} =
             last_round
+            |> Stream.filter(fn {k, _} -> k != :exhausted end)
             |> Stream.filter(fn {_, v} -> !Map.has_key?(v, :status) end)
             |> Enum.min_by(fn {_, v} -> v.votes end)
 
           # compute everything needed for redistribution
           excluding_ballots = used(ballots, excluded_candidate)
           distributed = Enum.count(excluding_ballots)
-          weight = excluded_result.votes / distributed
+          votes = excluded_result.votes;
+          weight = votes / distributed
 
           # update the result for the excluded candidate
           excluded_result =
             excluded_result
             |> Map.put(:status, :excluded)
-            |> Map.put(:distributed, distributed)
-            |> Map.put(:weight, weight)
-            |> Map.put(:quota, quota)
+#            |> Map.put(:weight, weight)
             |> Map.put(:round, round)
+            |> Map.put(:surplus, votes)
+            |> Map.put(:votes, 0)
 
           this_round = last_round
-          |> Map.put(excluded_candidate, excluded_result)
           |> distribute(excluding_ballots, excluded_candidate, weight)
+          |> Map.put(excluded_candidate, excluded_result)
 
           # perform the next round using ballots that exclude the elected candidate
           next_ballots = filter_candidates(ballots, [excluded_candidate])
@@ -238,6 +236,7 @@ defmodule Votr.Stv do
     |> Stream.filter(
          fn b ->
            b
+           |> Stream.filter(fn {k, _} -> k != :exhausted end)
            |> Enum.min_by(fn {_, v} -> v end, fn -> {:exhausted, 0} end)
            |> Tuple.to_list()
            |> Enum.member?(candidate)
@@ -254,6 +253,7 @@ defmodule Votr.Stv do
            # vote(s) with the lowest rank
            # candidate from the vote
            b
+           |> Stream.filter(fn {k, _} -> k != :exhausted end)
            |> Enum.min_by(fn {_, v} -> v end, fn -> {:exhausted, 0} end)
            |> Tuple.to_list()
            |> List.first()
@@ -282,23 +282,47 @@ defmodule Votr.Stv do
   defp distribute(result, ballots, candidate, weight) do
     counts = ranked_votes(filter_candidates(ballots, [candidate]))
 
+    exhausted = Map.get(result, :exhausted, %{})
+
     result =
-      Enum.reduce(
-        result,
+      result
+      |> Stream.filter(fn {k, _} -> k != :exhausted end)
+      |> Enum.reduce(
         %{},
         fn {rk, rv}, a ->
           # vote count for the current candidate
           count = Map.get(counts, rk, 0)
           # update result row for candidate
-          Map.put(a, rk, Map.update(rv, :votes, 0, &(&1 + Float.round(weight * count, 5))))
+          received = Float.round(weight * count, 5)
+          if received > 0 do
+            rv = rv
+                |> Map.delete(:surplus)
+                |> Map.put(:received, received)
+                |> Map.update(:votes, received, &(&1 + received))
+            Map.put(a, rk, rv)
+          else
+            rv = rv
+                 |> Map.delete(:received)
+                 |> Map.delete(:surplus)
+            Map.put(a, rk, rv)
+          end
         end
       )
 
     # exhausted count
     ev = Map.get(counts, :exhausted, 0)
+    ev = Float.round(weight * ev, 5)
     # result row for the current candidate
-    rv = Map.get(result, candidate, 0)
-    Map.put(result, candidate, Map.put(rv, :exhausted, Float.round(weight * ev, 5)))
+    if ev > 0 do
+      rv = exhausted
+           |> Map.put(:received, ev)
+           |> Map.update(:votes, ev, &(&1 + ev))
+      Map.put(result, :exhausted, rv)
+    else
+      rv = exhausted
+           |> Map.delete(:received)
+      Map.put(result, :exhausted, rv)
+    end
   end
 
 end

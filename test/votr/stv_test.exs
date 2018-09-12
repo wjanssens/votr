@@ -207,7 +207,7 @@ defmodule Votr.StvTest do
     # default with Hare
 
     # run the election with Droop quota
-    [result | _] = Votr.Stv.eval(ballots, 5)
+    [result | _] = IO.inspect(Votr.Stv.eval(ballots, 5))
 
     c = Map.get(result, "owl")
     assert c.round == 1
@@ -341,7 +341,7 @@ defmodule Votr.StvTest do
     assert c.status == :elected
   end
 
-  test "animal_av" do
+  test "animal_irv" do
     # see https://www.youtube.com/watch?v=3Y3jE3B8HsE
 
     ballots =
@@ -353,7 +353,7 @@ defmodule Votr.StvTest do
         Enum.map(1..15, fn _ -> %{"tiger" => 1, "leopard" => 2} end)
       ])
 
-    [result | _] = IO.inspect(Votr.Stv.eval(ballots, 1))
+    [result | _] = Votr.Stv.eval(ballots, 1)
 
     c = Map.get(result, "turtle")
     assert c.round == 1
