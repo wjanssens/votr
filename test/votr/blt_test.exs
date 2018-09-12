@@ -36,7 +36,8 @@ defmodule Votr.BltTest do
     assert election.withdrawn == [2]
     assert Enum.count(election.ballots) == 14
 
-    result = Votr.Stv.eval(election.ballots, election.seats) |> Votr.Blt.rekey(election.candidates)
+    [result | _] = Votr.Stv.eval(election.ballots, election.seats)
+                   |> Votr.Blt.rekey(election.candidates)
 
     # IO.inspect(result)
 

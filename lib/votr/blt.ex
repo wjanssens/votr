@@ -144,11 +144,18 @@ defmodule Votr.Blt do
     # reduce
   end
 
+
+  def rekey(result, candidates) when is_list(result) do
+    Enum.map(result, fn round -> rekey(round, candidates) end)
+  end
+
   @doc """
   Takes `results` with numeric candidate keys and returns results
   with the candidate keys from `candidates`.
   """
   def rekey(result, candidates) do
-    Enum.reduce(result, %{}, fn {i, v}, a -> Map.put(a, Enum.at(candidates, i - 1), v) end)
+    Enum.reduce(result, %{}, fn {i, v}, a ->
+      Map.put(a, Enum.at(candidates, i - 1), v)
+    end)
   end
 end

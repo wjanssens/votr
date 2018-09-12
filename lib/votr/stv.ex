@@ -69,7 +69,6 @@ defmodule Votr.Stv do
   ## Options
       * `:quota` - the quota will be calculated according to
         `:imperali`, `:hare`, `:hagenbach_bischoff`, or `:droop` formulas; defaults to `:droop`
-      * `:callback` - a function that will receive the intermediate results for each round
   """
   def eval(ballots, seats, options \\ []) do
     # find the unique list of candidates from all the ballots
@@ -79,13 +78,13 @@ defmodule Votr.Stv do
       |> Stream.uniq()
 
     # create a result that has an empty entry for every candidate
-    result =
+    # and perform the initial vote distribution
+    round_1 =
       candidates
       |> Enum.reduce(%{}, fn c, acc -> Map.put(acc, c, %{votes: 0}) end)
+      |> distribute(ranked_votes(ballots))
 
-    # perform the initial vote distribution
-    result = distribute(ranked_votes(ballots), result)
-    # IO.inspect result
+    result = [round_1]
 
     quota =
       case seats do
@@ -109,35 +108,35 @@ defmodule Votr.Stv do
   # Recursively evaluate the subsequent rounds of the ranked election.
   # Returns updated results.
   defp eval(result, ballots, round, elected, seats, quota, options \\ []) do
-    callback = Keyword.get(options, :callback)
-    unless is_nil(callback) do callback.(round, result) end
+    [last_round | _] = result
 
     # IO.puts "round #{round}"
     # IO.inspect result
     cond do
       seats == elected ->
+        # all the seats are filled so end the recursion
         result
 
-      Enum.count(result, fn {_, v} -> !Map.has_key?(v, :status) end) == 1 ->
-        # nobody has satisfied the quota and only one candidate standing
-        # so they win by default even without satisfying the quota
+      Enum.count(last_round, fn {_, v} -> !Map.has_key?(v, :status) end) == 1 ->
+        # only one canditate left standing, so they are elected regardless of meeting quota
         {elected_candidate, elected_result} =
-          result
+          last_round
           |> Enum.find(fn {_, v} -> !Map.has_key?(v, :status) end)
 
         elected_result =
           elected_result
           |> Map.put(:surplus, elected_result.votes - quota)
           |> Map.put(:status, :elected)
+          |> Map.put(:quota, quota)
           |> Map.put(:round, round)
 
-        Map.put(result, elected_candidate, elected_result)
+        this_round = Map.put(last_round, elected_candidate, elected_result)
+        [ this_round | result ]
 
       true ->
-        # IO.inspect result
         # find the candidate with the most votes
         {elected_candidate, elected_result} =
-          result
+          last_round
           |> Stream.filter(fn {_, v} -> !Map.has_key?(v, :status) end)
           |> Enum.max_by(fn {_, v} -> v.votes end)
 
@@ -145,56 +144,58 @@ defmodule Votr.Stv do
           # candidate has enough votes to be elected
           # IO.puts "electing #{elected_candidate}"
 
-          # determine how many votes need redistribution
+          # compute everything needed for redistribution
           surplus = elected_result.votes - quota
+          electing_ballots = used(ballots, elected_candidate)
+          distributed = Enum.count(electing_ballots)
+          weight = surplus / distributed
 
           # update the result for the elected candidate
           elected_result =
             elected_result
-            |> Map.put(:surplus, surplus)
             |> Map.put(:status, :elected)
+            |> Map.put(:surplus, surplus)
+            |> Map.put(:distributed, distributed)
+            |> Map.put(:weight, weight)
+            |> Map.put(:quota, quota)
             |> Map.put(:round, round)
 
-          result = Map.put(result, elected_candidate, elected_result)
-
-          # distribute all the second choice votes from the ballots that elected this candidate
-          electing_ballots = used(ballots, elected_candidate)
-          # IO.puts "weight =  #{surplus} / #{Enum.count(electing_ballots)}"
-          # IO.inspect electing_ballots
-          weight = surplus / Enum.count(electing_ballots)
-          result = distribute(electing_ballots, result, elected_candidate, weight)
+          this_round = last_round
+          |> Map.put(elected_candidate, elected_result)
+          |> distribute(electing_ballots, elected_candidate, weight)
 
           # perform the next round using ballots that exclude the elected candidate
           next_ballots = filter_candidates(ballots, [elected_candidate])
-          eval(result, next_ballots, round + 1, elected + 1, seats, quota, options)
+          eval([this_round | result], next_ballots, round + 1, elected + 1, seats, quota, options)
         else
           # a candidate must be excluded
           # find the candidate with the least votes
           {excluded_candidate, excluded_result} =
-            result
+            last_round
             |> Stream.filter(fn {_, v} -> !Map.has_key?(v, :status) end)
             |> Enum.min_by(fn {_, v} -> v.votes end)
 
-          # IO.puts "excluding #{excluded_candidate}"
+          # compute everything needed for redistribution
+          excluding_ballots = used(ballots, excluded_candidate)
+          distributed = Enum.count(excluding_ballots)
+          weight = excluded_result.votes / distributed
 
           # update the result for the excluded candidate
           excluded_result =
             excluded_result
             |> Map.put(:status, :excluded)
+            |> Map.put(:distributed, distributed)
+            |> Map.put(:weight, weight)
+            |> Map.put(:quota, quota)
             |> Map.put(:round, round)
 
-          result = Map.put(result, excluded_candidate, excluded_result)
-
-          # distribute all the second choice votes from the ballots that excluded this candidate
-          excluding_ballots = used(ballots, excluded_candidate)
-          # IO.puts "weight =  #{excluded_result.votes} / #{Enum.count(excluding_ballots)}"
-          # IO.inspect excluding_ballots
-          weight = excluded_result.votes / Enum.count(excluding_ballots)
-          result = distribute(excluding_ballots, result, excluded_candidate, weight)
+          this_round = last_round
+          |> Map.put(excluded_candidate, excluded_result)
+          |> distribute(excluding_ballots, excluded_candidate, weight)
 
           # perform the next round using ballots that exclude the elected candidate
           next_ballots = filter_candidates(ballots, [excluded_candidate])
-          eval(result, next_ballots, round + 1, elected, seats, quota, options)
+          eval([this_round | result], next_ballots, round + 1, elected, seats, quota, options)
         end
     end
   end
@@ -263,7 +264,7 @@ defmodule Votr.Stv do
 
   # Applies initial vote distribution to result for all candidates.
   # Returns updated results.
-  defp distribute(counts, result) do
+  defp distribute(result, counts) do
     Enum.reduce(
       result,
       %{},
@@ -278,7 +279,7 @@ defmodule Votr.Stv do
 
   # Applies subsequent vote distribution to result for the elected or excluded candidate
   # Returns updated results.
-  defp distribute(ballots, result, candidate, weight) do
+  defp distribute(result, ballots, candidate, weight) do
     counts = ranked_votes(filter_candidates(ballots, [candidate]))
 
     result =

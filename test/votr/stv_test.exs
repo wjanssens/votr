@@ -12,7 +12,7 @@ defmodule Votr.StvTest do
         Enum.map(1..17, fn _ -> %{"a" => 2, "b" => 3, "c" => 4, "d" => 1} end)
       ])
 
-    result = Votr.Stv.eval(ballots, 2)
+    [result | _] = Votr.Stv.eval(ballots, 2)
     # IO.inspect result
 
     c = Map.get(result, "a")
@@ -49,7 +49,7 @@ defmodule Votr.StvTest do
       ])
 
     # run the election with Droop quota
-    result = Votr.Stv.eval(ballots, 3)
+    [result | _] = Votr.Stv.eval(ballots, 3)
 
     c = Map.get(result, "monkey")
     assert c.round == 1
@@ -80,7 +80,7 @@ defmodule Votr.StvTest do
     assert c.status == :elected
 
     # run the election with Hare quota
-    result = Votr.Stv.eval(ballots, 3, quota: :hare)
+    [result | _] = Votr.Stv.eval(ballots, 3, quota: :hare)
 
     c = Map.get(result, "monkey")
     assert c.round == 1
@@ -123,7 +123,7 @@ defmodule Votr.StvTest do
       ])
 
     # run the election with Droop quota
-    result = Votr.Stv.eval(ballots, 3)
+    [result | _] = Votr.Stv.eval(ballots, 3)
 
     c = Map.get(result, "white tiger")
     assert c.round == 1
@@ -153,7 +153,7 @@ defmodule Votr.StvTest do
     assert c.status == :elected
 
     # run the election with Hare quota
-    result = Votr.Stv.eval(ballots, 3, quota: :hare)
+    [result | _] = Votr.Stv.eval(ballots, 3, quota: :hare)
 
     c = Map.get(result, "white tiger")
     assert c.round == 1
@@ -207,7 +207,7 @@ defmodule Votr.StvTest do
     # default with Hare
 
     # run the election with Droop quota
-    result = Votr.Stv.eval(ballots, 5)
+    [result | _] = Votr.Stv.eval(ballots, 5)
 
     c = Map.get(result, "owl")
     assert c.round == 1
@@ -274,7 +274,7 @@ defmodule Votr.StvTest do
     assert c.status == :elected
 
     # run the election with Hare quota
-    result = Votr.Stv.eval(ballots, 5, quota: :hare)
+    [result | _] = Votr.Stv.eval(ballots, 5, quota: :hare)
 
     c = Map.get(result, "owl")
     assert c.round == 1
@@ -353,7 +353,7 @@ defmodule Votr.StvTest do
         Enum.map(1..15, fn _ -> %{"tiger" => 1, "leopard" => 2} end)
       ])
 
-    result = Votr.Stv.eval(ballots, 1)
+    [result | _] = IO.inspect(Votr.Stv.eval(ballots, 1))
 
     c = Map.get(result, "turtle")
     assert c.round == 1
@@ -388,7 +388,7 @@ defmodule Votr.StvTest do
         Enum.map(1..17, fn _ -> %{"d" => 1} end)
       ])
 
-    result = Votr.Stv.eval(ballots, 1)
+    [result | _] = Votr.Stv.eval(ballots, 1)
     # IO.inspect result
 
     c = Map.get(result, "c")
