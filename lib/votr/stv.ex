@@ -131,7 +131,10 @@ defmodule Votr.Stv do
           |> Map.put(:status, :elected)
           |> Map.put(:votes, quota)
 
-        this_round = Map.put(last_round, elected_candidate, elected_result)
+        this_round = last_round
+        |> Map.put(elected_candidate, elected_result)
+        |> Map.put(:exhausted, Map.delete(Map.get(last_round, :exhausted), :received))
+
         [ this_round | result ]
 
       true ->
@@ -208,15 +211,6 @@ defmodule Votr.Stv do
   def filter_candidates(ballots, candidates) do
     ballots
     |> Stream.map(fn b -> Map.drop(b, candidates) end)
-  end
-
-  @doc """
-  Filters spoiled ballots for FPTP method
-  Ballots must have exactly one vote
-  """
-  def spoil_plurality(ballots) do
-    ballots
-    |> Stream.filter(fn b -> Enum.count(b) == 1 end)
   end
 
   @doc """

@@ -36,14 +36,47 @@ defmodule Votr.BltTest do
     assert election.withdrawn == [2]
     assert Enum.count(election.ballots) == 14
 
-    [result | _] = Votr.Stv.eval(election.ballots, election.seats)
+    result = Votr.Stv.eval(election.ballots, election.seats)
                    |> Votr.Blt.rekey(election.candidates)
 
-    # IO.inspect(result)
+    #IO.inspect(result)
 
-    assert Map.get(result, "Amy").round == 1
-    assert Map.get(result, "Diane").round == 2
-    assert Map.get(result, "Chuck").round == 3
-    assert Map.get(result, "Bob").round == 4
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 4), "Amy").votes == 8
+    assert Map.get(Enum.at(result, 4), "Bob").votes == 4
+    assert Map.get(Enum.at(result, 4), "Chuck").votes == 1
+    assert Map.get(Enum.at(result, 4), "Diane").votes == 0
+
+    # in round 1 Amy is elected and their votes transfer to Chuck and Diane
+    assert Map.get(Enum.at(result, 3), "Amy").surplus == 3
+    assert Map.get(Enum.at(result, 3), "Amy").status == :elected
+    assert Map.get(Enum.at(result, 3), "Amy").votes == 5
+    assert Map.get(Enum.at(result, 3), "Chuck").received == 2.625
+    assert Map.get(Enum.at(result, 3), "Chuck").votes == 3.625
+    assert Map.get(Enum.at(result, 3), "Diane").received == 0.375
+    assert Map.get(Enum.at(result, 3), "Diane").votes == 0.375
+
+    # in round 2 Diane is excluded and their votes transfer to Bob and Chuck
+    assert Map.get(Enum.at(result, 2), "Diane").surplus == 0.375
+    assert Map.get(Enum.at(result, 2), "Diane").status == :excluded
+    assert Map.get(Enum.at(result, 2), "Diane").votes == 0
+    assert Map.get(Enum.at(result, 2), "Bob").received == 0.25
+    assert Map.get(Enum.at(result, 2), "Bob").votes == 4.25
+    assert Map.get(Enum.at(result, 2), "Chuck").received == 0.125
+    assert Map.get(Enum.at(result, 2), "Chuck").votes == 3.75
+
+    # in round 3 Chuck is excluded and their votes transfer to Bob and exhausted
+    assert Map.get(Enum.at(result, 1), "Chuck").surplus == 3.75
+    assert Map.get(Enum.at(result, 1), "Chuck").status == :excluded
+    assert Map.get(Enum.at(result, 1), "Chuck").votes == 0
+    assert Map.get(Enum.at(result, 1), "Bob").received == 0.83333
+    assert Map.get(Enum.at(result, 1), "Bob").votes == 5.08333
+    assert Map.get(Enum.at(result, 1), :exhausted).received == 2.91667
+    assert Map.get(Enum.at(result, 1), :exhausted).votes == 2.91667
+
+    # in round 4 Bob is elected
+    assert Map.get(Enum.at(result, 0), "Bob").surplus == 0.08333000000000013
+    assert Map.get(Enum.at(result, 0), "Bob").status == :elected
+    assert Map.get(Enum.at(result, 0), "Bob").votes == 5
   end
 end

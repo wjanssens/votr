@@ -14,28 +14,34 @@ defmodule Votr.StvTest do
         ]
       )
 
-    [result | _] = Votr.Stv.eval(ballots, 2)
-    # IO.inspect result
+    result = Votr.Stv.eval(ballots, 2)
 
-    c = Map.get(result, "a")
-    assert c.round == 1
-    assert c.votes == 40
-    assert c.surplus == 20
-    assert c.status == :elected
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 3), "a").votes == 40
+    assert Map.get(Enum.at(result, 3), "b").votes == 0
+    assert Map.get(Enum.at(result, 3), "c").votes == 0
+    assert Map.get(Enum.at(result, 3), "d").votes == 17
 
-    c = Map.get(result, "b")
-    assert c.round == 2
-    assert c.votes == 8
-    assert c.status == :excluded
+    # in round 1 a is elected and their surplus transfer to b and c
+    assert Map.get(Enum.at(result, 2), "a").surplus == 20
+    assert Map.get(Enum.at(result, 2), "a").status == :elected
+    assert Map.get(Enum.at(result, 2), "a").votes == 20
+    assert Map.get(Enum.at(result, 2), "b").received == 8
+    assert Map.get(Enum.at(result, 2), "b").votes == 8
+    assert Map.get(Enum.at(result, 2), "c").received == 12
+    assert Map.get(Enum.at(result, 2), "c").votes == 12
 
-    c = Map.get(result, "c")
-    assert c.round == 3
-    assert c.votes == 20
-    assert c.surplus == 0
-    assert c.status == :elected
+    # in round 2 b is excluded and their surplus transfer to c
+    assert Map.get(Enum.at(result, 1), "b").surplus == 8
+    assert Map.get(Enum.at(result, 1), "b").status == :excluded
+    assert Map.get(Enum.at(result, 1), "b").votes == 0
+    assert Map.get(Enum.at(result, 1), "c").received == 8
+    assert Map.get(Enum.at(result, 1), "c").votes == 20
 
-    c = Map.get(result, "d")
-    assert c.votes == 17
+    # in round 3 c is elected
+    assert Map.get(Enum.at(result, 0), "c").surplus == 0
+    assert Map.get(Enum.at(result, 0), "c").status == :elected
+    assert Map.get(Enum.at(result, 0), "c").votes == 20
   end
 
   test "animal_stv_1" do
@@ -53,66 +59,86 @@ defmodule Votr.StvTest do
       )
 
     # run the election with Droop quota
-    [result | _] = Votr.Stv.eval(ballots, 3)
+    result = Votr.Stv.eval(ballots, 3)
 
-    c = Map.get(result, "monkey")
-    assert c.round == 1
-    assert c.votes == 33
-    assert c.surplus == 7
-    assert c.status == :elected
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 5), "gorilla").votes == 28
+    assert Map.get(Enum.at(result, 5), "lynx").votes == 13
+    assert Map.get(Enum.at(result, 5), "monkey").votes == 33
+    assert Map.get(Enum.at(result, 5), "tarsier").votes == 5
+    assert Map.get(Enum.at(result, 5), "tiger").votes == 21
 
-    c = Map.get(result, "gorilla")
-    assert c.round == 2
-    assert c.votes == 28
-    assert c.surplus == 2
-    assert c.status == :elected
+    # in round 1 monkey is elected and their surplus is exhausted
+    assert Map.get(Enum.at(result, 4), "monkey").surplus == 7
+    assert Map.get(Enum.at(result, 4), "monkey").status == :elected
+    assert Map.get(Enum.at(result, 4), "monkey").votes == 26
+    assert Map.get(Enum.at(result, 4), :exhausted).received == 7
+    assert Map.get(Enum.at(result, 4), :exhausted).votes == 7
 
-    c = Map.get(result, "tarsier")
-    assert c.round == 3
-    assert c.votes == 5
-    assert c.status == :excluded
+    # in round 2 gorilla is elected and their surplus is exhausted
+    assert Map.get(Enum.at(result, 3), "gorilla").surplus == 2
+    assert Map.get(Enum.at(result, 3), "gorilla").status == :elected
+    assert Map.get(Enum.at(result, 3), "gorilla").votes == 26
+    assert Map.get(Enum.at(result, 3), :exhausted).received == 2
+    assert Map.get(Enum.at(result, 3), :exhausted).votes == 9
 
-    c = Map.get(result, "lynx")
-    assert c.round == 4
-    assert c.votes == 13
-    assert c.status == :excluded
+    # in round 3 tarsier is excluded and their surplus is exhausted
+    assert Map.get(Enum.at(result, 2), "tarsier").surplus == 5
+    assert Map.get(Enum.at(result, 2), "tarsier").status == :excluded
+    assert Map.get(Enum.at(result, 2), "tarsier").votes == 0
+    assert Map.get(Enum.at(result, 2), :exhausted).received == 5
+    assert Map.get(Enum.at(result, 2), :exhausted).votes == 14
 
-    c = Map.get(result, "tiger")
-    assert c.round == 5
-    assert c.votes == 34
-    assert c.surplus == 8
-    assert c.status == :elected
+    # in round 4 lynx is excluded and their surplus is transferred to tiger
+    assert Map.get(Enum.at(result, 1), "lynx").surplus == 13
+    assert Map.get(Enum.at(result, 1), "lynx").status == :excluded
+    assert Map.get(Enum.at(result, 1), "lynx").votes == 0
+    assert Map.get(Enum.at(result, 1), "tiger").received == 13
+    assert Map.get(Enum.at(result, 1), "tiger").votes == 34
+
+    # in round 5 tiger is elected
+    assert Map.get(Enum.at(result, 0), "tiger").surplus == 8
+    assert Map.get(Enum.at(result, 0), "tiger").status == :elected
+    assert Map.get(Enum.at(result, 0), "tiger").votes == 26
 
     # run the election with Hare quota
-    [result | _] = Votr.Stv.eval(ballots, 3, quota: :hare)
+    result = Votr.Stv.eval(ballots, 3, quota: :hare)
 
-    c = Map.get(result, "monkey")
-    assert c.round == 1
-    assert c.votes == 33
-    assert c.surplus == 0
-    assert c.status == :elected
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 5), "gorilla").votes == 28
+    assert Map.get(Enum.at(result, 5), "lynx").votes == 13
+    assert Map.get(Enum.at(result, 5), "monkey").votes == 33
+    assert Map.get(Enum.at(result, 5), "tarsier").votes == 5
+    assert Map.get(Enum.at(result, 5), "tiger").votes == 21
 
-    c = Map.get(result, "tarsier")
-    assert c.round == 2
-    assert c.votes == 5
-    assert c.status == :excluded
+    # in round 1 monkey is elected
+    assert Map.get(Enum.at(result, 4), "monkey").surplus == 0
+    assert Map.get(Enum.at(result, 4), "monkey").status == :elected
+    assert Map.get(Enum.at(result, 4), "monkey").votes == 33
 
-    c = Map.get(result, "gorilla")
-    assert c.round == 3
-    assert c.votes == 33
-    assert c.surplus == 0
-    assert c.status == :elected
+    # in round 2 tarsier is excluded and their surplus is transferred to gorilla
+    assert Map.get(Enum.at(result, 3), "tarsier").surplus == 5
+    assert Map.get(Enum.at(result, 3), "tarsier").status == :excluded
+    assert Map.get(Enum.at(result, 3), "tarsier").votes == 0
+    assert Map.get(Enum.at(result, 3), "gorilla").received == 5
+    assert Map.get(Enum.at(result, 3), "gorilla").votes == 33
 
-    c = Map.get(result, "lynx")
-    assert c.round == 4
-    assert c.votes == 13
-    assert c.status == :excluded
+    # in round 3 gorilla is elected
+    assert Map.get(Enum.at(result, 2), "gorilla").surplus == 0
+    assert Map.get(Enum.at(result, 2), "gorilla").status == :elected
+    assert Map.get(Enum.at(result, 2), "gorilla").votes == 33
 
-    c = Map.get(result, "tiger")
-    assert c.round == 5
-    assert c.votes == 34
-    assert c.surplus == 1
-    assert c.status == :elected
+    # in round 4 lynx is excluded and their surplus is transferred to tiger
+    assert Map.get(Enum.at(result, 1), "lynx").surplus == 13
+    assert Map.get(Enum.at(result, 1), "lynx").status == :excluded
+    assert Map.get(Enum.at(result, 1), "lynx").votes == 0
+    assert Map.get(Enum.at(result, 1), "tiger").received == 13
+    assert Map.get(Enum.at(result, 1), "tiger").votes == 34
+
+    # in round 5 tiger is elected
+    assert Map.get(Enum.at(result, 1), "tiger").surplus == 1
+    assert Map.get(Enum.at(result, 1), "tiger").status == :elected
+    assert Map.get(Enum.at(result, 1), "tiger").votes == 33
   end
 
   test "animal_stv_2" do
@@ -129,63 +155,73 @@ defmodule Votr.StvTest do
       )
 
     # run the election with Droop quota
-    [result | _] = Votr.Stv.eval(ballots, 3)
+    result = Votr.Stv.eval(ballots, 3)
 
-    c = Map.get(result, "white tiger")
-    assert c.round == 1
-    assert c.votes == 65
-    assert c.surplus == 39
-    assert c.exhausted == 0
-    assert c.status == :elected
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 4), "gorilla").votes == 18
+    assert Map.get(Enum.at(result, 4), "silverback").votes == 16
+    assert Map.get(Enum.at(result, 4), "tiger").votes == 1
+    assert Map.get(Enum.at(result, 4), "white tiger").votes == 65
 
-    c = Map.get(result, "tiger")
-    assert c.round == 2
-    assert c.votes == 40
-    assert c.surplus == 14
-    # there were no third choices so the 14 surplus are exhausted
-    assert c.exhausted == 14
-    assert c.status == :elected
+    # in round 1 white tiger is elected and their surplus transfers to tiger
+    assert Map.get(Enum.at(result, 3), "white tiger").surplus == 39
+    assert Map.get(Enum.at(result, 3), "white tiger").status == :elected
+    assert Map.get(Enum.at(result, 3), "white tiger").votes == 26
+    assert Map.get(Enum.at(result, 3), "tiger").received == 39
+    assert Map.get(Enum.at(result, 3), "tiger").votes == 40
 
-    c = Map.get(result, "silverback")
-    assert c.round == 3
-    assert c.votes == 16
-    assert c.exhausted == 0
-    assert c.status == :excluded
+    # in round 2 tiger is elected and their surplus is exhausted
+    assert Map.get(Enum.at(result, 2), "tiger").surplus == 14
+    assert Map.get(Enum.at(result, 2), "tiger").status == :elected
+    assert Map.get(Enum.at(result, 2), "tiger").votes == 26
+    assert Map.get(Enum.at(result, 2), :exhausted).received == 14
+    assert Map.get(Enum.at(result, 2), :exhausted).votes == 14
 
-    c = Map.get(result, "gorilla")
-    assert c.round == 4
-    assert c.votes == 34
-    assert c.surplus == 8
-    assert c.status == :elected
+    # in round 3 tiger is excluded and their surplus is transfers to gorilla
+    assert Map.get(Enum.at(result, 1), "silverback").surplus == 16
+    assert Map.get(Enum.at(result, 1), "silverback").status == :excluded
+    assert Map.get(Enum.at(result, 1), "silverback").votes == 0
+    assert Map.get(Enum.at(result, 1), "gorilla").received == 16
+    assert Map.get(Enum.at(result, 1), "gorilla").votes == 34
+
+    # in round 4 gorilla is elected
+    assert Map.get(Enum.at(result, 0), "gorilla").surplus == 8
+    assert Map.get(Enum.at(result, 0), "gorilla").status == :elected
+    assert Map.get(Enum.at(result, 0), "gorilla").votes == 26
 
     # run the election with Hare quota
-    [result | _] = Votr.Stv.eval(ballots, 3, quota: :hare)
+    result = Votr.Stv.eval(ballots, 3, quota: :hare)
 
-    c = Map.get(result, "white tiger")
-    assert c.round == 1
-    assert c.votes == 65
-    assert c.surplus == 32
-    assert c.exhausted == 0
-    assert c.status == :elected
+    # in round 0 (initial first choice counts)
+    assert Map.get(Enum.at(result, 4), "gorilla").votes == 18
+    assert Map.get(Enum.at(result, 4), "silverback").votes == 16
+    assert Map.get(Enum.at(result, 4), "tiger").votes == 1
+    assert Map.get(Enum.at(result, 4), "white tiger").votes == 65
 
-    c = Map.get(result, "tiger")
-    assert c.round == 2
-    assert c.votes == 33
-    assert c.surplus == 0
-    assert c.exhausted == 0
-    assert c.status == :elected
+    # in round 1 white tiger is elected and their surplus transfers to tiger
+    assert Map.get(Enum.at(result, 3), "white tiger").surplus == 32
+    assert Map.get(Enum.at(result, 3), "white tiger").status == :elected
+    assert Map.get(Enum.at(result, 3), "white tiger").votes == 33
+    assert Map.get(Enum.at(result, 3), "tiger").received == 32
+    assert Map.get(Enum.at(result, 3), "tiger").votes == 33
 
-    c = Map.get(result, "silverback")
-    assert c.round == 3
-    assert c.votes == 16
-    assert c.exhausted == 0
-    assert c.status == :excluded
+    # in round 2 tiger is elected
+    assert Map.get(Enum.at(result, 2), "tiger").surplus == 0
+    assert Map.get(Enum.at(result, 2), "tiger").status == :elected
+    assert Map.get(Enum.at(result, 2), "tiger").votes == 33
 
-    c = Map.get(result, "gorilla")
-    assert c.round == 4
-    assert c.votes == 34
-    assert c.surplus == 1
-    assert c.status == :elected
+    # in round 3 tiger is excluded and their surplus is transfers to gorilla
+    assert Map.get(Enum.at(result, 1), "silverback").surplus == 16
+    assert Map.get(Enum.at(result, 1), "silverback").status == :excluded
+    assert Map.get(Enum.at(result, 1), "silverback").votes == 0
+    assert Map.get(Enum.at(result, 1), "gorilla").received == 16
+    assert Map.get(Enum.at(result, 1), "gorilla").votes == 34
+
+    # in round 4 gorilla is elected
+    assert Map.get(Enum.at(result, 0), "gorilla").surplus == 1
+    assert Map.get(Enum.at(result, 0), "gorilla").status == :elected
+    assert Map.get(Enum.at(result, 0), "gorilla").votes == 33
+
   end
 
   test "animal_stv_3" do
@@ -399,75 +435,37 @@ defmodule Votr.StvTest do
     result = Votr.Stv.eval(ballots, 1)
 
     # in round 0 (initial first choice counts)
-    assert Map.get(Enum.at(result, 5), "turtle").votes == 5
-    assert Map.get(Enum.at(result, 5), "gorilla").votes == 25
-    assert Map.get(Enum.at(result, 5), "owl").votes == 25
-    assert Map.get(Enum.at(result, 5), "leopard").votes == 30
-    assert Map.get(Enum.at(result, 5), "tiger").votes == 15
+    assert Map.get(Enum.at(result, 4), "turtle").votes == 5
+    assert Map.get(Enum.at(result, 4), "gorilla").votes == 25
+    assert Map.get(Enum.at(result, 4), "owl").votes == 25
+    assert Map.get(Enum.at(result, 4), "leopard").votes == 30
+    assert Map.get(Enum.at(result, 4), "tiger").votes == 15
 
     # in round 1 turtle is excluded and their votes transfer to owl
-    assert Map.get(Enum.at(result, 4), "turtle").surplus == 5
-    assert Map.get(Enum.at(result, 4), "turtle").status == :excluded
-    assert Map.get(Enum.at(result, 4), "turtle").votes == 0
-    assert Map.get(Enum.at(result, 4), "owl").received == 5
-    assert Map.get(Enum.at(result, 4), "owl").votes == 30
+    assert Map.get(Enum.at(result, 3), "turtle").surplus == 5
+    assert Map.get(Enum.at(result, 3), "turtle").status == :excluded
+    assert Map.get(Enum.at(result, 3), "turtle").votes == 0
+    assert Map.get(Enum.at(result, 3), "owl").received == 5
+    assert Map.get(Enum.at(result, 3), "owl").votes == 30
 
     # in round 2 tiger is excluded and their votes transfer to leopard
-    assert Map.get(Enum.at(result, 3), "tiger").surplus == 15
-    assert Map.get(Enum.at(result, 3), "tiger").status == :excluded
-    assert Map.get(Enum.at(result, 3), "tiger").votes == 0
-    assert Map.get(Enum.at(result, 3), "leopard").received == 15
-    assert Map.get(Enum.at(result, 3), "leopard").votes == 45
+    assert Map.get(Enum.at(result, 2), "tiger").surplus == 15
+    assert Map.get(Enum.at(result, 2), "tiger").status == :excluded
+    assert Map.get(Enum.at(result, 2), "tiger").votes == 0
+    assert Map.get(Enum.at(result, 2), "leopard").received == 15
+    assert Map.get(Enum.at(result, 2), "leopard").votes == 45
 
     # in round 3 gorilla is excluded and their votes transfer to owl
-    assert Map.get(Enum.at(result, 3), "gorilla").surplus == 25
-    assert Map.get(Enum.at(result, 3), "gorilla").status == :excluded
-    assert Map.get(Enum.at(result, 3), "gorilla").votes == 0
-    assert Map.get(Enum.at(result, 3), "owl").received == 25
-    assert Map.get(Enum.at(result, 3), "owl").votes == 55
+    assert Map.get(Enum.at(result, 1), "gorilla").surplus == 25
+    assert Map.get(Enum.at(result, 1), "gorilla").status == :excluded
+    assert Map.get(Enum.at(result, 1), "gorilla").votes == 0
+    assert Map.get(Enum.at(result, 1), "owl").received == 25
+    assert Map.get(Enum.at(result, 1), "owl").votes == 55
 
     # in round 4 owl is elected, reaching the quota of 50
-    assert Map.get(Enum.at(result, 3), "owl").surplus == 5
-    assert Map.get(Enum.at(result, 3), "owl").status == :elected
-    assert Map.get(Enum.at(result, 3), "owl").votes == 50
-  end
-
-  test "plurality" do
-    ballots =
-      Enum.concat(
-        [
-          Enum.map(1..16, fn _ -> %{"a" => 1} end),
-          Enum.map(1..24, fn _ -> %{"b" => 1} end),
-          Enum.map(1..11, fn _ -> %{"c" => 1} end),
-          Enum.map(1..17, fn _ -> %{"d" => 1} end)
-        ]
-      )
-
-    [result | _] = Votr.Stv.eval(ballots, 1)
-    # IO.inspect result
-
-    c = Map.get(result, "c")
-    assert c.round == 1
-    assert c.votes == 11
-    assert c.exhausted == 11
-    assert c.status == :excluded
-
-    c = Map.get(result, "a")
-    assert c.round == 2
-    assert c.votes == 16
-    assert c.exhausted == 16
-    assert c.status == :excluded
-
-    c = Map.get(result, "d")
-    assert c.round == 3
-    assert c.votes == 17
-    assert c.exhausted == 17
-    assert c.status == :excluded
-
-    c = Map.get(result, "b")
-    assert c.round == 4
-    assert c.votes == 24
-    assert c.status == :elected
+    assert Map.get(Enum.at(result, 0), "owl").surplus == 5
+    assert Map.get(Enum.at(result, 0), "owl").status == :elected
+    assert Map.get(Enum.at(result, 0), "owl").votes == 50
   end
 
 end
