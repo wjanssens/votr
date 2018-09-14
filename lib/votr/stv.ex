@@ -3,7 +3,6 @@
 # TODO implement Block Plurality (multiple seats, unranked votes)
 # TODO implement dynamic vs static threshold option
 # TODO implement STV tie breaking options (backwards, random)
-# TODO implement fractional vote rounding precision options
 # TODO implement overvote and undervote handling options and reporting
 # TODO implement Meek STV
 # TODO implement Baas STV
@@ -91,6 +90,7 @@ defmodule Votr.Stv do
 
         _ ->
           # calculate the number of votes it takes to be elected
+          # TODO implement fractional threshold (ie. don't floor)
           case Keyword.get(options, :quota, :droop) do
             :imperali -> Float.floor(Enum.count(ballots) / (seats + 2))
             :hare -> Float.floor(Enum.count(ballots) / seats)
@@ -131,10 +131,10 @@ defmodule Votr.Stv do
           |> Map.put(:votes, quota)
 
         this_round = last_round
-        |> Map.put(elected_candidate, elected_result)
-        |> Map.put(:exhausted, Map.delete(Map.get(last_round, :exhausted), :received))
+                     |> Map.put(elected_candidate, elected_result)
+                     |> Map.put(:exhausted, Map.delete(Map.get(last_round, :exhausted), :received))
 
-        [ this_round | result ]
+        [this_round | result]
 
       true ->
         # find the candidate with the most votes
@@ -207,7 +207,7 @@ defmodule Votr.Stv do
 
   # Returns a map of how many votes a candidates has obtained
   defp ranked_votes(ballots) do
-    # count the number of votes for each candidate
+    # count the number of "first" choice votes for each candidate
     ballots
     |> Stream.map(
          fn b ->
@@ -270,35 +270,34 @@ defmodule Votr.Stv do
 
     weight = surplus / Enum.count(ballots_to_distribute)
     counts = ranked_votes(ballots_to_distribute)
-    exhausted = Map.get(result, :exhausted, %{})
 
-    result =
-      result
-      |> Enum.reduce(
-        %{},
-        fn {rk, rv}, a ->
-          if Map.has_key?(rv, :status) do
-            Map.put(a, rk, rv)
-          else
-            # vote count for the current candidate
-            count = Map.get(counts, rk, 0)
-            # update result row for candidate
-            received = Float.round(weight * count, 5)
-            if received > 0 do
-              rv = rv
-                  |> Map.delete(:surplus)
-                  |> Map.put(:received, received)
-                  |> Map.update(:votes, received, &(&1 + received))
-              Map.put(a, rk, rv)
-            else
-              rv = rv
-                   |> Map.delete(:received)
-                   |> Map.delete(:surplus)
-              Map.put(a, rk, rv)
-            end
-          end
-        end
-      )
+    result
+    |> Enum.reduce(
+         %{},
+         fn {rk, rv}, a ->
+           if Map.has_key?(rv, :status) do
+             Map.put(a, rk, rv)
+           else
+             # vote count for the current candidate
+             count = Map.get(counts, rk, 0)
+             # update result row for candidate
+             # TODO implement configurable precision
+             received = Float.round(weight * count, 5)
+             if received > 0 do
+               rv = rv
+                    |> Map.delete(:surplus)
+                    |> Map.put(:received, received)
+                    |> Map.update(:votes, received, &(&1 + received))
+               Map.put(a, rk, rv)
+             else
+               rv = rv
+                    |> Map.delete(:received)
+                    |> Map.delete(:surplus)
+               Map.put(a, rk, rv)
+             end
+           end
+         end
+       )
   end
 
 end
