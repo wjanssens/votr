@@ -1,19 +1,13 @@
 defmodule Votr.Plurality do
-  def eval(ballots, seats) do
+  def eval(ballots, seats \\ 1) do
     ballots
-    |> Enum.reduce(
-         %{},
-         fn ballot, acc -> Enum.each(ballot, fn {c, _} -> Map.update(acc, c, 1, &(&1 + 1)) end) end
-       )
-    |> Enum.reduce(
-         %{},
-         fn {k, v}, acc -> Map.put(acc, k, %{votes: v}) end
-       )
+    |> Stream.filter(fn b -> Enum.count(b) <= seats end)
+    |> Stream.flat_map(fn ballot -> Enum.reduce(ballot, [], fn {k, _}, acc -> [k | acc] end) end)
+    |> Enum.reduce(%{}, fn c, acc -> Map.update(acc, c, %{votes: 1}, fn x -> Map.update!(x, :votes, &(&1 + 1)) end) end)
     |> evalp(seats)
   end
 
   defp evalp(result, seats) do
-    IO.inspect(result)
     cond do
       seats == 0 ->
         result
@@ -26,17 +20,9 @@ defmodule Votr.Plurality do
           elected_result
           |> Map.put(:status, :elected)
 
-        Map.put(result, elected_candidate, elected_result)
+        result
+        |> Map.put(elected_candidate, elected_result)
+        |> evalp(seats - 1)
     end
   end
-
-  @doc """
-      Filters spoiled ballots for FPTP method
-      Ballots must have a vote for every seat
-  """
-  def spoil_plurality(ballots, seats) do
-    ballots
-    |> Stream.filter(fn b -> Enum.count(b) == seats end)
-  end
-
 end
