@@ -136,9 +136,9 @@ defmodule Votr.StvTest do
     assert Map.get(Enum.at(result, 1), "tiger").votes == 34
 
     # in round 5 tiger is elected
-    assert Map.get(Enum.at(result, 1), "tiger").surplus == 1
-    assert Map.get(Enum.at(result, 1), "tiger").status == :elected
-    assert Map.get(Enum.at(result, 1), "tiger").votes == 33
+    assert Map.get(Enum.at(result, 0), "tiger").surplus == 1
+    assert Map.get(Enum.at(result, 0), "tiger").status == :elected
+    assert Map.get(Enum.at(result, 0), "tiger").votes == 33
   end
 
   test "animal_stv_2" do
