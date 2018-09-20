@@ -4,6 +4,8 @@ Ext.define('Votr.controller.Voter', {
         'voter.Main',
         'voter.Ballots',
         'voter.Ballot',
+        'voter.BallotInfo',
+        'voter.BallotResult',
         'voter.Candidate',
         'voter.RankField'
     ],

@@ -35,33 +35,34 @@ Ext.define('Votr.view.voter.RankField', {
     items: [{
         xtype: 'button',
         itemId: 'decrement',
-        iconCls: 'x-fa fa-minus',
-        ui: 'action',
-        width: 32,
-        height: 32,
+        text: '–',
+        style: 'font-size: 2em; text-align: center;',
+        height: 48,
+        width: 48,
         handler: function() { this.up().decrement(); }
     },{
         xtype: 'component',
         itemId: 'value',
         tpl: new Ext.XTemplate(
             '<tpl for=".">',
-                '<tpl if="rank == 0"><p>&mdash;</p></tpl>',
-                '<tpl if="ranked && rank &gt; 0"><p>{rank}</p></tpl>',
-                '<tpl if="!ranked && rank &gt; 0"><p>&check;</p></tpl>',
+                '<tpl if="rank == 0"><p style="height: 100%; border: 1px solid black;"></p></tpl>',
+                '<tpl if="ranked && rank &gt; 0"><p style="height: 100%; border: 1px solid black; padding-top: 14px;">{rank}</p></tpl>',
+                '<tpl if="!ranked && rank &gt; 0"><p style="height: 100%; border: 1px solid black; padding-top: 14px;">&cross;</p></tpl>',
             '</tpl>'
         ),
-        style: 'font-size: 1.5em; text-align: center; margin-top: 8px;',
-        styleHtmlContent: true,
+        style: 'font-size: 2em; text-align: center; height: 100%; vertical-align: middle;',
+        border: true,
+        styleHtmlContent: false,
         readOnly: true,
-        width: 32,
-        height: 32
+        height: 48,
+        width: 48,
     },{
         xtype: 'button',
         itemId: 'increment',
-        iconCls: 'x-fa fa-plus',
-        ui: 'action',
-        width: 32,
-        height: 32,
+        text: '+',
+        style: 'font-size: 2em; text-align: center;',
+        height: 48,
+        width: 48,
         handler: function() { this.up().increment(); }
     }]
 });

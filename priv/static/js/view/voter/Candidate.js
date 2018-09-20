@@ -14,11 +14,11 @@ Ext.define('Votr.view.voter.Candidate', {
         this.callParent(arguments);
         this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked, withdrawn: data.withdrawn});
         if (data.withdrawn) {
-            this.down('#name').setHtml('<p style="background-color: var(--highlight-color); color: white;">' + data.name + '</p>');
-            this.down('#desc').setHtml('<p style="background-color: var(--highlight-color); color: white;">' + (data.description || '') + '</p>');
+            this.down('#name').setHtml('<p style="color: var(--highlight-color); text-decoration: line-through;">' + data.name + '</p>');
+            this.down('#desc').setHtml('<p style="color: var(--highlight-color); text-decoration: line-through;">' + (data.description || '') + '</p>');
         } else {
             this.down('#name').setHtml(data.name);
-            this.down("#desc").setHtml(data.description || '');
+            this.down('#desc').setHtml('<p style="color: var(--highlight-color);">' + (data.description || '') + '</p>');
         }
     },
     items: [
@@ -35,12 +35,13 @@ Ext.define('Votr.view.voter.Candidate', {
             xtype: 'panel',
             flex: 1,
             padding: '0 16px',
-            layout: 'vbox',
+            layout: {
+                type: 'vbox', pack: 'center'
+            },
             items: [{
                 xtype: 'component',
-                padding: '0 0 8px 0',
                 itemId: 'name',
-                style: 'font-size: 1.5em;'
+                style: 'font-size: 1.25em;'
             }, {
                 xtype: 'component',
                 itemId: 'desc'

@@ -1,23 +1,35 @@
 Ext.define('Votr.view.voter.Ballot', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.ballot',
-    layout: 'vbox',
     border: 1,
     padding: '8px',
     margin: '16px 0',
-    title: 'Title',
+
+    tools: [
+        {
+            iconCls: 'x-fa fa-info-circle',
+            handler: function(panel) {
+                panel.setActiveItem(1);
+            }
+        }, {
+            iconCls: 'x-fa fa-bar-chart',
+            handler: function (panel) {
+            }
+        }
+    ],
+
     setData: function(data) {
         this.callParent(arguments);
         this.setTitle(data.title);
         this.down('#description').setHtml(data.description);
         this.down('#messages').setHtml(this.getMessage());
 
-        var c = this.down('#candidates');
+        var panel = this.down('#ballot');
         data.candidates.forEach(candidate => {
             candidate.ranked = data.method == 'stv' || data.method == 'borda' || data.method == 'condorcet';
             candidate.rank = 0;
             candidate.max = candidate.ranked ? data.candidates.length : 1;
-            c.add(new Votr.view.voter.Candidate({
+            var c = panel.add(new Votr.view.voter.Candidate({
                 data: candidate,
                 listeners: {
                     scope: this,
@@ -32,6 +44,7 @@ Ext.define('Votr.view.voter.Ballot', {
                 }
             }));
         });
+        console.log(panel.element)
     },
     getBlt: function() {
         // returns a string representation of the candidate ranking
@@ -57,9 +70,7 @@ Ext.define('Votr.view.voter.Ballot', {
         var selected = data.candidates
             .filter(v => { return v.rank > 0; })
             .length;
-        if (data.method == 'plurality' && selected < data.electing) {
-            return '<p style="color: var(--alert-color);">Select more candidates</p>';
-        } else if (data.method == 'plurality' && selected > data.electing) {
+        if (data.method == 'plurality' && selected > data.electing) {
             return '<p style="color: var(--alert-color);">Select fewer candidates</p>';
         } else if (data.method == 'stv' && selected == 0) {
             return '<p style="color: var(--alert-color);">Rank at least one candidate</p>';
@@ -82,31 +93,23 @@ Ext.define('Votr.view.voter.Ballot', {
     items: [
         {
             xtype: 'panel',
-            itemId: 'header',
+            itemId: 'ballot',
             padding: 0,
             layout: 'vbox',
+            height: 'auto',
             items: [
                 {
                     xtype: 'component',
                     itemId: 'description',
                     padding: '8px',
-                    html: 'Description'
+                    html: '<p>Description</p>'
                 },
                 {
                     xtype: 'component',
                     itemId: 'messages',
                     padding: '8px',
-                    html: 'Error / Warning Messages'
+                    html: '<p>Error / Warning Messages</p>'
                 }
-            ]
-        },
-        {
-            xtype: 'panel',
-            itemId: 'candidates',
-            padding: 0,
-            layout: 'vbox',
-            items: [
-
             ]
         }
     ]

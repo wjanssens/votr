@@ -7,7 +7,7 @@ Ext.define('Votr.view.admin.Ballot', {
     },
     items: [
         {
-            xtype: 'panel',
+            xtype: 'container',
             layout: 'hbox',
             padding: 0,
             items: [{
@@ -29,7 +29,7 @@ Ext.define('Votr.view.admin.Ballot', {
                 }
             }]
         }, {
-            xtype: 'panel',
+            xtype: 'container',
             layout: 'hbox',
             padding: 0,
             items: [{

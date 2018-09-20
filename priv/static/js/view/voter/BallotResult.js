@@ -1,6 +1,6 @@
-Ext.define('Votr.view.admin.Result', {
+Ext.define('Votr.view.voter.BallotResult', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.admin.result',
+    alias: 'widget.voter.ballotresult',
     layout: 'vbox',
     items: [
         {
@@ -36,10 +36,9 @@ Ext.define('Votr.view.admin.Result', {
             }],
             series: [{
                 type: 'bar',
-                stacked: true,
                 highlight: true,
                 xField: 'name',
-                yField: ['votes','received'],
+                yField: 'votes',
                 style: {
                     minGapWidth: 20
                 },
@@ -66,8 +65,7 @@ Ext.define('Votr.view.admin.Result', {
                 { text: 'Received', dataIndex: 'received', flex: 1 },
                 { text: 'Status', dataIndex: 'status', flex: 1}
             ],
-            flex: 1,
-            store: 'Results'
+            flex: 1
         }
     ]
 });
