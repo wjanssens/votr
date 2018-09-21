@@ -1,6 +1,6 @@
-Ext.define('Votr.store.Ballots', {
+Ext.define('Votr.store.admin.Ballots', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.Ballot',
+    model: 'Votr.model.admin.Ballot',
     data: [
         { title: { default: 'Ballot 1' }, description: { default: 'Description 1' }, method: 'SSTV', quota: 'droop', electing: 1, candidates: 6 , shuffle: true},
         { title: { default: 'Ballot 2' }, description: { default: 'Description 2' }, method: 'SSTV', quota: 'hare',  electing: 2, candidates: 12, shuffle: true},

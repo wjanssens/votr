@@ -1,4 +1,4 @@
-Ext.define('Votr.model.Result', {
+Ext.define('Votr.model.admin.Result', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'candidate', type: 'string'},

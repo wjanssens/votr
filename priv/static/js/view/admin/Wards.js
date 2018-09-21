@@ -16,7 +16,7 @@ Ext.define('Votr.view.admin.Wards', {
         stores: {
             wards: {
                 type: 'tree',
-                model: 'Votr.model.Ward',
+                model: 'Votr.model.admin.Ward',
                 rootVisible: false,
                 root: {
                     text: 'All',

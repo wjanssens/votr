@@ -1,6 +1,6 @@
-Ext.define('Votr.store.Candidates', {
+Ext.define('Votr.store.admin.Candidates', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.Candidate',
+    model: 'Votr.model.admin.Candidate',
     data: [
         { name: { default: 'Tarsier' }, description: { default: 'Tarsiiformes Party' }, withdrawn: false, votes: 5, status: 'excluded', round: 3 },
         { name: { default: 'Gorilla' }, description: { default: 'Simian Party' }, withdrawn: false, votes: 28, surplus: 2, status: 'elected', round: 2 },

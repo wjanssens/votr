@@ -7,7 +7,7 @@ Ext.define('Votr.view.admin.Results', {
         xtype: 'list',
         width: 384,
         itemTpl: '<div><p>Round {round}</p></div>',
-        store: 'Results'
+        store: 'admin.Results'
     }, {
         xtype: 'admin.result',
         flex: 1

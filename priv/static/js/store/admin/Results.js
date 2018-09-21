@@ -1,6 +1,6 @@
-Ext.define('Votr.store.Results', {
+Ext.define('Votr.store.admin.Results', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.Result',
+    model: 'Votr.model.admin.Result',
     groupField: 'round',
     groupDir: 'desc',
     data: [

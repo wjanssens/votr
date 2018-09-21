@@ -9,7 +9,7 @@ Ext.define('Votr.view.admin.Ballots', {
             lang: 'default'
         },
         stores: {
-            ballots: 'Ballots',
+            ballots: 'admin.Ballots',
             languages: 'Languages'
         },
         formulas: {

@@ -6,7 +6,7 @@ Ext.define('Votr.view.admin.Voters', {
     referernceHolder: true,
     viewModel: {
         stores: {
-            voters: 'Voters'
+            voters: 'admin.Voters'
         }
     },
     items: [{

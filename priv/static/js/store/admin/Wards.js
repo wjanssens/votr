@@ -1,6 +1,6 @@
-Ext.define('Votr.store.Wards', {
+Ext.define('Votr.store.admin.Wards', {
     extend: 'Ext.data.TreeStore',
-    model: 'Votr.model.Ward',
+    model: 'Votr.model.admin.Ward',
     rootVisible: false,
     root: {
         text: 'All',

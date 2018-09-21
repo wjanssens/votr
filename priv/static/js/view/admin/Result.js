@@ -9,7 +9,7 @@ Ext.define('Votr.view.admin.Result', {
             flex: 1,
             insetPadding: 20,
             innerPadding: 20,
-            store: 'Results',
+            store: 'admin.Results',
             axes: [{
                 type: 'numeric',
                 position: 'left',
@@ -67,7 +67,7 @@ Ext.define('Votr.view.admin.Result', {
                 { text: 'Status', dataIndex: 'status', flex: 1}
             ],
             flex: 1,
-            store: 'Results'
+            store: 'admin.Results'
         }
     ]
 });

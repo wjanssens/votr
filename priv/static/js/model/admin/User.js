@@ -1,4 +1,4 @@
-Ext.define('Votr.model.User', {
+Ext.define('Votr.model.admin.User', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'username', type: 'string'},

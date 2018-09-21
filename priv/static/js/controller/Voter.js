@@ -12,5 +12,6 @@ Ext.define('Votr.controller.Voter', {
     models: [
     ],
     stores: [
+        'voter.Ballots'
     ]
 })

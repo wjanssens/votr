@@ -1,4 +1,4 @@
-Ext.define('Votr.model.Candidate', {
+Ext.define('Votr.model.admin.Candidate', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'ward_id', type: 'integer'},

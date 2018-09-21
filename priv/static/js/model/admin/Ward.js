@@ -1,4 +1,4 @@
-Ext.define('Votr.model.Ward', {
+Ext.define('Votr.model.admin.Ward', {
     extend: 'Ext.data.TreeModel',
     fields: [
         {name: 'ward_id', type: 'integer'},
