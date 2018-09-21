@@ -2,7 +2,8 @@ Ext.define('Votr.view.voter.Candidate', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.candidate',
     layout: 'hbox',
-    padding: '8px',
+    padding: 4,
+
     constructor() {
         this.callParent(arguments);
         this.down('#controls').addListener('rank', function(newValue, oldValue) {

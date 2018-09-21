@@ -24,7 +24,7 @@ Ext.define('Votr.view.voter.Ballots', {
                 title: 'Plurality',
                 description: 'This is a sample plurality ballot',
                 method: 'plurality',
-                electing: 2,
+                electing: 1,
                 anonymous: true,
                 mutable: false,
                 shuffled: true,

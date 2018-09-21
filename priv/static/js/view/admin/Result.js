@@ -43,7 +43,7 @@ Ext.define('Votr.view.admin.Result', {
                 style: {
                     minGapWidth: 20
                 },
-                colors: ['#607D8B'],
+                colors: ['#607D8B', '#fd9726'],
                 highlight: {
                     strokeStyle: 'black',
                     fillStyle: '#fd9726'

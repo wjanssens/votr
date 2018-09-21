@@ -2,14 +2,16 @@ Ext.define('Votr.view.voter.Ballot', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.ballot',
     border: 1,
-    padding: '8px',
-    margin: '16px 0',
+    padding: 4,
+    margin: '8px 0',
 
     tools: [
         {
             iconCls: 'x-fa fa-info-circle',
             handler: function(panel) {
-                panel.setActiveItem(1);
+                var cards = panel.down('#cards');
+                var item = cards.getActiveItem().getItemId() == 'candidates' ? 1 : 0;
+                cards.setActiveItem(item);
             }
         }, {
             iconCls: 'x-fa fa-bar-chart',
@@ -24,7 +26,9 @@ Ext.define('Votr.view.voter.Ballot', {
         this.down('#description').setHtml(data.description);
         this.down('#messages').setHtml(this.getMessage());
 
-        var panel = this.down('#ballot');
+        this.down('#cards').setHeight(data.candidates.length * 56);
+
+        var panel = this.down('#candidates');
         data.candidates.forEach(candidate => {
             candidate.ranked = data.method == 'stv' || data.method == 'borda' || data.method == 'condorcet';
             candidate.rank = 0;
@@ -70,14 +74,18 @@ Ext.define('Votr.view.voter.Ballot', {
         var selected = data.candidates
             .filter(v => { return v.rank > 0; })
             .length;
-        if (data.method == 'plurality' && selected > data.electing) {
+        if (data.method == 'plurality' && selected != 1 && data.electing == 1) {
+            return '<p style="color: var(--alert-color);">Select exactly one candidate</p>';
+        } else if (data.method == 'plurality' && selected == 0 && data.electing > 1) {
+            return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
+        } else if (data.method == 'plurality' && selected > data.electing) {
             return '<p style="color: var(--alert-color);">Select fewer candidates</p>';
         } else if (data.method == 'stv' && selected == 0) {
             return '<p style="color: var(--alert-color);">Rank at least one candidate</p>';
         } else if (data.method == 'stv' && blt.indexOf('=') >= 0) {
             return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
         } else if (data.method == 'approval' && selected == 0) {
-            return '<p style="color: var(--alert-color);">Select at least one candidate</p>';
+            return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
         } else if (data.method == 'condorcet' && selected != data.candidates.length) {
             return '<p style="color: var(--alert-color);">Rank all candidates</p>';
         } else if (data.method == 'condorcet' && blt.indexOf('=') >= 0) {
@@ -92,23 +100,35 @@ Ext.define('Votr.view.voter.Ballot', {
     },
     items: [
         {
-            xtype: 'panel',
-            itemId: 'ballot',
+            xtype: 'component',
+            itemId: 'description',
+            padding: 4,
+            html: '<p>Description</p>'
+        },
+        {
+            xtype: 'component',
+            itemId: 'messages',
+            padding: 4,
+            html: '<p>Error / Warning Messages</p>'
+        },
+        {
+            xtype: 'container',
+            itemId: 'cards',
             padding: 0,
-            layout: 'vbox',
-            height: 'auto',
+            layout: {
+                type: 'card',
+                animation: 'slide'
+            },
             items: [
                 {
-                    xtype: 'component',
-                    itemId: 'description',
-                    padding: '8px',
-                    html: '<p>Description</p>'
+                    xtype: 'container',
+                    itemId: 'candidates',
+                    padding: 0,
+                    layout: 'vbox',
+                    items: []
                 },
                 {
-                    xtype: 'component',
-                    itemId: 'messages',
-                    padding: '8px',
-                    html: '<p>Error / Warning Messages</p>'
+                    xtype: 'voter.ballotinfo'
                 }
             ]
         }
