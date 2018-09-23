@@ -1,6 +1,6 @@
-Ext.define('Votr.store.admin.Results', {
+Ext.define('Votr.store.voter.Results', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.admin.Result',
+    model: 'Votr.model.voter.Result',
     groupField: 'round',
     groupDir: 'desc',
     sorters: [{property: 'votes', direction: 'desc'},'name'],

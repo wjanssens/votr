@@ -8,9 +8,10 @@ defmodule Votr.Repo.Migrations.CreateElection do
       add(:parent_id, :bigint, null: true, comment: "Parent ward, null for root ward/election")
       add(:ext_id, :varchar, null: true, comment: "External reference")
       add(:seq, :integer, null: false, comment: "Permits wards to be ordered")
-      add(:name, :varchar, null: false, comment: "Path segment name")
       add(:start_time, :timestamptz, null: true, comment: "When voting starts in this ward")
       add(:end_time, :timestamptz, null: true, comment: "When voting ends in this ward")
+      add(:lat, :decimal, scale: 10, precision: 6, null: true, comment: "Latitude")
+      add(:lon, :decimal, scale: 10, precision: 6, null: true, comment: "Longitude")
       timestamps()
     end
   end

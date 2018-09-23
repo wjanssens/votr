@@ -1,5 +1,5 @@
 Ext.define('Votr.view.voter.Main', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.Container',
     alias: 'widget.voter.main',
     requires: [
         "Votr.view.voter.MainController"
@@ -8,8 +8,9 @@ Ext.define('Votr.view.voter.Main', {
     scrollable: true,
     layout: 'hbox',
     padding: 0,
+    style: 'background: #f5f5fa;',
     items: [{
-        xtype: 'panel',
+        xtype: 'container',
         flex: 1,
     }, {
         xtype: 'voter.ballots',
@@ -25,7 +26,7 @@ Ext.define('Votr.view.voter.Main', {
             },
         }
     }, {
-        xtype: 'panel',
+        xtype: 'container',
         flex: 1,
     }]
 });

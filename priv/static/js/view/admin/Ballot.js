@@ -61,10 +61,10 @@ Ext.define('Votr.view.admin.Ballot', {
             label: 'Method *',
             name: 'method',
             options: [
-                {value: 'SSTV', text: 'Scottish STV'},
-                {value: 'MSTV', text: 'Meek STV'},
-                {value: 'FPTP', text: 'Plurality'},
-                {value: 'AV', text: 'Approval'}
+                {value: 'scottish_stv', text: 'Scottish STV'},
+                {value: 'meek_stv', text: 'Meek STV'},
+                {value: 'plurality', text: 'Plurality'},
+                {value: 'approval', text: 'Approval'}
             ],
             bind: '{method}'
         }, {
@@ -104,6 +104,14 @@ Ext.define('Votr.view.admin.Ballot', {
             checked: false,
             tooltip: 'Voters can change their vote',
             bind: '{ballotList.selection.mutable}'
+        }, {
+            xtype: 'checkboxfield',
+            name: 'public',
+            label: 'Public Results',
+            value: 'public',
+            checked: false,
+            tooltip: 'Election results are public',
+            bind: '{ballotList.selection.public}'
         }
     ]
 });

@@ -1,21 +1,25 @@
 Ext.define('Votr.view.voter.Ballot', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.ballot',
-    border: 1,
-    padding: 4,
-    margin: '8px 0',
+    border: false,
+    shadow: true,
+    padding: 8,
+    margin: '16px 0',
 
     tools: [
         {
             iconCls: 'x-fa fa-info-circle',
             handler: function(panel) {
                 var cards = panel.down('#cards');
-                var item = cards.getActiveItem().getItemId() == 'candidates' ? 1 : 0;
+                var item = cards.getActiveItem().getItemId() == 'info' ? 0 : 1;
                 cards.setActiveItem(item);
             }
         }, {
             iconCls: 'x-fa fa-bar-chart',
             handler: function (panel) {
+                var cards = panel.down('#cards');
+                var item = cards.getActiveItem().getItemId() == 'result' ? 0 : 2;
+                cards.setActiveItem(item);
             }
         }
     ],
@@ -30,7 +34,9 @@ Ext.define('Votr.view.voter.Ballot', {
 
         var panel = this.down('#candidates');
         data.candidates.forEach(candidate => {
-            candidate.ranked = data.method == 'stv' || data.method == 'borda' || data.method == 'condorcet';
+            candidate.ranked = data.method.endsWith('_stv')
+                || data.method == 'borda'
+                || data.method == 'condorcet';
             candidate.rank = 0;
             candidate.max = candidate.ranked ? data.candidates.length : 1;
             var c = panel.add(new Votr.view.voter.Candidate({
@@ -80,9 +86,9 @@ Ext.define('Votr.view.voter.Ballot', {
             return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
         } else if (data.method == 'plurality' && selected > data.electing) {
             return '<p style="color: var(--alert-color);">Select fewer candidates</p>';
-        } else if (data.method == 'stv' && selected == 0) {
+        } else if (data.method.endsWith('_stv') && selected == 0) {
             return '<p style="color: var(--alert-color);">Rank at least one candidate</p>';
-        } else if (data.method == 'stv' && blt.indexOf('=') >= 0) {
+        } else if (data.method.endsWith('_stv') && blt.indexOf('=') >= 0) {
             return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
         } else if (data.method == 'approval' && selected == 0) {
             return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
@@ -128,7 +134,12 @@ Ext.define('Votr.view.voter.Ballot', {
                     items: []
                 },
                 {
-                    xtype: 'voter.ballotinfo'
+                    xtype: 'voter.ballotinfo',
+                    itemId: 'info'
+                },
+                {
+                    xtype: 'voter.ballotresult',
+                    itemId: 'result'
                 }
             ]
         }

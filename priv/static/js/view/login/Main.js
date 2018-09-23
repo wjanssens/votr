@@ -1,5 +1,5 @@
 Ext.define('Votr.view.login.Main', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.Container',
     alias: 'widget.login',
     layout: 'hbox',
     requires: [
@@ -7,11 +7,12 @@ Ext.define('Votr.view.login.Main', {
     ],
     controller: 'login.main',
     padding: 0,
+    style: 'background: #f5f5fa;',
     items: [{
-        xtype: 'panel',
+        xtype: 'container',
         flex: 1,
     }, {
-        xtype: 'panel',
+        xtype: 'container',
         padding: 0,
         layout: 'vbox',
         plugins: 'responsive',
@@ -25,7 +26,7 @@ Ext.define('Votr.view.login.Main', {
         },
         items: [
             {
-                xtype: 'panel',
+                xtype: 'container',
                 flex: 1
             },
             {
@@ -34,6 +35,7 @@ Ext.define('Votr.view.login.Main', {
                 border: 1,
                 height: 320,
                 layout: 'card',
+                shadow: true,
                 responsiveConfig: {
                     'height < 384': {
                         height: '100%'
@@ -41,23 +43,23 @@ Ext.define('Votr.view.login.Main', {
                     'height >= 384': {
                         height: 384
                     }
-                },                items: [
-                    { xtype: 'login.voterballot' },
-                    { xtype: 'login.votercredentials' },
-                    { xtype: 'login.adminlogin' },
-                    { xtype: 'login.adminmfa' },
-                    { xtype: 'login.adminregister' },
-                    { xtype: 'login.adminforgotpassword' },
-                    { xtype: 'login.adminresetpassword' }
+                }, items: [
+                    {xtype: 'login.voterballot'},
+                    {xtype: 'login.votercredentials'},
+                    {xtype: 'login.adminlogin'},
+                    {xtype: 'login.adminmfa'},
+                    {xtype: 'login.adminregister'},
+                    {xtype: 'login.adminforgotpassword'},
+                    {xtype: 'login.adminresetpassword'}
                 ]
             },
             {
-                xtype: 'panel',
+                xtype: 'container',
                 flex: 1
             },
         ]
     }, {
-        xtype: 'panel',
+        xtype: 'container',
         flex: 1,
     }]
 });

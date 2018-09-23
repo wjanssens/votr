@@ -24,8 +24,12 @@
 
     <style>
         :root {
+            --background-color: #ffffff;
             --base-color: #607D8B;
-            --listitem-selected-background-color: #CFD8DC;
+            --base-dark-color: #465163;
+            --accent-color: #fd9726;
+            --accent-dark-color: #f37c22;
+            --listitem-selected-background-color: #cfd8dc;
         }
         .x-pressed {
             background-color: #fd9726 !important;

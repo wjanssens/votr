@@ -10,8 +10,12 @@ Ext.define('Votr.controller.Voter', {
         'voter.RankField'
     ],
     models: [
+        'voter.Ballot',
+        'voter.Candidate',
+        'voter.Result'
     ],
     stores: [
-        'voter.Ballots'
+        'voter.Ballots',
+        'voter.Results'
     ]
 })

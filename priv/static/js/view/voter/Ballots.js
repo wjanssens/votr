@@ -1,5 +1,5 @@
 Ext.define('Votr.view.voter.Ballots', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.Container',
     alias: 'widget.voter.ballots',
     referenceHolder: true,
     viewModel: {
@@ -27,7 +27,7 @@ Ext.define('Votr.view.voter.Ballots', {
     padding: 0,
     items: [
         {
-            xtype: 'panel',
+            xtype: 'container',
             padding: 0,
             itemId: 'ballots',
         },

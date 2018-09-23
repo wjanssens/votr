@@ -6,16 +6,16 @@ Ext.define('Votr.store.voter.Ballots', {
             id: '1',
             title: 'STV',
             description: 'This is a sample STV ranked ballot',
-            method: 'stv',
+            method: 'scottish_stv',
             electing: 3,
             anonymous: true,
             mutable: false,
             shuffled: true,
             candidates: [
-                {index: 4, withdrawn: false, name: 'Guy F.', description: 'Conservative Party', id: '1234a1234a'},
-                {index: 2, withdrawn: false, name: 'Guy F.', description: 'Democratic Party', id: '1234a1234a'},
-                {index: 3, withdrawn: false, name: 'Guy F.', description: 'Liberal Party', id: '1234a1234a'},
-                {index: 1, withdrawn: true, name: 'Guy F.', description: 'Green Party', id: '1234a1234a'}
+                {index: 4, name: 'Guy F.', description: 'Conservative Party', id: '1234a1234a'},
+                {index: 2, name: 'Guy F.', description: 'Democratic Party', id: '1234a1234a'},
+                {index: 3, name: 'Guy F.', description: 'Liberal Party', id: '1234a1234a'},
+                {index: 1, name: 'Guy F.', description: 'Green Party', id: '1234a1234a', status: 'withdrawn'}
             ]
         },
         {
@@ -28,9 +28,9 @@ Ext.define('Votr.store.voter.Ballots', {
             mutable: false,
             shuffled: true,
             candidates: [
-                {index: 2, withdrawn: false, name: 'Guy F.', description: 'Republican', id: '1234a1234a'},
-                {index: 3, withdrawn: false, name: 'Guy F.', description: 'Democrat', id: '1234a1234a'},
-                {index: 1, withdrawn: true, name: 'Guy F.', description: 'Independent', id: '1234a1234a'}
+                {index: 2, name: 'Guy F.', description: 'Republican', id: '1234a1234a'},
+                {index: 3, name: 'Guy F.', description: 'Democrat', id: '1234a1234a'},
+                {index: 1, name: 'Guy F.', description: 'Independent', id: '1234a1234a'}
             ]
         }, {
             id: '3',
@@ -42,11 +42,11 @@ Ext.define('Votr.store.voter.Ballots', {
             mutable: false,
             shuffled: true,
             candidates: [
-                {index: 2, withdrawn: false, name: 'Sushi', id: '1234a1234a'},
-                {index: 3, withdrawn: false, name: 'Pizza', id: '1234a1234a'},
-                {index: 1, withdrawn: true, name: 'Burgers', id: '1234a1234a'},
-                {index: 5, withdrawn: false, name: 'Chinese', id: '1234a1234a'},
-                {index: 4, withdrawn: false, name: 'Italian', id: '1234a1234a'}
+                {index: 2, name: 'Sushi', id: '1234a1234a'},
+                {index: 3, name: 'Pizza', id: '1234a1234a'},
+                {index: 1, name: 'Burgers', id: '1234a1234a', status: 'withdrawn'},
+                {index: 5, name: 'Chinese', id: '1234a1234a'},
+                {index: 4, name: 'Italian', id: '1234a1234a'}
             ]
         }
     ]

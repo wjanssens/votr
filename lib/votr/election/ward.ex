@@ -22,25 +22,26 @@ defmodule Votr.Election.Ward do
     field(:parent_id, :integer)        # parent ward, null for elections
     field(:seq, :integer)              # the order in which wards are presented
     field(:ext_id, :string)            # reference to an external system
-    field(:name, Votr.EncryptedBinary) # the administrators name of for election / ward
     field(:start_time, :utc_datetime)  # the date/time at which voting starts
     field(:end_time, :utc_datetime)    # the date/time at which voting ends
+    field(:lat, :decimal)              # latitude
+    field(:lon, :decimal)              # longitude
     timestamps()
   end
 
   def select_for_subject(subject_id) do
     results =
       """
-      with recursive heirarchy (id, version, parent_id, seq, ext_id, name, start_time, end_time) as (
-        select id, version, parent_id, seq, ext_id, name, start_time, end_time
+      with recursive heirarchy (id, version, parent_id, seq, ext_id, start_time, end_time) as (
+        select id, version, parent_id, seq, ext_id, start_time, end_time
         from ward w
         where parent_id is null and subject_id = $1
         union all
-        select p.id, p.version, p.parent_id, p.seq, p.ext_id, p.name, p.start_time, p.end_time
+        select p.id, p.version, p.parent_id, p.seq, p.ext_id, p.start_time, p.end_time
         from ward p
         inner join heirarchy h on p.id = h.parent_id
       )
-      select id, version, parent_id, seq, ext_id, name, start_time, end_time
+      select id, version, parent_id, seq, ext_id, start_time, end_time
       from heirarchy
       """
       |> Votr.Repo.query!([subject_id])
@@ -73,7 +74,7 @@ defmodule Votr.Election.Ward do
     |> Enum.group_by(&(&1.id), &(&1))
   end
 
-  def insert(subject_id, parent_id, ext_id, name, start_time, end_time) do
+  def insert(subject_id, parent_id, ext_id, start_time, end_time) do
     shard = FlexId.extract_partition(:id_generator, subject_id)
     id = FlexId.generate(:id_generator, shard)
     seq = 0 # TODO select a max+1 for this
@@ -85,12 +86,11 @@ defmodule Votr.Election.Ward do
            parent_id: parent_id,
            seq: seq,
            ext_id: ext_id,
-           name: name,
            start_time: start_time,
            end_time: end_time
          }
-         |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time])
-         |> validate_required([:id, :version, :subject_id, :seq, :name])
+         |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
+         |> validate_required([:id, :version, :subject_id, :seq])
          |> Repo.insert() do
       {:ok, ward} -> {:ok, ward}
       {:error, _} -> {:error, :constraint_violation}

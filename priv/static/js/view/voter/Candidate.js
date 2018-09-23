@@ -1,31 +1,51 @@
 Ext.define('Votr.view.voter.Candidate', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.voter.candidate',
-    layout: 'hbox',
+    layout: {
+        type: 'hbox', pack: 'center'
+    },
     padding: 4,
 
-    constructor() {
+    setData: function (data) {
         this.callParent(arguments);
-        this.down('#controls').addListener('rank', function(newValue, oldValue) {
-            this.getData().rank = newValue;
-            this.fireEvent('rank', newValue, oldValue);
-        }, this);
-    },
-    setData: function(data) {
-        this.callParent(arguments);
-        this.down('#controls').setData({rank: data.rank, max: data.max, ranked: data.ranked, withdrawn: data.withdrawn});
-        if (data.withdrawn) {
-            this.down('#name').setHtml('<p style="color: var(--highlight-color); text-decoration: line-through;">' + data.name + '</p>');
-            this.down('#desc').setHtml('<p style="color: var(--highlight-color); text-decoration: line-through;">' + (data.description || '') + '</p>');
+        this.down('#name').setHtml(data.name);
+        this.down('#desc').setHtml(data.description || '');
+
+        if (data.status == 'withdrawn') {
+            this.add({ width: 144, height: 48, padding: 16, style: 'font-size: 1.25em; text-align: center;', html: 'Withdrawn'})
+        } else if (data.status == 'elected') {
+            this.add({ width: 144, height: 48, padding: 16, style: 'font-size: 1.25em; text-align: center;', html: '&check; Elected'})
+        } else if (data.status == 'excluded') {
+            this.add({ width: 144, height: 48, padding: 16, style: 'font-size: 1.25em; text-align: center;', html: '&empty; Excluded'})
         } else {
-            this.down('#name').setHtml(data.name);
-            this.down('#desc').setHtml('<p style="color: var(--highlight-color);">' + (data.description || '') + '</p>');
+            var me = this;
+            this.add({
+                xtype: 'voter.rankfield',
+                itemId: 'controls',
+                padding: 0,
+                data: {
+                    rank: data.rank,
+                    max: data.max,
+                    ranked: data.ranked,
+                    status: data.status,
+                },
+                listeners: {
+                    rank: {
+                        scope: me,
+                        fn: function (newValue, oldValue) {
+                            this.getData().rank = newValue;
+                            this.fireEvent('rank', newValue, oldValue);
+                        }
+                    }
+                }
+            });
         }
     },
     items: [
         {
             xtype: 'image',
             itemId: 'avatar',
+            style: 'border-radius: 4px;',
             width: 48,
             height: 48,
             border: 1,
@@ -45,12 +65,9 @@ Ext.define('Votr.view.voter.Candidate', {
                 style: 'font-size: 1.25em;'
             }, {
                 xtype: 'component',
-                itemId: 'desc'
+                itemId: 'desc',
+                style: 'color: var(--highlight-color);'
             }]
-        }, {
-            xtype: 'voter.rankfield',
-            itemId: 'controls',
-            padding: 0
         }
     ]
 });
