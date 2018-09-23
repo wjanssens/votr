@@ -6,6 +6,27 @@ Ext.define('Votr.view.voter.Ballot', {
     padding: 8,
     margin: '16px 0',
 
+    viewModel: {
+        formulas: {
+            methodName: function(get) {
+                switch (get('method')) {
+                    case 'scottish_stv': return 'Scottish STV';
+                    case 'meek_stv': return 'Meek STV';
+                    case 'plurality': return 'Plurality';
+                    case 'approval': return 'Approval';
+                    case 'condorcet': return 'Condorcet';
+                    case 'Borda': return 'Borda';
+                };
+            },
+            order: function(get) {
+                switch (get('shuffled')) {
+                    case true: return 'Shuffled';
+                    case false: return 'Official';
+                };
+            }
+        }
+    },
+
     tools: [
         {
             iconCls: 'x-fa fa-info-circle',
@@ -27,9 +48,9 @@ Ext.define('Votr.view.voter.Ballot', {
     setData: function(data) {
         this.callParent(arguments);
         this.setTitle(data.title);
+        this.getViewModel().setData(data);
         this.down('#description').setHtml(data.description);
         this.down('#messages').setHtml(this.getMessage());
-
         this.down('#cards').setHeight(data.candidates.length * 56);
 
         var panel = this.down('#candidates');

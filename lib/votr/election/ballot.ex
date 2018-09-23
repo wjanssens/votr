@@ -10,8 +10,8 @@ defmodule Votr.Election.Ballot do
     field(:ward_id, :integer)
     field(:seq, :integer)              # the order in which ballots are presented to the voter
     field(:ext_id, :string)            # reference to an external system
-    field(:method, :string)            # the count method (eg. stv, approval, plurality)
-    field(:quota, :string)             # the quota (eg. Droop, Hare)
+    field(:method, :string)            # the count method (eg. scottish_stv, approval, plurality)
+    field(:quota, :string)             # the quota (eg. droop, hare)
     field(:electing, :integer)         # how many candidates are being elected
     field(:shuffle, :boolean)          # candidates are displayed to the voter in a random order
     field(:mutable, :boolean)          # voters can change their vote

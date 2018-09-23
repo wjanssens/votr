@@ -17,19 +17,19 @@ Ext.define('Votr.view.voter.BallotInfo', {
                 {
                     xtype: 'textfield',
                     label: 'Ward',
-                    value: 'Test'
+                    bind: '{ward}'
                 }, {
                     xtype: 'textfield',
                     label: 'Start Date/Time',
-                    value: '2018-01-01 14:00 -07:00'
+                    bind: '{start:date("Y-m-d H:i:sO")}'
                 }, {
                     xtype: 'textfield',
                     label: 'Candidate Order',
-                    value: 'Random'
+                    bind: '{order}'
                 }, {
                     xtype: 'checkboxfield',
-                    label: 'Mutable',
-                    checked: false
+                    label: 'Changes Allowed',
+                    bind: '{mutable}'
                 }
             ]
         },
@@ -44,15 +44,19 @@ Ext.define('Votr.view.voter.BallotInfo', {
                 {
                     xtype: 'textfield',
                     label: 'Candidates Elected',
-                    value: '3'
+                    bind: '{electing}'
                 }, {
                     xtype: 'textfield',
                     label: 'End Date/Time',
-                    value: '2018-03-01 14:00 -07:00'
+                    bind: '{end:date("Y-m-d H:i:sO")}'
                 }, {
                     xtype: 'textfield',
                     label: 'Counting Method',
-                    value: 'Scottish STV'
+                    bind: '{methodName}'
+                }, {
+                    xtype: 'checkboxfield',
+                    label: 'Public Results',
+                    bind: '{public}'
                 }
             ]
         }
