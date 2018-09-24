@@ -15,7 +15,7 @@ Ext.define('Votr.view.voter.Ballot', {
                     case 'plurality': return 'Plurality';
                     case 'approval': return 'Approval';
                     case 'condorcet': return 'Condorcet';
-                    case 'Borda': return 'Borda';
+                    case 'borda': return 'Borda';
                 };
             },
             order: function(get) {

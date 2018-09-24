@@ -9,7 +9,11 @@ Ext.define('Votr.view.login.VoterBallot', {
         xtype: 'selectfield',
         label: 'ズA',
         labelAlign: 'left',
-        store: 'Languages'
+        store: 'Languages',
+        value: /[^:/]*:\/\/[^/]*\/(\w*)/.exec(window.location.href)[1],
+        listeners: {
+            change: 'onLanguageChange'
+        }
     }],
     title: 'Voter Login'.translate(),
     items: [{

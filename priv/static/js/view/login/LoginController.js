@@ -2,6 +2,12 @@ Ext.define('Votr.view.login.LoginController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.login.login',
 
+    onLanguageChange: function(field, newValue) {
+        var lang = newValue.id;
+        if (lang == 'default') window.location.href = '..'; // server side conneg will select something
+        else window.location.href = '../' + lang;
+    },
+
     onBallotId: function() {
         // send the voter id to the server
         // 200: prompt for voter credentials
