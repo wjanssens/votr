@@ -1044,6 +1044,6 @@ definitions:
     additionalProperties:
       type: string
     example:
-      en: 'example',
-      fr: 'exemple',
+      en: 'example'
+      fr: 'exemple'
       es: 'ejemplo'

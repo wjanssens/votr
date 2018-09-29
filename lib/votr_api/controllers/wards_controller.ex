@@ -2,6 +2,7 @@ defmodule Votr.Api.WardsController do
   use VotrWeb, :controller
   use Timex
   alias Votr.Election.Ward
+  alias Votr.Election.Res
 
   def index(conn, _params) do
     subject_id = conn.assigns[:subject_id]
@@ -17,26 +18,28 @@ defmodule Votr.Api.WardsController do
   def create(conn, body) do
     subject_id = conn.assigns[:subject_id]
 
-    case Ward.insert(
-           subject_id,
-           body["parent_id"],
-           body["ext_id"],
-           body["name"],
-           body["start_time"],
-           body["end_time"]
-         ) do
-      {:ok, ward} ->
-        conn
-        |> put_status(201)
-        |> json(
-             %{
-               success: true,
-               ward: %{
-                id: ward.id
-                # TODO include the other fields?
-               }
+    with {:ok, ward} <- Ward.insert(
+      subject_id,
+      body["parent_id"],
+      body["ext_id"],
+      body["start_time"],
+      body["end_time"]
+    ),
+         {:ok, names} <- Res.insert_all(ward.id, "name", body["name"]),
+         {:ok, descs} <- Res.insert_all(ward.id, "description", body["description"])
+      do
+      conn
+      |> put_status(201)
+      |> json(
+           %{
+             success: true,
+             ward: %{
+               id: ward.id
+               # TODO include the other fields?
              }
-           )
+           }
+         )
+    else
       {:error, _} ->
         conn
         |> put_status(500)

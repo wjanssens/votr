@@ -23,7 +23,7 @@ defmodule Votr.Election.Res do
     |> Repo.all()
   end
 
-  def insert(entity_id, tag, key, value) do
+  def insert(entity_id, key, tag, value) do
     shard = FlexId.extract_partition(:id_generator, entity_id)
     id = FlexId.generate(:id_generator, shard)
 
@@ -31,8 +31,8 @@ defmodule Votr.Election.Res do
            id: id,
            version: 0,
            entity_id: entity_id,
-           tag: tag,
            key: key,
+           tag: tag,
            value: AES.encrypt(value)
          }
          |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
@@ -41,5 +41,18 @@ defmodule Votr.Election.Res do
       {:ok, res} -> {:ok, res}
       {:error, _} -> {:error, :constraint_violation}
     end
+  end
+
+  def insert_all(entity_id, key, pairs) do
+    Enum.reduce(
+      pairs,
+      {:ok, []},
+      fn {tag, value}, {st, list} ->
+        case Res.insert(entity_id, key, tag, value) do
+          {:ok, res} -> {st, [res | list]}
+          {:error, err} -> {:error, [err | list]}
+        end
+      end
+    )
   end
 end

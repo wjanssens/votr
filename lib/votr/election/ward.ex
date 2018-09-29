@@ -24,8 +24,6 @@ defmodule Votr.Election.Ward do
     field(:ext_id, :string)            # reference to an external system
     field(:start_time, :utc_datetime)  # the date/time at which voting starts
     field(:end_time, :utc_datetime)    # the date/time at which voting ends
-    field(:lat, :decimal)              # latitude
-    field(:lon, :decimal)              # longitude
     timestamps()
   end
 
