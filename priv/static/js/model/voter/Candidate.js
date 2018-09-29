@@ -3,7 +3,6 @@ Ext.define('Votr.model.voter.Candidate', {
     fields: [
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
-        {name: 'method', type: 'string'},
         {name: 'status', type: 'integer'}
     ]
 });

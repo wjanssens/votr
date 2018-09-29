@@ -29,7 +29,7 @@ paths:
                   ballots:
                     type: array
                     items:
-                      $ref: '#/definitions/voter_ballot'
+                      type: '#/definitions/voter_ballot'
     put:
       tags:
         - Voters
@@ -64,6 +64,46 @@ paths:
           schema:
             $ref: '#/definitions/response'
 
+  /api/explore:
+    get:
+      tags:
+        - Public
+      summary: A list of public results
+      produces:
+        - application/json
+      parameters:
+        - name: ward
+          in: query
+          required: false
+          type: string
+          description: focus on a particular ward
+        - name: q
+          in: query
+          required: false
+          type: string
+          description: free-form text search
+        - name: offset
+          in: query
+          required: false
+          type: integer
+          default: 0
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          default: 25
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/response'
+              - properties:
+                  ballots:
+                    type: array
+                    items:
+                      $ref: '#/definitions/voter_ballot'
+
   /api/ballots/{id}/votes:
     get:
       tags:
@@ -93,7 +133,7 @@ paths:
     get:
       tags:
         - Public
-      summary: Election results for a ward
+      summary: Election results for a ballot
       produces:
         - application/json
       parameters:
@@ -108,8 +148,6 @@ paths:
             allOf:
               - $ref: '#/definitions/response'
               - properties:
-                  provisional:
-                    type: boolean
                   results:
                     type: array
                     items:
@@ -842,10 +880,10 @@ definitions:
     required:
       - id
       - title
-      - start_time
-      - end_time
-      - ranked
-      - authentication
+      - description
+      - start
+      - end
+      - method
       - electing
       - candidates
     description: A ballot
@@ -856,40 +894,23 @@ definitions:
         type: string
       description:
         type: string
-      instructions:
-        type: string
-      start_time:
+      start:
         type: string
         format: datetime
-      end_time:
+      end:
         type: string
         format: datetime
-      type:
-        default: 'partial_rank'
-        description: different types of counting have different requirements
+      method:
+        description: how are the ballots counted
         type: string
-        enum: ['partial_rank','full_rank','unranked','approval']
-      background_color:
-        description: the background color of the ballot
+        enum: ['scottish_stv','meek_stv','plurality','approval', 'condorcet']
+      quota:
         type: string
-      authentication:
-        type: object
-        required:
-          - required
-          - challenges
-        properties:
-          required:
-            type: integer
-            description: the number of challenge responses required
-          challenges:
-            type: array
-            items:
-              type: string
-              description: a localized description of the challenge
+        enum: ['droop','hare','plurality','imperator', 'hagenback-bischoff']
       electing:
         description: how many candidates are being elected
         type: integer
-      shuffle:
+      shuffled:
         description: should canditates be presented in a shuffled order
         type: boolean
         default: false
@@ -902,10 +923,11 @@ definitions:
           properties:
             name:
               type: string
-              description: the name of the candidate
-            affiliation:
+            description:
               type: string
-              description: the affiliation of the candidate
+            status:
+              type: string
+              enum: ['withdrawn','elected','excluded','hopeful']
 
   ward:
     type: object
@@ -1000,9 +1022,6 @@ definitions:
       widthdrawn:
         description: the candidate is no longer running
         type: boolean
-      color:
-        description: color to use in result charts
-        type: string
 
   voter:
     type: object
