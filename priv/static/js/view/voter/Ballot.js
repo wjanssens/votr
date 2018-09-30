@@ -35,13 +35,6 @@ Ext.define('Votr.view.voter.Ballot', {
                 var item = cards.getActiveItem().getItemId() == 'info' ? 0 : 1;
                 cards.setActiveItem(item);
             }
-        }, {
-            iconCls: 'x-fa fa-bar-chart',
-            handler: function (panel) {
-                var cards = panel.down('#cards');
-                var item = cards.getActiveItem().getItemId() == 'result' ? 0 : 2;
-                cards.setActiveItem(item);
-            }
         }
     ],
 
@@ -157,10 +150,6 @@ Ext.define('Votr.view.voter.Ballot', {
                 {
                     xtype: 'voter.ballotinfo',
                     itemId: 'info'
-                },
-                {
-                    xtype: 'voter.ballotresult',
-                    itemId: 'result'
                 }
             ]
         }

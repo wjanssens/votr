@@ -1,12 +1,9 @@
-Ext.define('Votr.controller.Voter', {
+Ext.define('Votr.controller.Public', {
     extend: 'Ext.app.Controller',
     views: [
-        'voter.Main',
-        'voter.Ballots',
-        'voter.Ballot',
-        'voter.BallotInfo',
-        'voter.Candidate',
-        'voter.RankField'
+        'public.Main',
+        'public.Ballots',
+        'public.Ballot',
     ],
     models: [
         'Ballot',

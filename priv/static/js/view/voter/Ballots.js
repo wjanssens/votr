@@ -4,7 +4,7 @@ Ext.define('Votr.view.voter.Ballots', {
     referenceHolder: true,
     viewModel: {
         stores: {
-            ballots: 'voter.Ballots',
+            ballots: 'Ballots',
         }
     },
     bind: {

@@ -1,11 +1,11 @@
-Ext.define('Votr.store.voter.Ballots', {
+Ext.define('Votr.store.Ballots', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.voter.Ballot',
+    model: 'Votr.model.Ballot',
     data: [
         {
             id: '1',
             title: 'STV',
-            description: 'This is a sample STV ranked ballot',
+            description: 'This is a sample STV ranked ballot. This is a sample STV ranked ballot. This is a sample STV ranked ballot. This is a sample STV ranked ballot.',
             start: '2018-01-01T08:00:00Z',
             end: '2018-01-01T20:00:00Z',
             ward: 'Test',

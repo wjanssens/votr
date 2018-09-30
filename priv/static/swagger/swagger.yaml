@@ -6,22 +6,42 @@ info:
 schemes:
   - https
 paths:
-  /api/voters/{id}/ballots:
+  /api/ballots:
     get:
       tags:
-        - Voters
+        - Voters / Public
       summary: All the ballots for a voter
       produces:
         - application/json
       parameters:
-        - name: id
-          in: path
-          description: 'Ballot ID'
-          required: true
+        - name: voter
+          in: query
+          required: false
           type: string
-      responses:
+          description: only return ballots for a particular voter
+        - name: ward
+          in: query
+          required: false
+          type: string
+          description: focus on a particular ward
+        - name: q
+          in: query
+          required: false
+          type: string
+          description: free-form text search
+        - name: offset
+          in: query
+          required: false
+          type: integer
+          default: 0
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          default: 25
+        responses:
         '200':
-          description: OK
+          description: A list of ballots (potentially nothing depending on access controls).
           schema:
             allOf:
               - $ref: '#/definitions/response'
@@ -63,46 +83,6 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response'
-
-  /api/explore:
-    get:
-      tags:
-        - Public
-      summary: A list of public results
-      produces:
-        - application/json
-      parameters:
-        - name: ward
-          in: query
-          required: false
-          type: string
-          description: focus on a particular ward
-        - name: q
-          in: query
-          required: false
-          type: string
-          description: free-form text search
-        - name: offset
-          in: query
-          required: false
-          type: integer
-          default: 0
-        - name: limit
-          in: query
-          required: false
-          type: integer
-          default: 25
-      responses:
-        '200':
-          description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/response'
-              - properties:
-                  ballots:
-                    type: array
-                    items:
-                      $ref: '#/definitions/voter_ballot'
 
   /api/ballots/{id}/votes:
     get:

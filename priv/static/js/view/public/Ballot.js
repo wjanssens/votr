@@ -1,9 +1,8 @@
-Ext.define('Votr.view.voter.BallotResult', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.voter.ballotresult',
+Ext.define('Votr.view.public.Ballot', {
+    extend: 'Ext.Container',
+    alias: 'widget.public.ballot',
     layout: 'vbox',
     padding: 0,
-    scrollable: true,
     items: [
         {
             xtype: 'grid',
@@ -16,7 +15,7 @@ Ext.define('Votr.view.voter.BallotResult', {
                 { text: 'Status', dataIndex: 'status', flex: 1}
             ],
             flex: 1,
-            store: 'voter.Results'
+            store: 'Results'
         }
     ]
 });

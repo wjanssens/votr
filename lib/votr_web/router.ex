@@ -29,6 +29,7 @@ defmodule VotrWeb.Router do
     get("/:locale", IndexController, :index)
     get("/:locale/admin/", AdminController, :index)
     get("/:locale/voter", VoterController, :index)
+    get("/:locale/public", PublicController, :index)
     get("/:locale/i18n.json", I18nController, :index)
   end
 
