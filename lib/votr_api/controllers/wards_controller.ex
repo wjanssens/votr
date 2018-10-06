@@ -25,8 +25,8 @@ defmodule Votr.Api.WardsController do
       body["start_time"],
       body["end_time"]
     ),
-         {:ok, names} <- Res.insert_all(ward.id, "name", body["name"]),
-         {:ok, descs} <- Res.insert_all(ward.id, "description", body["description"])
+         {:ok, _} <- Res.insert_all(ward.id, "name", body["name"]),
+         {:ok, _} <- Res.insert_all(ward.id, "description", body["description"])
       do
       conn
       |> put_status(201)

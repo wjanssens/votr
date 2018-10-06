@@ -9,7 +9,7 @@ defmodule Votr.Election.Res do
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "res" do
     field(:version, :integer)
-    field(:entity_id, :string)
+    field(:entity_id, :integer)
     field(:tag, :string)        # the resource language (eg. fr)
     field(:key, :string)        # the resource key (eg. name)
     field(:value, :string)      # the resource value (eg. Libéral)
@@ -21,6 +21,8 @@ defmodule Votr.Election.Res do
     |> where("entity_id" in ^entity_ids)
     |> order_by(:parent_id)
     |> Repo.all()
+    |> Enum.map(fn p -> Map.update(p, :value, nil, Base.decode64(AES.decrypt(p.value))) end)
+    |> Enum.group_by(&(&1.entity_id), &(&1))
   end
 
   def insert(entity_id, key, tag, value) do
@@ -33,7 +35,7 @@ defmodule Votr.Election.Res do
            entity_id: entity_id,
            key: key,
            tag: tag,
-           value: AES.encrypt(value)
+           value: Base.encode64(AES.encrypt(value))
          }
          |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
          |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
@@ -44,15 +46,15 @@ defmodule Votr.Election.Res do
   end
 
   def insert_all(entity_id, key, pairs) do
-    Enum.reduce(
-      pairs,
-      {:ok, []},
-      fn {tag, value}, {st, list} ->
-        case Res.insert(entity_id, key, tag, value) do
-          {:ok, res} -> {st, [res | list]}
-          {:error, err} -> {:error, [err | list]}
-        end
-      end
-    )
+    pairs
+    |> Enum.reduce(
+         {:ok, []},
+         fn {tag, value}, {overall, list} ->
+           case Res.insert(entity_id, key, tag, value) do
+             {:ok, res} -> {overall, [res | list]}
+             {:error, err} -> {:error, [err | list]}
+           end
+         end
+       )
   end
 end
