@@ -66,6 +66,7 @@ defmodule Votr.Stv do
   ## Options
       * `:quota` - the quota will be calculated according to
         `:imperali`, `:hare`, `:hagenbach_bischoff`, or `:droop` formulas; defaults to `:droop`
+      * `:threshold` - the quota will be a `:whole` number or a `:fractional` number
   """
   def eval(ballots, seats, options \\ []) do
     # find the unique list of candidates from all the ballots
@@ -90,13 +91,18 @@ defmodule Votr.Stv do
 
         _ ->
           # calculate the number of votes it takes to be elected
-          # TODO implement fractional threshold (ie. don't floor)
           case Keyword.get(options, :quota, :droop) do
-            :imperali -> Float.floor(Enum.count(ballots) / (seats + 2))
-            :hare -> Float.floor(Enum.count(ballots) / seats)
+            :imperali -> Enum.count(ballots) / (seats + 2)
+            :hare -> Enum.count(ballots) / seats
             :hagenbach_bischoff -> Float.floor(Enum.count(ballots) / (seats + 1))
-            _ -> Float.floor(Enum.count(ballots) / (seats + 1) + 1)
+            _ -> Enum.count(ballots) / (seats + 1) + 1
           end
+      end
+
+    quota =
+      case Keyword.get(options, :threshold, :whole) do
+        :fractional -> quota
+        _ -> Float.floor(quota)
       end
 
     eval([this_round], ballots, 1, 0, seats, quota, options)
