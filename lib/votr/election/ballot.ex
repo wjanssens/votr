@@ -1,22 +1,29 @@
 defmodule Votr.Election.Ballot do
   use Ecto.Schema
   import Ecto.Changeset
-  require Ecto.Query
+  import Ecto.Query
+  alias Votr.AES
+  alias Votr.HashId
+  alias Votr.Repo
+  alias Votr.Election.Ballot
+  alias Votr.Election.Res
+  alias Votr.Election.Ward
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot" do
-    field(:version, :integer)
-    field(:ward_id, :integer)
-    field(:seq, :integer)              # the order in which ballots are presented to the voter
-    field(:ext_id, :string)            # reference to an external system
-    field(:method, :string)            # the count method (eg. scottish_stv, approval, plurality)
-    field(:quota, :string)             # the quota (eg. droop, hare)
-    field(:electing, :integer)         # how many candidates are being elected
-    field(:shuffle, :boolean)          # candidates are displayed to the voter in a random order
-    field(:mutable, :boolean)          # voters can change their vote
-    field(:public, :boolean)           # results are publicly available
-    field(:color, :string)             # used to color ballots to help distinguish multiple ballots in a ward
+    belongs_to :ward, Ward
+    field :version, :integer
+    field :seq, :integer              # the order in which ballots are presented to the voter
+    field :ext_id, :string            # reference to an external system
+    field :method, :string            # the count method (eg. scottish_stv, approval, plurality)
+    field :quota, :string             # the quota (eg. droop, hare)
+    field :electing, :integer         # how many candidates are being elected
+    field :shuffle, :boolean          # candidates are displayed to the voter in a random order
+    field :mutable, :boolean          # voters can change their vote
+    field :public, :boolean           # results are publicly available
+    field :color, :string             # used to color ballots to help distinguish multiple ballots in a ward
+    has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
     timestamps()
   end
 
@@ -29,11 +36,32 @@ defmodule Votr.Election.Ballot do
     #    |> validate_includion(:quota,  ["droop", "hare", "imperator", "hagenback-bischoff"])
   end
 
-  def select(ids) do
-    Ballot
-    |> Ecto.Query.where("ward_id" in ^ids)
-    |> Ecto.Query.order_by([:ward_id, :seq])
-    |> Votr.Repo.all()
+  def upsert(ward_id, ballot) do
+    shard = FlexId.extract_partition(:id_generator, ward_id)
+
+    ballot
+    |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard)  end)
+    |> cast(
+         %{},
+         [:id, :ward_id, :version, :seq, :ext_id, :method, :quota, :electing, :shuffle, :mutable, :public, :color]
+       )
+    |> validate_required([:method, :version, :subject_id, :seq, :method, :electing])
+    |> optimistic_lock(:version)
+    |> Votr.Repo.insert
+  end
+
+  @doc """
+    Gets all of the ballots for a ward.
+  """
+  def select_all(subject_id, ward_id) do
+    Votr.Repo.all from b in Ballot,
+                  join: w in assoc(b, :ward),
+                  join: s in assoc(b, :strings),
+                  preload: [
+                    strings: s
+                  ],
+                  where: b.ward_id == ^ward_id and w.subject_id == ^subject_id,
+                  select: b
   end
 
   @doc """

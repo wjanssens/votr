@@ -1,16 +1,17 @@
 defmodule Votr.Election.Voter do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Votr.Election.Res
+  alias Votr.Election.Ward
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "voter" do
-    # subject will join to this table using id to give voters secrets
-    # the obfuscated id will be printed on mailings so voters can fetch their ballots
-    field(:ward_id, :integer)
-    field(:version, :integer)
-    field(:ext_id, :string)   # reference to an external system
-    field(:voted, :integer)   # indicates the number of times this voter voted
+    belongs_to :ward, Ward
+    field :version, :integer
+    field :ext_id, :string   # reference to an external system
+    field :voted, :integer   # indicates the number of times this voter voted
+    has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
     timestamps()
   end
 

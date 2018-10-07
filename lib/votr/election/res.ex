@@ -19,42 +19,40 @@ defmodule Votr.Election.Res do
   def select(entity_ids) do
     Res
     |> where("entity_id" in ^entity_ids)
-    |> order_by(:parent_id)
     |> Repo.all()
     |> Enum.map(fn p -> Map.update(p, :value, nil, Base.decode64(AES.decrypt(p.value))) end)
     |> Enum.group_by(&(&1.entity_id), &(&1))
   end
 
-  def insert(entity_id, key, tag, value) do
+  @doc """
+    Inserts or updates all resources for an entity
+  """
+  def upsert_all(entity_id, resources) do
     shard = FlexId.extract_partition(:id_generator, entity_id)
-    id = FlexId.generate(:id_generator, shard)
 
-    case %Res{
-           id: id,
-           version: 0,
-           entity_id: entity_id,
-           key: key,
-           tag: tag,
-           value: Base.encode64(AES.encrypt(value))
-         }
-         |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
-         |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
-         |> Repo.insert() do
-      {:ok, res} -> {:ok, res}
-      {:error, _} -> {:error, :constraint_violation}
-    end
+    resources
+              |> Enum.map(
+                   fn resource ->
+                     resource
+                     |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard) end)
+                     |> Map.put(:entity_id, entity_id)
+                     |> Map.update(:value, nil, &(Base.encode64(AES.encrypt(&1))))
+                     |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
+                     |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
+                     |> optimistic_lock(:version)
+                   end
+                 )
+
+    Repo.insert_all Res, entries
   end
 
-  def insert_all(entity_id, key, pairs) do
-    pairs
-    |> Enum.reduce(
-         {:ok, []},
-         fn {tag, value}, {overall, list} ->
-           case Res.insert(entity_id, key, tag, value) do
-             {:ok, res} -> {overall, [res | list]}
-             {:error, err} -> {:error, [err | list]}
-           end
-         end
-       )
+  def delete_all(entity_id) do
+    Repo.delete_all from r in Res,
+                    where: r.entity_id == ^entity_id
+  end
+
+  def delete_all(entity_id, key) do
+    Repo.delete_all from r in Res,
+                    where: r.entity_id == ^entity_id and r.key == ^key
   end
 end
