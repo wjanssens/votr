@@ -54,10 +54,7 @@ defmodule Votr.Api.WardsController do
       end_time: body["end_time"]
     }
 
-    IO.inspect names
-
     with {:ok, ward} <- Ward.upsert(ward),
-         {_, _} <- Res.delete_all(ward.id),
          {_, _} <- Res.upsert_all(ward.id, names),
          {_, _} <- Res.upsert_all(ward.id, descs)
       do

@@ -27,7 +27,7 @@ defmodule Votr.Api.WardsControllerTest do
       assert Enum.count(wards) == 1
       ward = Enum.at(wards, 0)
       assert ward["id"] == ward_id
-      IO.inspect(ward)
+      #IO.inspect(ward)
 #      assert ward["name"] == "test"
       assert ward["parent_id"] == nil
     end

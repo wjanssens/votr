@@ -24,26 +24,37 @@ defmodule Votr.Election.Res do
     |> Enum.group_by(&(&1.entity_id), &(&1))
   end
 
+  def upsert(res) do
+    res
+    |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
+    |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
+    |> optimistic_lock(:version)
+    |> Repo.insert on_conflict: :replace_all, conflict_target: [:id]
+  end
+
   @doc """
-    Inserts or updates all resources for an entity
+    Inserts or updates all resources for an entity.
+    This is meant for bulk replacement of string resources.
+    No optimistic lock checking is performed since it's assumed that the parent entity lock version is used.
   """
   def upsert_all(entity_id, resources) do
     shard = FlexId.extract_partition(:id_generator, entity_id)
 
-    resources
+    entries = resources
               |> Enum.map(
-                   fn resource ->
-                     resource
+                   fn r ->
+                     r
                      |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard) end)
                      |> Map.put(:entity_id, entity_id)
+                     |> Map.put_new(:version, 0)
                      |> Map.update(:value, nil, &(Base.encode64(AES.encrypt(&1))))
-                     |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
-                     |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
-                     |> optimistic_lock(:version)
+                     |> Map.put(:inserted_at, DateTime.utc_now)
+                     |> Map.put(:updated_at, DateTime.utc_now)
+                     |> Map.from_struct
+                     |> Map.drop([:__meta__])
                    end
                  )
-
-    Repo.insert_all Res, entries
+    Repo.insert_all Res, entries, on_conflict: :replace_all, conflict_target: [:entity_id, :tag, :key]
   end
 
   def delete_all(entity_id) do

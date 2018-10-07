@@ -48,6 +48,6 @@ defmodule Votr.Election.Ward do
     |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
     |> validate_required([:id, :version, :subject_id, :seq])
     |> optimistic_lock(:version)
-    |> Repo.insert
+    |> Repo.insert on_conflict: :replace_all, conflict_target: [:id]
   end
 end
