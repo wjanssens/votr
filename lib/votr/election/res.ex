@@ -20,7 +20,7 @@ defmodule Votr.Election.Res do
     Res
     |> where("entity_id" in ^entity_ids)
     |> Repo.all()
-    |> Enum.map(fn p -> Map.update(p, :value, nil, Base.decode64(AES.decrypt(p.value))) end)
+    |> Enum.map(fn p -> Map.update(p, :value, nil, AES.decrypt(Base.decode64!(p.value))) end)
     |> Enum.group_by(&(&1.entity_id), &(&1))
   end
 
@@ -29,7 +29,7 @@ defmodule Votr.Election.Res do
     |> cast(%{}, [:id, :version, :entity_id, :tag, :key, :value])
     |> validate_required([:id, :version, :entity_id, :tag, :key, :value])
     |> optimistic_lock(:version)
-    |> Repo.insert on_conflict: :replace_all, conflict_target: [:id]
+    |> Repo.insert(on_conflict: :replace_all, conflict_target: [:id])
   end
 
   @doc """

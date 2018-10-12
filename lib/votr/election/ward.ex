@@ -17,7 +17,10 @@ defmodule Votr.Election.Ward do
   # eg. all Alberta wards should be have the same time
 
   @timestamps_opts [type: :utc_datetime, usec: true]
-  @derive {Poison.Encoder, only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time]}
+  @derive {
+    Poison.Encoder,
+    only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time, :name, :description]
+  }
   schema "ward" do
     field :version, :integer
     field :subject_id, :integer       # the owner / adminstrator for the election
@@ -48,6 +51,6 @@ defmodule Votr.Election.Ward do
     |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
     |> validate_required([:id, :version, :subject_id, :seq])
     |> optimistic_lock(:version)
-    |> Repo.insert on_conflict: :replace_all, conflict_target: [:id]
+    |> Repo.insert(on_conflict: :replace_all, conflict_target: [:id])
   end
 end

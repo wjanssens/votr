@@ -1,6 +1,7 @@
 defmodule Votr.Api.WardsController do
   use VotrWeb, :controller
   use Timex
+  alias Votr.AES
   alias Votr.Election.Ward
   alias Votr.Election.Res
 
@@ -8,7 +9,22 @@ defmodule Votr.Api.WardsController do
     subject_id = conn.assigns[:subject_id]
 
     wards = Ward.select_all(subject_id)
+            |> Enum.map(
+                 fn w ->
+                   names = w.strings
+                           |> Enum.filter(fn res -> res.key == "name" end)
+                           |> Enum.reduce(%{}, fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end)
 
+                   descs = w.strings
+                           |> Enum.filter(fn res -> res.key == "description" end)
+                           |> Enum.reduce(%{}, fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end)
+
+                   w
+                   |> Map.put(:name, names)
+                   |> Map.put(:description, descs)
+                   |> Map.drop([:strings])
+                 end
+               )
     conn
     |> put_status(200)
     |> json(%{success: true, wards: wards})
