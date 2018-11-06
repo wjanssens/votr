@@ -24,7 +24,7 @@ defmodule Votr.Identity.Email do
   end
 
   def select_by_address(address) do
-    Principal.select_by_hash(address, "email", &from_principal/1, fn e -> e.address == address end)
+    Principal.select_by_hash("email", Principal.hash(address), &from_principal/1, fn e -> e.address == address end)
   end
 
   def insert(subject_id, address, seq \\ 1, label \\ "other", state \\ "invalid") do
