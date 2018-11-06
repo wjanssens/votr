@@ -19,12 +19,12 @@ defmodule Votr.Identity.Password do
   end
 
   def delete_by_subject_id(subject_id) do
-    from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
+    from(p in Principal, where: p.kind == "password" and p.subject_id == ^subject_id)
     |> Repo.delete_all()
   end
 
   def select_by_subject_id(subject_id) do
-    from(p in "principal", where: p.type == "password" and p.subject_id == ^subject_id)
+    from(p in Principal, where: p.kind == "password" and p.subject_id == ^subject_id)
     |> Repo.one()
     |> Password.from_principal()
   end
@@ -98,8 +98,8 @@ defmodule Votr.Identity.Password do
   end
 
   def verify(subject_id, plaintext) do
-    with {:ok, password} <- Password.select_by_subject_id(subject_id) do
-      [scheme | _rest] = String.split(password.hash, ~r{\$})
+    with password <- Password.select_by_subject_id(subject_id) do
+      [_blank | [ scheme | _rest]] = String.split(password.hash, ~r{\$})
 
       valid = cond do
         Enum.member?(["smd5", "ssha", "ssha224", "ssha256", "ssha384", "ssha512"], scheme) ->
