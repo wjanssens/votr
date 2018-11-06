@@ -13,7 +13,7 @@ defmodule Votr.Plug.ApiAuthenticate do
       |> fetch_query_params()
       |> fetch_cookies()
 
-    authorization = Enum.at(get_req_header(conn, "authentication"), 0)
+    authorization = Enum.at(get_req_header(conn, "authorization"), 0)
     cookie = conn.params["auth_token"]
 
     jwt = cond do
