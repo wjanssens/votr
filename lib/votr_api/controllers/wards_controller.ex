@@ -5,6 +5,8 @@ defmodule Votr.Api.WardsController do
   alias Votr.Election.Ward
   alias Votr.Election.Res
 
+  # TODO use Timex to parse the date/times to deal with zones better; and deal with nulls better
+
   def index(conn, _params) do
     subject_id = conn.assigns[:subject_id]
 
@@ -66,8 +68,8 @@ defmodule Votr.Api.WardsController do
       parent_id: body["parent_id"],
       seq: 0,
       ext_id: body["ext_id"],
-      start_time: body["start_time"],
-      end_time: body["end_time"]
+      start_time: NaiveDateTime.from_iso8601!(body["start_time"]),
+      end_time: NaiveDateTime.from_iso8601!(body["end_time"])
     }
 
     with {:ok, ward} <- Ward.upsert(ward),
@@ -116,8 +118,8 @@ defmodule Votr.Api.WardsController do
       parent_id: body["parent_id"],
       seq: body["seq"],
       ext_id: body["ext_id"],
-      start_time: body["start_time"],
-      end_time: body["end_time"]
+      start_time: NaiveDateTime.from_iso8601!(body["start_time"]),
+      end_time: NaiveDateTime.from_iso8601!(body["end_time"])
     }
 
     with {:ok, ward} <- Ward.upsert(ward),
