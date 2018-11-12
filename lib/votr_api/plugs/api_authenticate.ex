@@ -3,7 +3,6 @@ defmodule Votr.Plug.ApiAuthenticate do
 
   alias Votr.JWT
   alias Votr.HashId
-  alias Votr.Identity.Controls
 
   def init(default), do: default
 
@@ -23,8 +22,7 @@ defmodule Votr.Plug.ApiAuthenticate do
     end
 
     with {:ok, sub} <- JWT.verify(jwt),
-         subject_id <- HashId.decode(sub),
-         {:ok, _} <- Controls.verify(subject_id) do
+         subject_id <- HashId.decode(sub) do
       conn
       |> assign(:subject_id, subject_id)
     else

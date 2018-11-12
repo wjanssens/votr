@@ -1,6 +1,7 @@
 defmodule Votr.Api.SubjectsController do
   use VotrWeb, :controller
   use Timex
+  require Logger
   alias Votr.Identity.Subject
   alias Votr.Identity.Email
   alias Votr.Identity.Password
@@ -8,7 +9,7 @@ defmodule Votr.Api.SubjectsController do
   alias Votr.Identity.Token
   alias Votr.Repo
   alias Votr.HashId
-  
+
   # register for a new account
   def create(conn, %{"username" => username, "password" => password}) do
     case Email.select_by_address(username) do
@@ -34,7 +35,7 @@ defmodule Votr.Api.SubjectsController do
                                      |> Timex.to_datetime(),
                       {:ok, token} = Token.insert(subject.id, "email", "#{email.id}", token_expiry) do
                    # TODO send the user an email
-                   IO.puts("Token ID #{HashId.encode(token.id)}")
+                   Logger.debug "Token ID #{HashId.encode(token.id)}"
                  end
                end
              ) do

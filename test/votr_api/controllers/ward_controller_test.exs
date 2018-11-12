@@ -5,11 +5,13 @@ defmodule Votr.Api.WardsControllerTest do
   use ExUnit.Case, async: true
 
   test "wards lifecycle" do
-    with_subject fn (token) ->
+    with_subject fn (jwt) ->
+
+      # add a ward
       body =
         build_conn()
         |> put_req_header("content-type", "application/json")
-        |> put_req_header("authentication", "Bearer " <> token)
+        |> put_req_header("authorization", "Bearer #{jwt}")
         |> post(
              "/api/admin/wards",
              %{
@@ -26,11 +28,13 @@ defmodule Votr.Api.WardsControllerTest do
 
       assert body["success"] == true
       ward_id = body["ward"]["id"]
+      version = body["ward"]["version"]
 
+      # add a ward
       body =
         build_conn()
         |> put_req_header("content-type", "application/json")
-        |> put_req_header("authentication", "Bearer " <> token)
+        |> put_req_header("authorization", "Bearer #{jwt}")
         |> post(
              "/api/admin/wards",
              %{
@@ -48,9 +52,10 @@ defmodule Votr.Api.WardsControllerTest do
 
       assert body["success"] == true
 
+      # get all wards
       body =
         build_conn()
-        |> put_req_header("authentication", "Bearer " <> token)
+        |> put_req_header("authorization", "Bearer #{jwt}")
         |> get("/api/admin/wards")
         |> json_response(200)
 
@@ -68,6 +73,31 @@ defmodule Votr.Api.WardsControllerTest do
       assert Enum.at(wards, 1)["name"]["default"] == "test"
       assert Enum.at(wards, 1)["name"]["fr"] == "test"
       assert Enum.at(wards, 1)["description"]["default"] == ""
+
+      # update a ward
+      body =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{jwt}")
+        |> put(
+             "/api/admin/wards/#{ward_id}",
+             %{
+               id: ward_id,
+               version: version,
+               parent_id: ward_id,
+               name: %{
+                 default: "name",
+                 fr: "nom"
+               },
+               description: %{
+                 default: "description",
+                 fr: "description"
+               }
+             }
+           )
+        |> json_response(200)
+
+      assert body["success"] == true
+
     end
   end
 end
