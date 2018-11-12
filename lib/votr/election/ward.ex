@@ -54,11 +54,50 @@ defmodule Votr.Election.Ward do
   end
 
   def update(ward) do
+    reorder(ward)
+
     ward
-    |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
-    |> validate_required([:id, :version, :subject_id, :seq])
+    |> cast(%{}, [:id, :version, :subject_id, :parent_id, :ext_id, :start_time, :end_time])
+    |> validate_required([:id, :version, :subject_id])
     |> optimistic_lock(:version)
     |> Repo.update()
+  end
+
+  @doc """
+    Re-sequences all wards that are at the same level as as the ward being updated
+  """
+  def reorder(ward) do
+    IO.inspect(ward)
+    sql = """
+    WITH row_to_move AS (
+      SELECT subject_id, parent_id, seq AS old_seq
+      FROM ward
+      WHERE id = $1
+    ), rows_to_update AS (
+      SELECT id, old_seq
+      FROM ward
+      CROSS JOIN row_to_move
+      WHERE ward.subject_id = row_to_move.subject_id
+      AND (ward.parent_id is not distinct from row_to_move.parent_id)
+      AND seq BETWEEN
+        CASE WHEN old_seq < $2 THEN old_seq ELSE $2 END AND
+        CASE WHEN old_seq > $2 THEN old_seq ELSE $2 END
+    )
+    UPDATE ward
+    SET seq = CASE
+      WHEN ward.id = $1 THEN $2
+      WHEN old_seq < $2 THEN seq - 1
+      WHEN old_seq > $2 THEN seq + 1
+    END
+    FROM rows_to_update
+    WHERE rows_to_update.id = ward.id
+    """
+
+    with {:ok, _} <- Ecto.Adapters.SQL.query(Repo, sql, [ward.id, ward.seq])
+      do
+    else {:error, msg} ->
+      {:error, msg}
+    end
   end
 
 end

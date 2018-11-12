@@ -83,6 +83,7 @@ defmodule Votr.Api.WardsControllerTest do
              %{
                id: ward_id,
                version: version,
+               seq: 5,
                parent_id: ward_id,
                name: %{
                  default: "name",
