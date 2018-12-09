@@ -64,7 +64,7 @@ defmodule Votr.Election.Ward do
   end
 
   @doc """
-    Re-sequences all wards that are at the same level as as the ward being updated
+    Re-sequences all wards that are at the same level as as the ward being updated.
   """
   def reorder(ward) do
     IO.inspect(ward)

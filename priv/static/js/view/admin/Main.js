@@ -41,7 +41,7 @@ Ext.define('Votr.view.admin.Main', {
                 {xtype: 'admin.ballots'},
                 {xtype: 'admin.voters'},
                 {xtype: 'admin.candidates'},
-                {xtype: 'admin.results'}
+                {xtype: 'admin.results'},
             ]
         }
     ]

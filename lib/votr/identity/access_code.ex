@@ -1,9 +1,6 @@
 defmodule Votr.Identity.AccessCode do
   @moduledoc """
-  Identity card numbers may be used as a form of identity confirmation during voting.
-  Depending on the country this could be a Citizen Card, Passport Card,
-  Voter Card, PAN card, Drivers License, Passport, Tax Number, etc...
-  Only the number is required as it is what will be verified.
+  Access codes
   """
   use Ecto.Schema
   import Ecto.Changeset

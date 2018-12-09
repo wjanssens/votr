@@ -1,5 +1,5 @@
-msgid "Ballot ID"
-msgstr "Bulletin de vote"
+msgid "Access Code"
+msgstr "Code d'accès"
 
 msgid "Next"
 msgstr "prochain"

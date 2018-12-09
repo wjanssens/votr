@@ -6,13 +6,12 @@ Ext.define('Votr.controller.Login', {
     ],
 
     views: [
-        'login.VoterBallot',
         'login.VoterCredentials',
         'login.AdminLogin',
         'login.AdminRegister',
         'login.AdminMfa',
         'login.AdminForgotPassword',
-        'login.AdminResetPassword'
+        'login.AdminEmailConfirmation'
     ],
     models: [
         'Language'

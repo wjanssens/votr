@@ -8,7 +8,7 @@ defmodule VotrWeb.I18nController do
       %{ :id => "Next", :value => gettext("Next") },
       %{ :id => "Voter Login", :value => gettext("Voter Login") },
       %{ :id => "Officials", :value => gettext("Officials") },
-      %{ :id => "Ballot ID", :value => gettext("Ballot ID") }
+      %{ :id => "Access Code", :value => gettext("Access Code") }
     ])
   end
 end

@@ -27,9 +27,9 @@ Ext.define('Votr.view.voter.BallotInfo', {
                     label: 'Candidate Order',
                     bind: '{order}'
                 }, {
-                    xtype: 'checkboxfield',
+                    xtype: 'textfield',
                     label: 'Changes Allowed',
-                    bind: '{mutable}'
+                    bind: '{mutableText}'
                 }
             ]
         },
@@ -54,9 +54,9 @@ Ext.define('Votr.view.voter.BallotInfo', {
                     label: 'Counting Method',
                     bind: '{methodName}'
                 }, {
-                    xtype: 'checkboxfield',
+                    xtype: 'textfield',
                     label: 'Public Results',
-                    bind: '{public}'
+                    bind: '{publicText}'
                 }
             ]
         }

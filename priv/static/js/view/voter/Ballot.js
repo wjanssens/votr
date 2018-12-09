@@ -23,6 +23,12 @@ Ext.define('Votr.view.voter.Ballot', {
                     case true: return 'Shuffled';
                     case false: return 'Official';
                 };
+            },
+            publicText: function(get) {
+                return get('public') ? 'Yes' : 'No'
+            },
+            mutableText: function(get) {
+                return get('mutable') ? 'Yes' : 'No'
             }
         }
     },
@@ -89,34 +95,36 @@ Ext.define('Votr.view.voter.Ballot', {
             .join(' ');
     },
     getMessage: function() {
-        var data = this.getData();
-        var blt = data.blt;
-        var selected = data.candidates
+        let data = this.getData();
+        let blt = data.blt;
+        let selected = data.candidates
             .filter(v => { return v.rank > 0; })
             .length;
+        let message = '&nbsp;';
         if (data.method == 'plurality' && selected != 1 && data.electing == 1) {
-            return '<p style="color: var(--alert-color);">Select exactly one candidate</p>';
+            message = 'Select exactly one candidate';
         } else if (data.method == 'plurality' && selected == 0 && data.electing > 1) {
-            return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
+            message = 'Select one or more candidates';
         } else if (data.method == 'plurality' && selected > data.electing) {
-            return '<p style="color: var(--alert-color);">Select fewer candidates</p>';
+            message = 'Select fewer candidates';
         } else if (data.method.endsWith('_stv') && selected == 0) {
-            return '<p style="color: var(--alert-color);">Rank at least one candidate</p>';
+            message = 'Rank at least one candidate';
         } else if (data.method.endsWith('_stv') && blt.indexOf('=') >= 0) {
-            return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
+            message = 'Rankings must be unique'; // no overvoting
         } else if (data.method == 'approval' && selected == 0) {
-            return '<p style="color: var(--alert-color);">Select one or more candidates</p>';
+            message = 'Select one or more candidates';
         } else if (data.method == 'condorcet' && selected != data.candidates.length) {
-            return '<p style="color: var(--alert-color);">Rank all candidates</p>';
+            message = 'Rank all candidates';
         } else if (data.method == 'condorcet' && blt.indexOf('=') >= 0) {
-            return '<p style="color: var(--alert-color);">Rankings must be unique</p>'; // no overvoting
+            message = 'Rankings must be unique'; // no overvoting
         } else if (data.method == 'condorcet' && blt.indexOf('-') >= 0) {
-            return '<p style="color: var(--alert-color);">Rankings must be strictly increasing</p>'; // no undervoting
+            message = 'Rankings must be strictly increasing'; // no undervoting
         } else if (data.method == 'borda' && selected != data.candidates.length) {
-            return '<p style="color: var(--alert-color);">Rank all candidates</p>';
+            message = 'Rank all candidates';
         } else {
             return '&nbsp;';
         }
+        return '<p style="color: var(--alert-color);">' + message + '</p>';
     },
     items: [
         {

@@ -46,38 +46,21 @@ Ext.define('Votr.view.admin.Voter', {
         items: [
             {
                 xtype: 'textfield',
-                name: 'dob',
-                label: 'Date of Birth',
-                bind: '{voterList.selection.dob}'
+                tooltip: 'Citizen Card, Passport Card, Voter Card, PAN card, Drivers License, Passport, Tax Number, Employee Number, etc...',
+                name: 'identity_card_number',
+                label: 'Identity Card',
+                bind: '{voterList.selection.identity_card}'
             }, {
                 xtype: 'textfield',
-                tooltip: 'Citizen Card, Passport Card, Voter Card, PAN card, Drivers License, Passport, Tax Number, etc...',
-                name: 'identity_card_number',
-                label: 'Identity Card Number',
-                bind: '{voterList.selection.identity_card}'
+                name: 'alternate_identity_card_number',
+                tooltip: 'Citizen Card, Passport Card, Voter Card, PAN card, Drivers License, Passport, Tax Number, Employee Number, etc...',
+                label: 'Alternate Identity Card',
+                bind: '{voterList.selection.alternate_identity_card}'
             }, {
                 xtype: 'textfield',
                 name: 'access_code',
                 label: 'Access Code',
                 bind: '{voterList.selection.access_code}'
-            }, {
-                xtype: 'panel',
-                layout: 'hbox',
-                padding: 0,
-                items: [
-                    {
-                        xtype: 'textfield',
-                        name: 'challenge',
-                        label: 'Challenge',
-                        flex: 1
-                    },
-                    {
-                        xtype: 'textfield',
-                        name: 'response',
-                        label: 'Response',
-                        flex: 1
-                    }
-                ]
             }
         ]
     }]

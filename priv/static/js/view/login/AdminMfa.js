@@ -1,8 +1,7 @@
 Ext.define('Votr.view.login.AdminMfa', {
     extend: 'Ext.form.Panel',
     alias: 'widget.login.adminmfa',
-    title: 'Two Step Verification',
-    xtype: 'formpanel',
+    title: 'Two Step Verification'.translate(),
     requires: [
         'Votr.view.login.LoginController'
     ],
@@ -11,12 +10,20 @@ Ext.define('Votr.view.login.AdminMfa', {
         xtype: 'textfield',
         name: 'code',
         label: 'Code'
-    }, {
+    },
+    {
+        flex: 1
+    },
+    {
+        itemId: 'message',
+        html: 'Enter the code from your two-factor authentication app, or alternatively, use one of your backup codes.'.translate()
+    },
+    {
         xtype: 'toolbar',
         docked: 'bottom',
         items: ['->', {
             xtype: 'button',
-            text: 'Next',
+            text: 'Verify',
             handler: 'onAdminMfa'
         }]
     }]

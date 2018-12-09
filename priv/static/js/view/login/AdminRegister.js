@@ -1,39 +1,49 @@
 Ext.define('Votr.view.login.AdminRegister', {
     extend: 'Ext.form.Panel',
     alias: 'widget.login.adminregister',
-    title: 'Register',
-    xtype: 'formpanel',
+    title: 'Register'.translate(),
     requires: [
         'Votr.view.login.LoginController'
     ],
     controller: 'login.login',
     items: [{
-        xtype: 'textfield',
-        name: 'username',
-        label: 'Username',
-    }, {
         xtype: 'emailfield',
         name: 'email',
-        label: 'Email Address'
+        itemId: 'email',
+        label: 'Email Address'.translate(),
+        listeners: {
+            change: 'validateRegistration'
+        }
     }, {
         xtype: 'passwordfield',
         name: 'password',
-        label: 'Password'
+        itemId: 'password',
+        label: 'Password'.translate(),
+        listeners: {
+            change: 'validateRegistration'
+        }
     }, {
         xtype: 'passwordfield',
         name: 'retype_password',
-        label: 'Retype Password'
+        itemId: 'retype_password',
+        label: 'Retype Password'.translate(),
+        listeners: {
+            change: 'validateRegistration'
+        }
     }, {
-        xtype: 'checkboxfield',
-        name: 'agreetoterms',
-        label: 'I agree with Terms and Conditions'
+        flex: 1
+    }, {
+        itemId: 'message',
+        html: ''
     }, {
         xtype: 'toolbar',
         docked: 'bottom',
         items: ['->', {
             xtype: 'button',
-            text: 'Register',
-            handler: 'onRegistration'
+            itemId: 'next',
+            text: 'Next'.translate(),
+            disabled: true,
+            handler: 'onAdminRegistration'
         }]
     }]
 });

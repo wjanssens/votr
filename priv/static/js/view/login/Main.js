@@ -44,13 +44,12 @@ Ext.define('Votr.view.login.Main', {
                         height: 384
                     }
                 }, items: [
-                    {xtype: 'login.voterballot'},
                     {xtype: 'login.votercredentials'},
                     {xtype: 'login.adminlogin'},
                     {xtype: 'login.adminmfa'},
                     {xtype: 'login.adminregister'},
-                    {xtype: 'login.adminforgotpassword'},
-                    {xtype: 'login.adminresetpassword'}
+                    {xtype: 'login.forgotpassword'},
+                    {xtype: 'login.emailconfirmation'}
                 ]
             },
             {

@@ -8,7 +8,6 @@ defmodule Votr.Identity.Token do
   - "email": for new email address verification
   - "password": for password reset
   - "totp": for totp enrollment and challenge
-  - "access": for access via Bearer token
   """
   use Ecto.Schema
   alias Votr.Identity.Token
@@ -41,6 +40,16 @@ defmodule Votr.Identity.Token do
   def insert(%Token{} = t) do
     to_principal(t)
     |> Principal.insert(&from_principal/1)
+  end
+
+
+  def delete_expired(subject_id) do
+    Principal.select_by_subject_id(subject_id, "token", &from_principal/1)
+    |> Enum.each(fn t ->
+      if Date.diff(t.expiry, Date.utc_today) > 0 do
+        Principal.delete(t.id, t.version)
+      end
+    end)
   end
 
   def to_principal(%Token{} = t) do
