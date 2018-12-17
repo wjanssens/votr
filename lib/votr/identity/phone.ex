@@ -19,28 +19,14 @@ defmodule Votr.Identity.Phone do
     field(:status, :string)
   end
 
-  def changeset(%Phone{} = phone, attrs) do
+  def select_by_id(id) do
+    Principal.select(id, &from_principal/1)
+  end
+
+  def update(%Phone{} = phone) do
     phone
-    |> cast(attrs, [:subject_id, :seq, :number, :label, :status])
-    |> validate_required([:subject_id, :number, :label, :status])
-    |> validate_inclusion(
-         :label,
-         [
-           "mobile",
-           "iphone",
-           "home",
-           "work",
-           "main",
-           "home fax",
-           "work fax",
-           "other fax",
-           "pager",
-           "other"
-         ]
-       )
-    |> validate_inclusion(:status, ["unverified", "valid", "invalid"])
-    |> Map.update(:version, 0, &(&1 + 1))
     |> to_principal
+    |> Principal.change(&from_principal/1)
   end
 
   def to_principal(%Phone{} = phone) do

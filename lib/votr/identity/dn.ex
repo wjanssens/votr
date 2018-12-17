@@ -6,17 +6,16 @@ defmodule Votr.Identity.DN do
   end
 
   def from_string(binary) do
-    binary
-    |> String.split(",")
-    |> Enum.map(fn p -> String.split(p, "=") end)
+    Regex.split(~r{(?<!\\),}, binary)
+    |> Enum.map(fn p -> Regex.split(~r{(?<!\\)=}, p) end)
     |> Map.new(fn [k, v] -> {k, unescape(v)} end)
   end
 
   defp escape(str) do
     str
-    |> String.replace("\\", "\\")
-    |> String.replace(",", "\,")
-    |> String.replace("=", "\=")
+    |> String.replace("\\", "\\\\")
+    |> String.replace(",", "\\,")
+    |> String.replace("=", "\\=")
   end
 
   defp unescape(str) do

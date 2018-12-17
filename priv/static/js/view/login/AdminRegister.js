@@ -6,11 +6,15 @@ Ext.define('Votr.view.login.AdminRegister', {
         'Votr.view.login.LoginController'
     ],
     controller: 'login.login',
+    listeners: {
+        activate: 'validateRegistration'
+    },
     items: [{
         xtype: 'emailfield',
         name: 'email',
         itemId: 'email',
         label: 'Email Address'.translate(),
+        value: '',
         listeners: {
             change: 'validateRegistration'
         }
@@ -19,6 +23,7 @@ Ext.define('Votr.view.login.AdminRegister', {
         name: 'password',
         itemId: 'password',
         label: 'Password'.translate(),
+        value: '',
         listeners: {
             change: 'validateRegistration'
         }
@@ -27,6 +32,7 @@ Ext.define('Votr.view.login.AdminRegister', {
         name: 'retype_password',
         itemId: 'retype_password',
         label: 'Retype Password'.translate(),
+        value: '',
         listeners: {
             change: 'validateRegistration'
         }

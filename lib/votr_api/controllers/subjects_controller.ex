@@ -2,52 +2,35 @@ defmodule Votr.Api.SubjectsController do
   use VotrWeb, :controller
   use Timex
   require Logger
-  alias Votr.Identity.Subject
   alias Votr.Identity.Email
-  alias Votr.Identity.Password
-  alias Votr.Identity.Controls
   alias Votr.Identity.Token
-  alias Votr.Repo
+  alias Votr.Identity.Password
   alias Votr.HashId
 
-  # register for a new account
+  @doc """
+  register for a new account, or reset password
+  """
   def create(conn, %{"username" => username, "password" => password}) do
-    case Email.select_by_address(username) do
-      {:ok, _} ->
-        conn
-        |> put_status(409)
-        |> json(
-             %{
-               success: false,
-               error: "already_exists",
-               message: "A user with this email address already exists."
-             }
-           )
+    # TODO add random wait time to avoid timing attacks
+
+    with {:ok, email} <- Email.select_by_address(username) do
+      # account exists, reset password
+      {:ok, token} = Token.insert(email.subject_id, "password", Password.hash(password))
+
+      # TODO send the user an email
+      Logger.debug "Token ID #{HashId.encode(token.id)}"
+    else
       {:error, :not_found} ->
-        case Repo.transaction(
-               fn ->
-                 with {:ok, subject} = Subject.insert(username),
-                      {:ok, email} = Email.insert(subject.id, username),
-                      {:ok, _} = Password.insert(subject.id, Password.hash(password)),
-                      {:ok, _} = Controls.insert(%Controls{subject_id: subject.id, failures: 0}),
-                      token_expiry = Timex.now()
-                                     |> Timex.add(Timex.Duration.from_days(2))
-                                     |> Timex.to_datetime(),
-                      {:ok, token} = Token.insert(subject.id, "email", "#{email.id}", token_expiry) do
-                   # TODO send the user an email
-                   Logger.debug "Token ID #{HashId.encode(token.id)}"
-                 end
-               end
-             ) do
-          {:ok, _} ->
-            conn
-            |> put_status(201)
-            |> json(%{success: true})
-          {:error, _} ->
-            conn
-            |> put_status(409)
-            |> json(%{success: false, error: "conflict"})
-        end
+        # account doesn't exist, create it
+        {:ok, token} = Token.insert_account(username, password)
+
+        # TODO send the user an email
+        Logger.debug "Token ID #{HashId.encode(token.id)}"
     end
+
+    # always send a 200 to avoid user enumeration attacks
+    conn
+    |> put_status(200)
+    |> json(%{success: true})
   end
 end

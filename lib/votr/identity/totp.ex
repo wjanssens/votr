@@ -13,6 +13,7 @@ defmodule Votr.Identity.Totp do
   use Ecto.Schema
   alias Votr.Identity.Totp
   alias Votr.Identity.Principal
+  alias Votr.Identity.DN
   alias Votr.AES
   import Bitwise
 
@@ -24,6 +25,7 @@ defmodule Votr.Identity.Totp do
     field(:digits, :integer)
     field(:algorithm, :string)
     field(:period, :integer)
+    field(:state, :string)
   end
 
   def select(id) do
@@ -37,6 +39,18 @@ defmodule Votr.Identity.Totp do
       nil -> {:error, :not_found}
       totp -> {:ok, totp}
     end
+  end
+
+  def insert(%Totp{} = totp) do
+    totp
+    |> to_principal
+    |> Principal.insert(&from_principal/1)
+  end
+
+  def update(%Totp{} = totp) do
+    totp
+    |> to_principal
+    |> Principal.change(&from_principal/1)
   end
 
   def verify(%Totp{} = totp, code) do
@@ -88,20 +102,28 @@ defmodule Votr.Identity.Totp do
       kind: "totp",
       seq: nil,
       value:
-        "#{Base.encode32(t.secret_key)};#{Enum.join(t.scratch_codes, ",")};#{t.algorithm};#{t.digits};#{t.period}"
+        %{
+          key: Base.encode32(t.secret_key),
+          codes: Enum.join(t.scratch_codes, ","),
+          alg: t.algorithm,
+          digits: t.digits,
+          period: t.period,
+          state: Atom.to_string(t.state)
+        }
+        |> DN.to_string()
         |> AES.encrypt()
         |> Base.encode64()
     }
   end
 
   def from_principal(%Principal{} = p) do
-    {key, codes, algorithm, digits, period} =
+    dn =
       p.value
       |> Base.decode64!()
       |> AES.decrypt()
-      |> String.split(";")
+      |> DN.from_string()
 
-    scratch_codes = codes
+    scratch_codes = dn["codes"]
                     |> String.split(",")
                     |> Enum.map(&String.to_integer/1)
 
@@ -109,15 +131,16 @@ defmodule Votr.Identity.Totp do
       id: p.id,
       subject_id: p.subject_id,
       version: p.version,
-      secret_key: Base.decode32(key),
+      secret_key: Base.decode32(dn["key"]),
       scratch_codes: scratch_codes,
-      algorithm: String.to_atom(algorithm),
-      digits: String.to_integer(digits),
-      period: String.to_integer(period)
+      algorithm: String.to_atom(dn["alg"]),
+      digits: String.to_integer(dn["digits"]),
+      period: String.to_integer(dn["period"]),
+      state: String.to_atom(dn["state"])
     }
   end
 
-  def new(subject_id, algorithm \\ @algorithm, digits \\ @digits, period \\ @period) do
+  def new(subject_id, algorithm \\ @algorithm, digits \\ @digits, period \\ @period, state \\ :invalid) do
     bytes = case algorithm do
       :sha -> 20
       :sha256 -> 32
@@ -133,7 +156,8 @@ defmodule Votr.Identity.Totp do
       scratch_codes: Enum.map(1..@scratch_codes, fn _v -> Enum.random(ll..ul) end),
       algorithm: algorithm,
       digits: digits,
-      period: period
+      period: period,
+      state: Atom.to_string(state)
     }
   end
 

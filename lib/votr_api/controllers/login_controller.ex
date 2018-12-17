@@ -1,4 +1,4 @@
-defmodule Votr.Api.TokenController do
+defmodule Votr.Api.LoginController do
   use VotrWeb, :controller
   alias Votr.Identity.Email
   alias Votr.Identity.Password
@@ -7,10 +7,19 @@ defmodule Votr.Api.TokenController do
   alias Votr.JWT
   alias Votr.HashId
 
+  @moduledoc """
+  This controller is responsible for trading credentials for a token
+  """
+
+  @doc """
+  log in with credentials to receive a bearer token
+  """
   def create(
         conn,
         %{"client_id" => client_id, "grant_type" => grant_type, "username" => username, "password" => password}
       ) do
+    # TODO add random wait time to avoid timing attacks
+
     case client_id do
       "votr_admin" ->
         case grant_type do

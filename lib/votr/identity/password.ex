@@ -42,6 +42,11 @@ defmodule Votr.Identity.Password do
     |> Principal.insert(&from_principal/1)
   end
 
+  def update(%Password{} = p) do
+    to_principal(p)
+    |> Principal.change(&from_principal/1)
+  end
+
   def to_principal(%Password{} = p) do
     %Principal{
       id: p.id,

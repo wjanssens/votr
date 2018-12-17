@@ -126,4 +126,15 @@ defmodule Votr.Identity.Principal do
     end
   end
 
+  def delete(id) do
+    case from(Principal)
+         |> where([id: ^id])
+         |> Repo.delete_all
+      do
+      {0, _} -> {:error, :not_found}
+      {1, _} -> {:ok, nil}
+      {_, _} -> {:error, :too_many_affected}
+    end
+  end
+
 end

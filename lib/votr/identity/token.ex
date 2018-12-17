@@ -4,86 +4,113 @@ defmodule Votr.Identity.Token do
   The key is a random value.
   The usage is how the key is to be used
   Supported usages are:
+  - "account": for new account creation
   - "phone": for phone number sms verification
-  - "email": for new email address verification
+  - "email": for additional email address verification
   - "password": for password reset
   - "totp": for totp enrollment and challenge
   """
   use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
   alias Votr.Identity.Token
-  alias Votr.Identity.Principal
+  alias Votr.Identity.Password
   alias Votr.Identity.DN
   alias Votr.AES
+  alias Votr.Repo
 
-  embedded_schema do
+  @primary_key {:id, :integer, autogenerate: false}
+  @timestamps_opts [type: :utc_datetime, usec: true]
+  schema "token" do
     field(:subject_id, :integer)
-    field(:version, :integer)
-    field(:value, :string)
     field(:usage, :string)
-    field(:expiry, :utc_datetime)
+    field(:value, :string)
+    field(:expires_at, :utc_datetime)
+    timestamps()
   end
 
   def select(id) do
-    Principal.select(id, &from_principal/1)
+    case Repo.get(Token, id) do
+      nil -> {:error, :not_found}
+      t -> {:ok, Map.update!(t, :value, &(&1 |> Base.decode64!() |> AES.decrypt()))}
+    end
   end
 
-  def insert(subject_id, usage, value, expiry) do
-    %Token{
-      subject_id: subject_id,
-      usage: usage,
-      value: value,
-      expiry: expiry
-    }
-    |> insert()
+  @doc """
+  used for email, phone, and password reset
+  """
+  def insert(subject_id, usage, value, hours \\ 48) do
+    shard = FlexId.extract_partition(:id_generator, subject_id)
+    id = FlexId.generate(:id_generator, shard)
+
+    expires_at = Timex.now()
+                 |> Timex.add(Timex.Duration.from_hours(hours))
+                 |> Timex.to_datetime()
+
+    value = value
+            |> AES.encrypt()
+            |> Base.encode64()
+
+    case %Token{
+           id: id,
+           subject_id: subject_id,
+           usage: usage,
+           value: value,
+           expires_at: expires_at
+         }
+         |> cast(%{}, [:id, :subject_id, :usage, :value, :expires_at])
+         |> validate_required([:id, :usage, :value, :expires_at])
+         |> Repo.insert() do
+      {:ok, t} -> {:ok, t}
+      {:error, _} -> {:error, :constraint_violation}
+    end
   end
 
-  def insert(%Token{} = t) do
-    to_principal(t)
-    |> Principal.insert(&from_principal/1)
+  @doc """
+  used for new account creation
+  """
+  def insert_account(username, password, hours \\ 48) do
+    shard = FlexId.make_partition(username)
+    id = FlexId.generate(:id_generator, shard)
+
+    IO.puts(DN.to_string(%{"username" => username, "password" => Password.hash(password)}))
+    value = DN.to_string(%{"username" => username, "password" => Password.hash(password)})
+            |> AES.encrypt()
+            |> Base.encode64()
+
+    expires_at = Timex.now()
+                 |> Timex.add(Timex.Duration.from_hours(hours))
+                 |> Timex.to_datetime()
+
+    case %Token{
+           id: id,
+           usage: "account",
+           value: value,
+           expires_at: expires_at
+         }
+         |> cast(%{}, [:id, :usage, :value, :expires_at])
+         |> validate_required([:id, :usage, :value, :expires_at])
+         |> Repo.insert() do
+      {:ok, t} -> {:ok, t}
+      {:error, _} -> {:error, :constraint_violation}
+    end
   end
 
-
-  def delete_expired(subject_id) do
-    Principal.select_by_subject_id(subject_id, "token", &from_principal/1)
-    |> Enum.each(fn t ->
-      if Date.diff(t.expiry, Date.utc_today) > 0 do
-        Principal.delete(t.id, t.version)
-      end
-    end)
+  def delete_expired() do
+    from(p in Token)
+    |> where([p], p.usage == "token" and p.expires_at < fragment("current_timestamp"))
+    |> Repo.delete_all
   end
 
-  def to_principal(%Token{} = t) do
-    %Principal{
-      id: t.id,
-      subject_id: t.subject_id,
-      version: t.version,
-      kind: "token",
-      value:
-        %{
-          value: t.value,
-          usage: t.usage,
-          expiry: Date.to_iso8601(t.expiry)
-        }
-        |> DN.to_string()
-        |> AES.encrypt()
-        |> Base.encode64()
-    }
+  def delete(id) do
+    case from(Token)
+         |> where([id: ^id])
+         |> Repo.delete_all
+      do
+      {0, _} -> {:error, :not_found}
+      {1, _} -> {:ok, nil}
+      {_, _} -> {:error, :too_many_affected}
+    end
   end
 
-  def from_principal(%Principal{} = p) do
-    dn =
-      p.value
-      |> Base.decode64!()
-      |> AES.decrypt()
-      |> DN.from_string()
-
-    %Token{
-      id: p.id,
-      subject_id: p.subject_id,
-      version: p.version,
-      value: dn["value"],
-      usage: dn["usage"],
-      expiry: Date.from_iso8601(dn["expiry"])
-    }
-  end
 end
