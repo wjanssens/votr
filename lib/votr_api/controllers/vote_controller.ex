@@ -1,7 +1,6 @@
 defmodule Votr.Api.VoteController do
   use VotrWeb, :controller
   alias Votr.Election.Ballot
-  alias Votr.Election.Res
 
   def index(conn, %{"id" => id}) do
     tags = extract_accept_language(conn)

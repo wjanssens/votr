@@ -17,15 +17,25 @@ defmodule Votr.Api.SubjectsController do
       # account exists, reset password
       {:ok, token} = Token.insert(email.subject_id, "password", Password.hash(password))
 
+      code = HashId.encode(token.id)
+      formatted = 0..3
+                  |> Enum.map(fn i -> String.slice(code, i * 4, 4) end)
+                  |> Enum.join(" ")
+
       # TODO send the user an email
-      Logger.debug "Token ID #{HashId.encode(token.id)}"
+      Logger.debug "Token ID #{token.id} : #{code} : #{formatted}"
     else
       {:error, :not_found} ->
         # account doesn't exist, create it
         {:ok, token} = Token.insert_account(username, password)
 
+        code = HashId.encode(token.id)
+        formatted = 0..3
+        |> Enum.map(fn i -> String.slice(code, i * 4, 4) end)
+        |> Enum.join(" ")
+
         # TODO send the user an email
-        Logger.debug "Token ID #{HashId.encode(token.id)}"
+        Logger.debug "Token ID #{token.id} : #{code} : #{formatted}"
     end
 
     # always send a 200 to avoid user enumeration attacks

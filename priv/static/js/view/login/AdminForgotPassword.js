@@ -37,6 +37,11 @@ Ext.define('Votr.view.login.AdminForgotPassword', {
             change: 'validateRegistration'
         }
     }, {
+        flex: 1
+    }, {
+        itemId: 'message',
+        html: ''
+    }, {
         xtype: 'toolbar',
         docked: 'bottom',
         items: ['->', {

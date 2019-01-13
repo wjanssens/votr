@@ -128,6 +128,14 @@ Ext.define('Votr.view.admin.Wards', {
             bind: {
                 disabled: '{!wardList.selection}'
             }
+        }, {
+            xtype: 'button',
+            text: 'Delegates',
+            ui: 'forward',
+            handler: 'onDelegates',
+            bind: {
+                disabled: '{!wardList.selection}'
+            }
         }, '->', {
             xtype: 'button',
             text: 'Save',

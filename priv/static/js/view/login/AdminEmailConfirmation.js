@@ -12,6 +12,7 @@ Ext.define('Votr.view.login.AdminEmailConfirmation', {
     controller: 'login.login',
     items: [{
         xtype: 'textfield',
+        itemId: 'code',
         name: 'code',
         label: 'Code'.translate()
     }, {

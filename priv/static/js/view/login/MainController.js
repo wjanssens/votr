@@ -8,7 +8,8 @@ Ext.define('Votr.view.login.MainController', {
         'mfa': 'onMfa',
         'register': 'onRegister',
         'forgot': 'onForgot',
-        'confirm': 'onConfirm'
+        'confirm': 'onConfirm',
+        'confirm/:code': 'onConfirmCode'
     },
 
     onVoter: function() {
@@ -33,6 +34,10 @@ Ext.define('Votr.view.login.MainController', {
 
     onConfirm: function() {
         this.getView().down('#login_cards').setActiveItem(5);
-    }
+    },
 
+    onConfirmCode: function(code) {
+        let card = this.getView().down('#login_cards').setActiveItem(5);
+        card.down('#code').setValue(code);
+    }
 });

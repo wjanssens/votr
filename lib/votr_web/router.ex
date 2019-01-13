@@ -38,7 +38,7 @@ defmodule VotrWeb.Router do
 
     resources("/voters/:voter_id/ballots", VoteController, only: [:show, :update])
     resources("/login", LoginController, only: [:create])
-    resources("/activate", ActivateController, only: [:show])
+    resources("/activate", ActivateController, only: [:create])
     resources("/subjects", SubjectsController, only: [:create])
   end
 
@@ -57,7 +57,8 @@ defmodule VotrWeb.Router do
     resources("/res", ResourcesController, only: [:index])
     resources("/res/:res_id/:key/:tag", ResourceController, only: [:update, :delete])
     resources("/subjects/:subject_id/principals", PrincipalsController, only: [:index, :create])
-    resources("/totp", TotpController, only: [:create, :update, :delete])
     resources("/principals", PrincipalController, only: [:update, :delete])
+    resources("/profiles", ProfileController, only: [:show, :update])
+    resources("/totp", TotpController, only: [:create, :update, :delete])
   end
 end

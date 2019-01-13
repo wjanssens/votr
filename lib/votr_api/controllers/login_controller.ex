@@ -46,7 +46,8 @@ defmodule Votr.Api.LoginController do
             else
               {:ok, %Totp{} = totp} ->
                 # this subject has a TOTP token, so prompt them for it
-                # TODO is it OK to give the client the token ID?
+                # TODO don't send the TOTP token id, instead create a temporary conversation token and send that
+                # otherwise the second factor effectively becomes a single factor
                 conn
                 |> put_status(401)
                 |> json(%{success: false, error: "mfa_required", token: HashId.encode(totp.id)})
@@ -58,6 +59,7 @@ defmodule Votr.Api.LoginController do
           "otp" ->
             # the username is the totp token id
             # the password is the one time password
+            # TODO look up the totp token based on a temporary conversation token instead
             with {:ok, totp} <- Totp.select(HashId.decode(username)),
                  {:ok, :valid} <- Totp.verify(password, totp.secret_key) do
               jwt = JWT.generate(totp.subject_id)

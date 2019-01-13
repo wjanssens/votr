@@ -53,8 +53,8 @@ config :votr,
 
 config :votr,
        Votr.HashId,
-       alphabet: "0123456789abcdef",
-       min_length: 8,
+       alphabet: "0123456789ABCDEFGHJKLMNPRSTUVWXYZ",
+       min_length: 16,
        salt: "WNj2wx0dl2"
 
 config :votr,

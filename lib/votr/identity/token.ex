@@ -13,11 +13,13 @@ defmodule Votr.Identity.Token do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  import Bitwise
   alias Votr.Identity.Token
   alias Votr.Identity.Password
   alias Votr.Identity.DN
   alias Votr.AES
   alias Votr.Repo
+  alias Votr.HashId
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
@@ -32,7 +34,7 @@ defmodule Votr.Identity.Token do
   def select(id) do
     case Repo.get(Token, id) do
       nil -> {:error, :not_found}
-      t -> {:ok, Map.update!(t, :value, &(&1 |> Base.decode64!() |> AES.decrypt()))}
+      t -> {:ok, Map.update(t, :value, nil, &(&1 |> Base.decode64!() |> AES.decrypt()))}
     end
   end
 

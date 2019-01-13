@@ -13,51 +13,59 @@ Ext.define('Votr.view.admin.MainController', {
         'ballots/:id/results': 'onResults',
         'ballots/:id/log': 'onLog',
         'voters:/id': 'onVoter',
-        'candidates/:id': 'onCandidate',
+        'candidates/:id': 'onCandidate'
     },
 
     onHome() {
         this.redirectTo('#wards');
     },
 
+    onProfileEdit() {
+        this.redirectTo('#profile');
+    },
+
     onWards() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(0);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(0);
     },
 
     onWard() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(0);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(0);
     },
 
     onBallots() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(1);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(1);
     },
 
     onBallot() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(1);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(1);
     },
 
     onVoters() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(2);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(2);
     },
 
     onVoter() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(2);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(2);
     },
 
     onCandidates() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(3);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(3);
     },
 
     onCandidate() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(3);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(3);
     },
 
     onResults() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(4);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(4);
     },
 
     onLog() {
-        this.getView().setActiveItem(1).down('#elector_cards').setActiveItem(5);
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(5);
+    },
+
+    onProfile() {
+        this.getView().setActiveItem(1).down('#cards').setActiveItem(6);
     }
 
 });

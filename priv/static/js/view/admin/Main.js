@@ -22,17 +22,19 @@ Ext.define('Votr.view.admin.Main', {
                 }, '->', {
                     xtype: 'button',
                     iconCls: 'x-fa fa-user-circle',
-                    tooltip: 'Account'
+                    tooltip: 'Account',
+                    handler: 'onProfileEdit'
                 },
                 {
                     xtype: 'button',
                     iconCls: 'x-fa fa-sign-out',
-                    tooltip: 'Sign Out'
+                    tooltip: 'Sign Out',
+                    handler: 'onSignOut'
                 }
             ]
         }, {
             xtype: 'panel',
-            itemId: 'elector_cards',
+            itemId: 'cards',
             flex: 1,
             layout: 'card',
             padding: 0,
@@ -42,6 +44,7 @@ Ext.define('Votr.view.admin.Main', {
                 {xtype: 'admin.voters'},
                 {xtype: 'admin.candidates'},
                 {xtype: 'admin.results'},
+                {xtype: 'admin.profile'}
             ]
         }
     ]

@@ -10,7 +10,8 @@ Ext.define('Votr.controller.Admin', {
         'admin.Voters',
         'admin.Voter',
         'admin.Results',
-        'admin.Result'
+        'admin.Result',
+        'admin.Profile'
     ],
     models: [
         'admin.Ward',

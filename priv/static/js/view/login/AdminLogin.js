@@ -15,6 +15,11 @@ Ext.define('Votr.view.login.AdminLogin', {
         name: 'password',
         label: 'Password'.translate()
     }, {
+        flex: 1
+    }, {
+        itemId: 'message',
+        html: ''
+    }, {
         xtype: 'toolbar',
         docked: 'bottom',
         items: [{

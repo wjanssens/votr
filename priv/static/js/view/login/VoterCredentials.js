@@ -27,6 +27,7 @@ Ext.define('Votr.view.login.VoterCredentials', {
     }, {
         flex: 1
     }, {
+        itemId: 'message',
         html: 'Depending on the election this could be a Citizen Card, Passport Card, Voter Card, ' +
         'PAN card, Drivers License, Passport, Tax Number, Employee Number, etc...'.translate()
     }, {

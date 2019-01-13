@@ -9,6 +9,7 @@ Ext.define('Votr.view.login.LoginController', {
     },
 
     onBallotId: function () {
+        // TODO
         // send the voter id to the server
         // 200: prompt for voter credentials
         this.redirectTo("#voter");
@@ -16,6 +17,7 @@ Ext.define('Votr.view.login.LoginController', {
     },
 
     onVoterCredentials: function () {
+        // TODO
         // send the voter credentials to the server
         // 200: -> #ballots
         window.location.href = '/voter';
@@ -27,12 +29,32 @@ Ext.define('Votr.view.login.LoginController', {
     },
 
     onAdminCredentials: function () {
-        // send the administrator credentials to the server
-        // 200: redirect to #wards
-        // this.redirectTo("#wards")
-        // 401: prompt for mfa
-        this.redirectTo("#mfa");
-        // 401: show error message
+        let values = this.getView().getValues();
+        Ext.Ajax.request({
+            url: '/api/login',
+            jsonData: Ext.util.JSON.encode({
+                client_id: "votr_admin",
+                grant_type: "password",
+                username: values.email,
+                password: values.password
+            }),
+            success: () => {
+                window.location.href = '/admin';
+            },
+            failure: (response) => {
+                const obj = Ext.decode(response.responseText);
+                if (obj.error == 'mfa_required') {
+                    this.redirectTo("#mfa");
+                    this.getView().down('#token').setValue(obj.token);
+                } else if (obj.error == 'unauthorized') {
+                    this.getView().down('#message').setHtml('Invalid credentials'.translate());
+                } else if (obj.message) {
+                    this.getView().down('#message').setHtml(obj.message);
+                } else {
+                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                }
+            }
+        });
     },
 
     onAdminForgotPassword: function () {
@@ -40,10 +62,29 @@ Ext.define('Votr.view.login.LoginController', {
     },
 
     onAdminMfa: function () {
-        // send mfa to server
-        // 200: redirect to wards
-        window.location.href = '/admin';
-        // 401: show error message
+        let values = this.getView().getValues();
+        Ext.Ajax.request({
+            url: '/api/login',
+            jsonData: Ext.util.JSON.encode({
+                client_id: "votr_admin",
+                grant_type: "otp",
+                username: values.token_code,
+                password: values.totp_code
+            }),
+            success: () => {
+                window.location.href = '/admin';
+            },
+            failure: (response) => {
+                const obj = Ext.decode(response.responseText);
+                if (obj.error == 'unauthorized')  {
+                    this.getView().down('#message').setHtml('Invalid code'.translate());
+                } else if (obj.message) {
+                    this.getView().down('#message').setHtml(obj.message);
+                } else {
+                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                }
+            }
+        });
     },
 
     onAdminRegister: function () {
@@ -61,8 +102,8 @@ Ext.define('Votr.view.login.LoginController', {
             success: () => {
                 this.redirectTo('#confirm')
             },
-            failure: (response) => {
-                this.getView().down('#message').setHtml(response.message);
+            failure: () => {
+                this.getView().down('#message').setHtml('Unexpected error'.translate());
             }
         })
     },
@@ -79,7 +120,7 @@ Ext.define('Votr.view.login.LoginController', {
                 this.redirectTo('#confirm')
             },
             failure: (response) => {
-                this.getView().down('#message').setHtml(response.message);
+                this.getView().down('#message').setHtml('Unexpected error'.translate());
             }
         })
     },
@@ -87,12 +128,19 @@ Ext.define('Votr.view.login.LoginController', {
     onEmailConfirmation: function () {
         let values = this.getView().getValues();
         Ext.Ajax.request({
-            url: '/api/activate/' + values.code,
+            url: '/api/activate',
+            jsonData: Ext.util.JSON.encode({
+                code: values.code
+            }),
             success: () => {
                 window.location.href = '/admin';
             },
             failure: (response) => {
-                this.getView().down('#message').setHtml(response.message);
+                if (response.status == 404) {
+                    this.getView().down('#message').setHtml('Invalid code'.translate());
+                } else {
+                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                }
             }
         });
     },

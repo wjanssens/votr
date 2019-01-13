@@ -7,7 +7,6 @@ defmodule Votr.Api.ActivateController do
   alias Votr.Identity.Controls
   alias Votr.Identity.Phone
   alias Votr.Identity.DN
-  alias Votr.HashId
   alias Votr.JWT
   alias Votr.Repo
 
@@ -17,12 +16,15 @@ defmodule Votr.Api.ActivateController do
 
   @doc """
   perform the action associated with an activation code
+  * create a new account
   * mark an email address as valid
   * mark a phone number as valid
   * update a password
   """
-  def show(conn, %{"id" => id}) do
-    with {:ok, token} <- Token.select(HashId.decode(id)),
+  def create(conn, %{"code" => code}) do
+    id = Votr.HashId.decode(code)
+
+    with {:ok, token} <- Token.select(id),
          {:ok, subject_id} <- update_token(token),
          {:ok, _} <- Token.delete(token.id) do
 
