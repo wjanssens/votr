@@ -13,11 +13,11 @@ defmodule Votr.Plug.ApiAuthenticate do
       |> fetch_cookies()
 
     authorization = Enum.at(get_req_header(conn, "authorization"), 0)
-    cookie = conn.params["auth_token"]
+    cookie = conn.req_cookies["access_token"]
 
     jwt = cond do
       authorization != nil -> Enum.at(String.split(authorization, " ", parts: 2), 1)
-      cookie == nil -> cookie
+      cookie != nil -> cookie
       true -> nil
     end
 
