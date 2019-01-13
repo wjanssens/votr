@@ -101,7 +101,10 @@ defmodule Votr.Identity.Controls do
   end
 
   def verify(subject_id) do
+    IO.inspect("here #{subject_id}")
     with {:ok, controls} <- Controls.select_by_subject_id(subject_id) do
+
+      IO.inspect(controls)
       now = DateTime.utc_now()
             |> DateTime.to_unix()
 
@@ -112,7 +115,7 @@ defmodule Votr.Identity.Controls do
 
       if locked, do: {:error, :locked}, else: {:ok, controls}
     else
-      {:error, :not_found} -> {:error, :not_found}
+      _ -> IO.inspect({:error, :not_found})
     end
   end
 end

@@ -27,7 +27,11 @@ defmodule Votr.Identity.Email do
     Principal.select_by_hash("email", Principal.hash(address), &from_principal/1, fn e -> e.address == address end)
   end
 
-  def insert(subject_id, address, seq \\ 1, label \\ "other", state \\ "invalid") do
+  def verify(%Email{} = email) do
+    if email.state != "invalid", do: {:ok, email.state}, else: {:error, email.state}
+  end
+
+  def insert(subject_id, address, label \\ "other", state \\ "invalid", seq \\ 1) do
     %Email{
       subject_id: subject_id,
       address: address,

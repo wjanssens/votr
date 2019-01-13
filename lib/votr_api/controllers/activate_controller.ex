@@ -62,22 +62,13 @@ defmodule Votr.Api.ActivateController do
     Repo.transaction(
       fn ->
         with {:ok, subject} = Subject.insert(username),
-             {:ok, _} = Email.insert(subject.id, username),
+             {:ok, _} = Email.insert(subject.id, username, "other", "active"),
              {:ok, _} = Password.insert(subject.id, hash),
              {:ok, _} = Controls.insert(%Controls{subject_id: subject.id, failures: 0}) do
           subject.id
         end
       end
     )
-  end
-
-  defp update_email(token) do
-    with {:ok, email} <- Email.select_by_id(String.to_integer(token.value)) do
-      Map.put(email, :state, :valid)
-      |> Email.update()
-
-      {:ok, nil}
-    end
   end
 
   defp update_password(token) do
@@ -87,6 +78,15 @@ defmodule Votr.Api.ActivateController do
       |> Password.update()
 
       {:ok, token.subject_id}
+    end
+  end
+
+  defp update_email(token) do
+    with {:ok, email} <- Email.select_by_id(String.to_integer(token.value)) do
+      Map.put(email, :state, "valid")
+      |> Email.update()
+
+      {:ok, nil}
     end
   end
 

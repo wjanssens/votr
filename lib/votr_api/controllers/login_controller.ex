@@ -19,13 +19,14 @@ defmodule Votr.Api.LoginController do
         %{"client_id" => client_id, "grant_type" => grant_type, "username" => username, "password" => password}
       ) do
     # TODO add random wait time to avoid timing attacks
+    # TODO make the cookies secure only
 
     case client_id do
       "votr_admin" ->
         case grant_type do
           "password" ->
             with {:ok, email} <- Email.select_by_address(username),
-                 "valid" <- email.state,
+                 {:ok, _} <- Email.verify(email),
                  {:ok, controls} <- Controls.verify(email.subject_id),
                  {:ok, :valid} <- Password.verify(email.subject_id, password),
                  {:error, :not_found} <- Totp.select_by_subject_id(email.subject_id) do
@@ -35,7 +36,7 @@ defmodule Votr.Api.LoginController do
 
               conn
               |> put_status(200)
-              |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
+              |> put_resp_cookie("access_token", jwt, http_only: true)
               |> json(
                    %{
                      access_token: jwt,
@@ -65,7 +66,7 @@ defmodule Votr.Api.LoginController do
               jwt = JWT.generate(totp.subject_id)
               conn
               |> put_status(200)
-              |> put_resp_cookie("access_token", jwt, http_only: true, secure: true)
+              |> put_resp_cookie("access_token", jwt, http_only: true)
               |> json(
                    %{
                      access_token: jwt,
@@ -75,8 +76,8 @@ defmodule Votr.Api.LoginController do
                  )
             else
               _ -> conn
-                |> put_status(401)
-                |> json(%{success: false, error: "unauthorized"})
+                   |> put_status(401)
+                   |> json(%{success: false, error: "unauthorized"})
             end
           _ ->
             conn
