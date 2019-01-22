@@ -17,7 +17,7 @@ Ext.define('Votr.view.admin.Candidate', {
                 flex: 1,
                 bind: {
                     value: '{name}',
-                    placeHolder: '{candidateList.selection.name.default}'
+                    placeHolder: '{candidateList.selection.names.default}'
                 }
             }, {
                 xtype: 'selectfield',
@@ -39,7 +39,7 @@ Ext.define('Votr.view.admin.Candidate', {
                 flex: 1,
                 bind: {
                     value: '{description}',
-                    placeHolder: '{candidateList.selection.description.default}'
+                    placeHolder: '{candidateList.selection.descriptions.default}'
                 }
             }, {
                 xtype: 'selectfield',

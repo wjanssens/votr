@@ -3,8 +3,8 @@ Ext.define('Votr.model.admin.Ballot', {
     fields: [
         {name: 'ward_id', type: 'integer'},
         {name: 'ext_id', type: 'string'},
-        {name: 'title'},
-        {name: 'description'},
+        {name: 'titles'},
+        {name: 'descriptions'},
         {name: 'method', type: 'string'},
         {name: 'quota', type: 'string'},
         {name: 'electing', type: 'integer'},

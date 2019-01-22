@@ -33,42 +33,31 @@ Ext.define('Votr.view.admin.Wards', {
         },
         formulas: {
             language: {
-                bind: {
-                    lang: '{lang}'
+                get: function (get) {
+                    return get('lang');
                 },
-                get: function(data) {
-                    return data.lang;
-                },
-                set: function(selection) {
-                    this.set('lang', selection.id)
+                set: function (selection) {
+                    this.set({'lang': selection.id})
                 }
             },
             name: {
-                bind: {
-                    name: '{wardList.selection.name}',
-                    lang: '{lang}'
+                get: function (get) {
+                    return get('wardList.selection.names')[get('lang')];
                 },
-                get: function(data) {
-                    return data.name[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var name = this.get('wardList.selection.name');
-                    name[lang] = value;
+                set: function (value) {
+                    const names = Object.assign({}, this.get('wardList.selection.names'));
+                    names[this.get('lang')] = value;
+                    this.get('wardList.selection').set('names', names);
                 }
             },
             description: {
-                bind: {
-                    description: '{wardList.selection.description}',
-                    lang: '{lang}'
+                get: function (get) {
+                    return get('wardList.selection.descriptions')[get('lang')];
                 },
-                get: function(data) {
-                    return data.description[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var description = this.get('wardList.selection.description');
-                    description[lang] = value;
+                set: function (value) {
+                    const names = Object.assign({}, this.get('wardList.selection.descriptions'));
+                    names[this.get('lang')] = value;
+                    this.get('wardList.selection').set('names', names);
                 }
             }
         }

@@ -51,6 +51,7 @@ defmodule Votr.Identity.Password do
     %Principal{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       kind: "password",
       value: p.hash
     }
@@ -60,6 +61,7 @@ defmodule Votr.Identity.Password do
     %Password{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       hash: p.value
     }
   end

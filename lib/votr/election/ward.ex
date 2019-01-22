@@ -19,7 +19,7 @@ defmodule Votr.Election.Ward do
   @timestamps_opts [type: :utc_datetime, usec: true]
   @derive {
     Poison.Encoder,
-    only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time, :name, :description]
+    only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time, :names, :descriptions]
   }
   schema "ward" do
     field :version, :integer
@@ -43,6 +43,32 @@ defmodule Votr.Election.Ward do
                strings: s
              ],
              where: w.subject_id == ^subject_id,
+             select: w
+  end
+
+  @doc """
+    Gets all of the wards for a subject.
+  """
+  def select_roots(subject_id) do
+    Repo.all from w in Ward,
+             join: s in assoc(w, :strings),
+             preload: [
+               strings: s
+             ],
+             where: w.subject_id == ^subject_id and is_nil(w.parent_id),
+             select: w
+  end
+
+  @doc """
+    Gets all of the wards for a subject.
+  """
+  def select_children(subject_id, parent_id) do
+    Repo.all from w in Ward,
+             join: s in assoc(w, :strings),
+             preload: [
+               strings: s
+             ],
+             where: w.subject_id == ^subject_id and w.parent_id == ^parent_id,
              select: w
   end
 

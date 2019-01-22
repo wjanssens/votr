@@ -22,6 +22,7 @@ defmodule Votr.Identity.Role do
     %Principal{
       id: role.id,
       subject_id: role.subject_id,
+      version: role.version,
       kind: "role",
       seq: nil,
       hash: nil,
@@ -33,6 +34,7 @@ defmodule Votr.Identity.Role do
     %Role{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       name: p.value
     }
   end

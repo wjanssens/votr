@@ -17,7 +17,7 @@ Ext.define('Votr.view.admin.Ballot', {
                 flex: 1,
                 bind: {
                     value: '{title}',
-                    placeHolder: '{ballotList.selection.title.default}'
+                    placeHolder: '{ballotList.selection.titles.default}'
                 }
             }, {
                 xtype: 'selectfield',
@@ -39,7 +39,7 @@ Ext.define('Votr.view.admin.Ballot', {
                 flex: 1,
                 bind: {
                     value: '{description}',
-                    placeHolder: '{ballotList.selection.description.default}'
+                    placeHolder: '{ballotList.selection.descriptions.default}'
                 }
             }, {
                 xtype: 'selectfield',

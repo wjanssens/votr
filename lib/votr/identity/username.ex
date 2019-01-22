@@ -28,6 +28,7 @@ defmodule Votr.Identity.Username do
       kind: "username",
       seq: nil,
       subject_id: username.subject_id,
+      version: username.version,
       hash: :crypto.hash(:sha256, username.username)
             |> Base.encode64,
       value:
@@ -46,6 +47,7 @@ defmodule Votr.Identity.Username do
     %Username{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       username: username
     }
   end

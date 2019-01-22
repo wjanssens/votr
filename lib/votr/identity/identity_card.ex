@@ -38,6 +38,7 @@ defmodule Votr.Identity.IdentityCard do
     %Principal{
       id: ic.id,
       subject_id: ic.subject_id,
+      version: ic.version,
       kind: "identity_card",
       seq: ic.seq,
       hash: :crypto.hash(:sha256, ic.number)
@@ -69,6 +70,7 @@ defmodule Votr.Identity.IdentityCard do
     %IdentityCard{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       seq: p.seq,
       number: dn.number,
       exp: Date.from_iso8601(dn.exp),

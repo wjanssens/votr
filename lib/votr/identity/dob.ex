@@ -26,6 +26,7 @@ defmodule Votr.Identity.DateOfBirth do
     %Principal{
       id: dob.id,
       subject_id: dob.subject_id,
+      version: dob.version,
       kind: "dob",
       seq: nil,
       hash: nil,
@@ -47,6 +48,7 @@ defmodule Votr.Identity.DateOfBirth do
     %DateOfBirth{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       date: date
     }
   end

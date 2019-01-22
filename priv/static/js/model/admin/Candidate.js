@@ -3,8 +3,8 @@ Ext.define('Votr.model.admin.Candidate', {
     fields: [
         {name: 'ward_id', type: 'integer'},
         {name: 'ext_id', type: 'string'},
-        {name: 'name' },
-        {name: 'description' },
+        {name: 'names' },
+        {name: 'descriptions' },
         {name: 'withdrawn', type: 'boolean'},
         {name: 'color', type: 'string'},
         {name: 'votes', type: 'number'},

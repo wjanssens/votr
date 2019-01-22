@@ -133,7 +133,7 @@ Ext.define('Votr.view.login.LoginController', {
                 code: values.code
             }),
             success: () => {
-                window.location.href = '/admin';
+                this.redirectTo("#admin");
             },
             failure: (response) => {
                 if (response.status == 404) {

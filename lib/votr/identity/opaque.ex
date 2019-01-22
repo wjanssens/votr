@@ -25,6 +25,7 @@ defmodule Votr.Identity.Opaque do
     %Principal{
       id: opaque.id,
       subject_id: opaque.subject_id,
+      version: opaque.version,
       kind: "opaque",
       seq: opaque.seq,
       hash: opaque.hash,
@@ -36,6 +37,7 @@ defmodule Votr.Identity.Opaque do
     %Opaque{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       hash: p.hash
     }
   end

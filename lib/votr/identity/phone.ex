@@ -33,6 +33,7 @@ defmodule Votr.Identity.Phone do
     %Principal{
       id: phone.id,
       subject_id: phone.subject_id,
+      version: phone.version,
       kind: "phone",
       seq: phone.seq,
       hash: :crypto.hash(:sha256, phone.number)
@@ -55,6 +56,7 @@ defmodule Votr.Identity.Phone do
     %Phone{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       number: dn.number,
       label: dn.label,
       status: dn.status,

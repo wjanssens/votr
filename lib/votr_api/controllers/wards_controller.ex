@@ -7,10 +7,14 @@ defmodule Votr.Api.WardsController do
   alias Votr.HashId
   require Logger
 
-  def index(conn, _params) do
+  def index(conn, params) do
     subject_id = conn.assigns[:subject_id]
 
-    wards = Ward.select_all(subject_id)
+    node = params["node"]
+    nodes = if node == "root",
+               do: Ward.select_roots(subject_id),
+               else: Ward.select_children(subject_id, HashId.decode(node))
+    wards = nodes
             |> Enum.map(
                  fn w ->
                    names = w.strings
@@ -30,8 +34,9 @@ defmodule Votr.Api.WardsController do
                    w
                    |> Map.update(:id, nil, &(HashId.encode &1))
                    |> Map.update(:parent_id, nil, &(if is_nil(&1), do: nil, else: HashId.encode &1))
-                   |> Map.put(:name, names)
-                   |> Map.put(:description, descs)
+                   |> Map.update(:subject_id, nil, &(HashId.encode &1))
+                   |> Map.put(:names, names)
+                   |> Map.put(:descriptions, descs)
                    |> Map.drop([:strings])
                  end
                )
@@ -59,8 +64,8 @@ defmodule Votr.Api.WardsController do
     }
 
     with {:ok, ward} <- Ward.insert(ward),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "name")),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "description"))
+         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "names", "name")),
+         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "descriptions", "description"))
       do
       conn
       |> put_status(201)
@@ -107,9 +112,10 @@ defmodule Votr.Api.WardsController do
       end_time: dt(body, "end_time")
     }
 
+    # TODO the res upserts don't update because no ID comes in for the names and descriptions
     with {:ok, ward} <- Ward.update(ward),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "name")),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "description")) do
+         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "names", "name")),
+         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "descriptions", "description")) do
       conn
       |> put_status(200)
       |> json(
@@ -137,13 +143,14 @@ defmodule Votr.Api.WardsController do
     end
   end
 
-  defp res(body, shard, key) do
-    body[key]
+  defp res(body, shard, body_key, res_key) do
+    value = body[body_key]
+    (if is_nil(value), do: [], else: value)
     |> Enum.map(
          fn {k, v} -> %Res{
                         id: FlexId.generate(:id_generator, shard),
                         version: 0,
-                        key: key,
+                        key: res_key,
                         tag: k,
                         value: v
                       }

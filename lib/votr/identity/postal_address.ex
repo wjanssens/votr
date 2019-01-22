@@ -37,6 +37,7 @@ defmodule Votr.Identity.PostalAddress do
     %Principal{
       id: address.id,
       subject_id: address.subject_id,
+      version: address.version,
       kind: "postal_address",
       seq: address.seq,
       value:
@@ -63,6 +64,7 @@ defmodule Votr.Identity.PostalAddress do
     %PostalAddress{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       lines: lines,
       label: dn.label,
       failures: String.to_integer(dn.failures),

@@ -16,7 +16,7 @@ Ext.define('Votr.view.admin.Ward', {
                 flex: 1,
                 bind: {
                     value: '{name}',
-                    placeHolder: '{wardList.selection.name.default}'
+                    placeHolder: '{wardList.selection.names.default}'
                 }
             }, {
                 xtype: 'selectfield',
@@ -38,7 +38,7 @@ Ext.define('Votr.view.admin.Ward', {
                 flex: 1,
                 bind: {
                     value: '{description}',
-                    placeHolder: '{wardList.selection.description.default}'
+                    placeHolder: '{wardList.selection.descriptions.default}'
                 }
             }, {
                 xtype: 'selectfield',

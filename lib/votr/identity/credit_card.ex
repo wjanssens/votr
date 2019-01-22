@@ -29,6 +29,7 @@ defmodule Votr.Identity.CreditCard do
     %Principal{
       id: card.id,
       subject_id: card.subject_id,
+      version: card.version,
       kind: "credit_card",
       seq: card.seq,
       hash: :crypto.hash(:sha256, card.number)
@@ -54,6 +55,7 @@ defmodule Votr.Identity.CreditCard do
     %CreditCard{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       number: dn.number,
       exp: Date.from_iso8601(dn.exp),
       seq: p.seq

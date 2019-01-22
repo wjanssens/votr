@@ -14,24 +14,27 @@ Ext.define('Votr.view.admin.WardsController', {
         const tree = this.lookupReference('wardList');
         const store = tree.getStore();
         const node = store.getRoot().appendChild({
-            name: { default: 'New Election' },
-            description: { default: '' }
+            names: { default: 'New Election' },
+            descriptions: { default: '' }
         });
         tree.setSelection(node);
     },
 
     onAddWard: function() {
         const tree = this.lookupReference('wardList');
-        const node = tree.getSelection().appendChild({
-            name: { default: 'New Ward' },
-            description: { default: '' }
-        });
-        tree.expandNode(node);
-        tree.setSelection(node);
+        const selection = tree.getSelection();
+        if (selection) {
+            const node = selection.appendChild({
+                parent_id: selection.get('id'),
+                names: { default: 'New Ward' },
+                descriptions: { default: '' }
+            });
+            tree.expandNode(node);
+            tree.setSelection(node);
+        }
     },
 
     onSave: function() {
-        debugger;
         const tree = this.lookupReference('wardList');
         tree.getStore().sync();
     }

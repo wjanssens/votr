@@ -73,7 +73,7 @@ defmodule Votr.Api.ActivateController do
 
   defp update_password(token) do
     with password <- Password.select_by_subject_id(token.subject_id) do
-      IO.puts "updating password"
+      IO.puts "updating password #{token.value}"
       Map.put(password, :hash, token.value)
       |> Password.update()
 

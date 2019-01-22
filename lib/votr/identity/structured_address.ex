@@ -68,6 +68,7 @@ defmodule Votr.Identity.StructuredAddress do
     %Principal{
       id: address.id,
       subject_id: address.subject_id,
+      version: address.version,
       kind: "full_address",
       seq: address.seq,
       value:
@@ -88,6 +89,7 @@ defmodule Votr.Identity.StructuredAddress do
     %StructuredAddress{
       id: p.id,
       subject_id: p.subject_id,
+      version: p.version,
       title: dn.title,
       gn: dn.gn,
       initials: dn.initials,
