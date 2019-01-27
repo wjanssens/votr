@@ -72,28 +72,33 @@ defmodule Votr.Election.Ward do
              select: w
   end
 
-  def insert(ward) do
-    ward
-    |> cast(%{}, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
+  def insert(params) do
+    shard = FlexId.extract_partition(:id_generator, params.subject_id)
+
+    %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
+    |> cast(params, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
     |> validate_required([:id, :version, :subject_id, :seq])
     |> Repo.insert()
   end
 
-  def update(ward) do
-    reorder(ward)
+  def update(params) do
+    try do
+      reorder(params)
 
-    ward
-    |> cast(%{}, [:id, :version, :subject_id, :parent_id, :ext_id, :start_time, :end_time])
-    |> validate_required([:id, :version, :subject_id])
-    |> optimistic_lock(:version)
-    |> Repo.update()
+      %Ward{id: params.id}
+      |> cast(params, [:version, :parent_id, :ext_id, :start_time, :end_time])
+      |> validate_required([:id, :version])
+      |> optimistic_lock(:version)
+      |> Repo.update()
+    rescue
+      e in Ecto.StaleEntryError -> {:conflict, e.message}
+    end
   end
 
   @doc """
     Re-sequences all wards that are at the same level as as the ward being updated.
   """
   def reorder(ward) do
-    IO.inspect(ward)
     sql = """
     WITH row_to_move AS (
       SELECT subject_id, parent_id, seq AS old_seq

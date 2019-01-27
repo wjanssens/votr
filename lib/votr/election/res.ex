@@ -38,20 +38,22 @@ defmodule Votr.Election.Res do
     No optimistic lock checking is performed since it's assumed that the parent entity lock version is used.
   """
   def upsert_all(entity_id, resources) do
+    IO.inspect(resources)
     shard = FlexId.extract_partition(:id_generator, entity_id)
 
     entries = resources
               |> Enum.map(
                    fn r ->
-                     r
-                     |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard) end)
-                     |> Map.put(:entity_id, entity_id)
-                     |> Map.put_new(:version, 0)
-                     |> Map.update(:value, nil, &(Base.encode64(AES.encrypt(&1))))
-                     |> Map.put(:inserted_at, DateTime.utc_now)
-                     |> Map.put(:updated_at, DateTime.utc_now)
-                     |> Map.from_struct
-                     |> Map.drop([:__meta__])
+                     %{
+                       id: FlexId.generate(:id_generator, shard),
+                       entity_id: entity_id,
+                       version: 0,
+                       key: r.key,
+                       tag: r.tag,
+                       value: Base.encode64(AES.encrypt(r.value)),
+                       inserted_at: DateTime.utc_now,
+                       updated_at: DateTime.utc_now
+                     }
                    end
                  )
     Repo.insert_all Res, entries, on_conflict: :replace_all, conflict_target: [:entity_id, :tag, :key]

@@ -45,7 +45,7 @@ defmodule VotrWeb.Router do
   scope "/api/admin", Votr.Api do
     pipe_through(:api_authenticated)
 
-    resources("/wards", WardsController, only: [:index, :create, :update, :delete])
+    resources("/wards", WardsController, only: [:index, :show, :create, :update, :delete])
     resources("/wards/:ward_id/voters", VotersController, only: [:index, :create])
     put("/wards/:id/voters", VotersController, :replace)
     resources("/ballots", BallotController, only: [:update, :delete])

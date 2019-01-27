@@ -20,7 +20,7 @@ Ext.define('Votr.view.admin.Wards', {
                 rootVisible: false,
                 parentIdProperty: 'parent_id',
                 proxy: {
-                    type: 'ajax',
+                    type: 'rest',
                     url: '../api/admin/wards',
                     reader: {
                         type: 'json',
@@ -42,22 +42,22 @@ Ext.define('Votr.view.admin.Wards', {
             },
             name: {
                 get: function (get) {
-                    return get('wardList.selection.names')[get('lang')];
+                    return get('wardList.selection.names')[get('language')];
                 },
                 set: function (value) {
                     const names = Object.assign({}, this.get('wardList.selection.names'));
-                    names[this.get('lang')] = value;
-                    this.get('wardList.selection').set('names', names);
+                    names[this.get('language')] = value;
+                    this.set('wardList.selection.names', names);
                 }
             },
             description: {
                 get: function (get) {
-                    return get('wardList.selection.descriptions')[get('lang')];
+                    return get('wardList.selection.descriptions')[get('language')];
                 },
                 set: function (value) {
-                    const names = Object.assign({}, this.get('wardList.selection.descriptions'));
-                    names[this.get('lang')] = value;
-                    this.get('wardList.selection').set('names', names);
+                    const descriptions = Object.assign({}, this.get('wardList.selection.descriptions'));
+                    descriptions[this.get('language')] = value;
+                    this.set('wardList.selection.descriptions', descriptions);
                 }
             }
         }

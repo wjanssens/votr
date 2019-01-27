@@ -7,13 +7,13 @@ defmodule Votr.Api.WardsController do
   alias Votr.HashId
   require Logger
 
-  def index(conn, params) do
+  def show(conn, %{"id" => id}) do
     subject_id = conn.assigns[:subject_id]
 
-    node = params["node"]
-    nodes = if node == "root",
+    nodes = if id == "root",
                do: Ward.select_roots(subject_id),
-               else: Ward.select_children(subject_id, HashId.decode(node))
+               else: Ward.select_children(subject_id, HashId.decode(id))
+    IO.inspect(nodes)
     wards = nodes
             |> Enum.map(
                  fn w ->
@@ -47,15 +47,10 @@ defmodule Votr.Api.WardsController do
 
   # create a new election or ward
   def create(conn, body) do
-    subject_id = conn.assigns[:subject_id]
-    shard = FlexId.extract_partition(:id_generator, subject_id)
-
     parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
 
-    ward = %Ward{
-      id: FlexId.generate(:id_generator, shard),
-      version: 0,
-      subject_id: subject_id,
+    ward = %{
+      subject_id: conn.assigns[:subject_id],
       parent_id: parent_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
@@ -64,8 +59,8 @@ defmodule Votr.Api.WardsController do
     }
 
     with {:ok, ward} <- Ward.insert(ward),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "names", "name")),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "descriptions", "description"))
+         {_, _} <- Res.upsert_all(ward.id, res(body, "names", "name")),
+         {_, _} <- Res.upsert_all(ward.id, res(body, "descriptions", "description"))
       do
       conn
       |> put_status(201)
@@ -96,13 +91,13 @@ defmodule Votr.Api.WardsController do
 
   # create a new election or ward
   def update(conn, body) do
+    id = if is_binary(body["id"]), do: HashId.decode(body["id"]), else: nil
+    parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
     subject_id = conn.assigns[:subject_id]
     shard = FlexId.extract_partition(:id_generator, subject_id)
 
-    parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
-
-    ward = %Ward{
-      id: HashId.decode(body["id"]),
+    ward = %{
+      id: id,
       version: body["version"],
       subject_id: subject_id,
       parent_id: parent_id,
@@ -112,10 +107,9 @@ defmodule Votr.Api.WardsController do
       end_time: dt(body, "end_time")
     }
 
-    # TODO the res upserts don't update because no ID comes in for the names and descriptions
     with {:ok, ward} <- Ward.update(ward),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "names", "name")),
-         {_, _} <- Res.upsert_all(ward.id, res(body, shard, "descriptions", "description")) do
+         {_, _} <- Res.upsert_all(ward.id, res(body, "names", "name")),
+         {_, _} <- Res.upsert_all(ward.id, res(body, "descriptions", "description")) do
       conn
       |> put_status(200)
       |> json(
@@ -129,6 +123,15 @@ defmodule Votr.Api.WardsController do
            }
          )
     else
+      {:conflict, _msg} ->
+        conn
+        |> put_status(409)
+        |> json(
+             %{
+               success: false,
+               error: "conflict"
+             }
+           )
       {:error, msg} ->
         Logger.warn "Failed to update ward: #{msg}"
 
@@ -143,13 +146,11 @@ defmodule Votr.Api.WardsController do
     end
   end
 
-  defp res(body, shard, body_key, res_key) do
+  defp res(body, body_key, res_key) do
     value = body[body_key]
     (if is_nil(value), do: [], else: value)
     |> Enum.map(
-         fn {k, v} -> %Res{
-                        id: FlexId.generate(:id_generator, shard),
-                        version: 0,
+         fn {k, v} -> %{
                         key: res_key,
                         tag: k,
                         value: v

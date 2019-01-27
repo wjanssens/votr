@@ -36,6 +36,15 @@ Ext.define('Votr.view.admin.WardsController', {
 
     onSave: function() {
         const tree = this.lookupReference('wardList');
-        tree.getStore().sync();
+        tree.getStore().sync({
+            success: function(batch) {
+                batch.operations.forEach(operation => {
+                  const record = operation.getRecords()[0];
+                  const response = Ext.JSON.decode(operation.getResponse().responseText);
+                  record.set('id', response.ward.id);
+                  record.set('version', response.ward.version);
+                })
+            }
+        });
     }
 });
