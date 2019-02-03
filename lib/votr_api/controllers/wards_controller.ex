@@ -13,7 +13,6 @@ defmodule Votr.Api.WardsController do
     nodes = if id == "root",
                do: Ward.select_roots(subject_id),
                else: Ward.select_children(subject_id, HashId.decode(id))
-    IO.inspect(nodes)
     wards = nodes
             |> Enum.map(
                  fn w ->
@@ -91,10 +90,9 @@ defmodule Votr.Api.WardsController do
 
   # create a new election or ward
   def update(conn, body) do
-    id = if is_binary(body["id"]), do: HashId.decode(body["id"]), else: nil
+    id = HashId.decode(body["id"])
     parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
     subject_id = conn.assigns[:subject_id]
-    shard = FlexId.extract_partition(:id_generator, subject_id)
 
     ward = %{
       id: id,
@@ -146,6 +144,32 @@ defmodule Votr.Api.WardsController do
     end
   end
 
+  def delete(conn, body) do
+    id = HashId.decode(body["id"])
+
+    with {_, _} <- Res.delete_all(id),
+         {_, _} <- Res.delete_all(id),
+         {:ok, _} <- Ward.delete(id) do
+      conn
+      |> put_status(200)
+      |> json(
+           %{
+             success: true
+           }
+         )
+    else
+      {:conflict, _msg} ->
+        conn
+        |> put_status(409)
+        |> json(
+             %{
+               success: false,
+               error: "conflict"
+             }
+           )
+    end
+  end
+
   defp res(body, body_key, res_key) do
     value = body[body_key]
     (if is_nil(value), do: [], else: value)
@@ -161,7 +185,7 @@ defmodule Votr.Api.WardsController do
 
   defp dt(body, key) do
     with iso when is_binary(iso) <- Map.get(body, key),
-         {:ok, dt} <- DateTime.from_iso8601(iso) do
+         {:ok, dt, _offset} <- DateTime.from_iso8601(iso) do
       dt
     else
       _ -> nil

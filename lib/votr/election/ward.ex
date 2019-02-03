@@ -95,6 +95,10 @@ defmodule Votr.Election.Ward do
     end
   end
 
+  def delete(id) do
+    Repo.delete(%Ward{id: id})
+  end
+
   @doc """
     Re-sequences all wards that are at the same level as as the ward being updated.
   """

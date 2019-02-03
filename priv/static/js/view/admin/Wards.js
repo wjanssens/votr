@@ -19,14 +19,6 @@ Ext.define('Votr.view.admin.Wards', {
                 model: 'Votr.model.admin.Ward',
                 rootVisible: false,
                 parentIdProperty: 'parent_id',
-                proxy: {
-                    type: 'rest',
-                    url: '../api/admin/wards',
-                    reader: {
-                        type: 'json',
-                        rootProperty: 'wards'
-                    }
-                },
                 autoLoad: true
             },
             languages: 'Languages'
@@ -42,7 +34,8 @@ Ext.define('Votr.view.admin.Wards', {
             },
             name: {
                 get: function (get) {
-                    return get('wardList.selection.names')[get('language')];
+                    const names = get('wardList.selection.names');
+                    return names == null ? '' : names[get('language')];
                 },
                 set: function (value) {
                     const names = Object.assign({}, this.get('wardList.selection.names'));
@@ -52,7 +45,8 @@ Ext.define('Votr.view.admin.Wards', {
             },
             description: {
                 get: function (get) {
-                    return get('wardList.selection.descriptions')[get('language')];
+                    const descriptions = get('wardList.selection.descriptions');
+                    return descriptions == null ? '' : descriptions[get('language')];
                 },
                 set: function (value) {
                     const descriptions = Object.assign({}, this.get('wardList.selection.descriptions'));

@@ -55,39 +55,17 @@ Ext.define('Votr.view.admin.Ward', {
             label: 'External ID',
             bind: '{wardList.selection.ext_id}'
         }, {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'datepickernativefield',
-                    name: 'startDate',
-                    label: 'Start Date',
-                    bind: '{wardList.selection.start_date}',
-                    dateFormat: 'Y-m-d'
-                },
-                {
-                    xtype: 'textfield',
-                    name: 'startTime',
-                    label: 'Start Time',
-                    bind: '{wardList.selection.start_time}',
-                }
-            ]
+            xtype: 'textfield',
+            name: 'startDateTime',
+            label: 'Start Date/Time',
+            placeHolder: 'yyyy-mm-dd hh:mm [±hh:mm]',
+            bind: '{wardList.selection.start_time}'
         }, {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'datepickernativefield',
-                    name: 'endDate',
-                    label: 'End Date',
-                    bind: '{wardList.selection.end_date}',
-                    dateFormat: 'Y-m-d'
-                },
-                {
-                    xtype: 'textfield',
-                    name: 'endTime',
-                    label: 'End Time',
-                    bind: '{wardList.selection.end_time}',
-                }
-            ]
+            xtype: 'textfield',
+            name: 'endDateTime',
+            label: 'End Date/Time',
+            placeHolder: 'yyyy-mm-dd hh:mm [±hh:mm]',
+            bind: '{wardList.selection.end_time}'
         }
     ]
 });
