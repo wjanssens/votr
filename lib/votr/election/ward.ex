@@ -4,6 +4,8 @@ defmodule Votr.Election.Ward do
   import Ecto.Query
   alias Votr.Repo
   alias Votr.Election.Res
+  alias Votr.Election.Voter
+  alias Votr.Election.Ballot
   alias Votr.Election.Ward
 
   # wards are heirarchical
@@ -19,7 +21,22 @@ defmodule Votr.Election.Ward do
   @timestamps_opts [type: :utc_datetime, usec: true]
   @derive {
     Poison.Encoder,
-    only: [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :name, :start_time, :end_time, :names, :descriptions]
+    only: [
+      :id,
+      :version,
+      :subject_id,
+      :parent_id,
+      :seq,
+      :ext_id,
+      :name,
+      :start_at,
+      :end_at,
+      :names,
+      :descriptions,
+      :ward_ct,
+      :voter_ct,
+      :ballot_ct
+    ]
   }
   schema "ward" do
     field :version, :integer
@@ -27,9 +44,15 @@ defmodule Votr.Election.Ward do
     field :parent_id, :integer        # parent ward, null for elections
     field :seq, :integer              # the order in which wards are presented
     field :ext_id, :string            # reference to an external system
-    field :start_time, :utc_datetime  # the date/time at which voting starts
-    field :end_time, :utc_datetime    # the date/time at which voting ends
+    field :start_at, :utc_datetime    # the date/time at which voting starts
+    field :end_at, :utc_datetime      # the date/time at which voting ends
+    field :ward_ct, :integer, virtual: true
+    field :voter_ct, :integer, virtual: true
+    field :ballot_ct, :integer, virtual: true
     has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
+    has_many :ballots, Ballot, foreign_key: :ward_id, on_delete: :delete_all
+    has_many :voters, Voter, foreign_key: :ward_id, on_delete: :delete_all
+    has_many :wards, Ward, foreign_key: :parent_id, on_delete: :delete_all
     timestamps()
   end
 
@@ -49,34 +72,36 @@ defmodule Votr.Election.Ward do
   @doc """
     Gets all of the wards for a subject.
   """
-  def select_roots(subject_id) do
-    Repo.all from w in Ward,
-             join: s in assoc(w, :strings),
-             preload: [
-               strings: s
-             ],
-             where: w.subject_id == ^subject_id and is_nil(w.parent_id),
-             select: w
-  end
+  def select(subject_id, parent_id \\ nil) do
+    filter = if parent_id == nil do
+      dynamic([w], w.subject_id == ^subject_id and is_nil(w.parent_id))
+    else
+      dynamic([w], w.subject_id == ^subject_id and w.parent_id == ^parent_id)
+    end
 
-  @doc """
-    Gets all of the wards for a subject.
-  """
-  def select_children(subject_id, parent_id) do
     Repo.all from w in Ward,
-             join: s in assoc(w, :strings),
+             left_join: s in assoc(w, :strings),
+             left_join: c in assoc(w, :wards),
+             left_join: b in assoc(w, :ballots),
+             left_join: v in assoc(w, :voters),
              preload: [
                strings: s
              ],
-             where: w.subject_id == ^subject_id and w.parent_id == ^parent_id,
-             select: w
+             where: ^filter,
+             select: w,
+             select_merge: %{
+               ward_ct: count(c.id, :distinct),
+               ballot_ct: count(b.id, :distinct),
+               voter_ct: count(v.id, :distinct)
+             },
+             group_by: [w.id, s.id]
   end
 
   def insert(params) do
     shard = FlexId.extract_partition(:id_generator, params.subject_id)
 
     %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(params, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_time, :end_time])
+    |> cast(params, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
     |> validate_required([:id, :version, :subject_id, :seq])
     |> Repo.insert()
   end
@@ -86,7 +111,7 @@ defmodule Votr.Election.Ward do
       reorder(params)
 
       %Ward{id: params.id}
-      |> cast(params, [:version, :parent_id, :ext_id, :start_time, :end_time])
+      |> cast(params, [:version, :parent_id, :ext_id, :start_at, :end_at])
       |> validate_required([:id, :version])
       |> optimistic_lock(:version)
       |> Repo.update()

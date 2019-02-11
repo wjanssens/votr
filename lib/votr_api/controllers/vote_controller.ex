@@ -16,10 +16,6 @@ defmodule Votr.Api.VoteController do
     |> json(result)
   end
 
-  defp validity(ward) do
-    "#{Date.to_iso8601(ward.start_time)}/#{ward.duration}"
-  end
-
   defp translate(strings, tags, entity_id, key) do
     strings
     |> Enum.filter(&(&1.entity_id == entity_id))

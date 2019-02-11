@@ -10,9 +10,9 @@ defmodule Votr.Api.WardsController do
   def show(conn, %{"id" => id}) do
     subject_id = conn.assigns[:subject_id]
 
-    nodes = if id == "root",
-               do: Ward.select_roots(subject_id),
-               else: Ward.select_children(subject_id, HashId.decode(id))
+    parent_id = if id == "root", do: nil, else: HashId.decode(id)
+    nodes = Ward.select(subject_id, parent_id)
+
     wards = nodes
             |> Enum.map(
                  fn w ->
@@ -39,6 +39,7 @@ defmodule Votr.Api.WardsController do
                    |> Map.drop([:strings])
                  end
                )
+
     conn
     |> put_status(200)
     |> json(%{success: true, wards: wards})
@@ -53,8 +54,8 @@ defmodule Votr.Api.WardsController do
       parent_id: parent_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
-      start_time: dt(body, "start_time"),
-      end_time: dt(body, "end_time")
+      start_at: dt(body, "start_at"),
+      end_at: dt(body, "end_at")
     }
 
     with {:ok, ward} <- Ward.insert(ward),
@@ -101,8 +102,8 @@ defmodule Votr.Api.WardsController do
       parent_id: parent_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
-      start_time: dt(body, "start_time"),
-      end_time: dt(body, "end_time")
+      start_at: dt(body, "start_at"),
+      end_at: dt(body, "end_at")
     }
 
     with {:ok, ward} <- Ward.update(ward),

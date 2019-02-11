@@ -15,11 +15,13 @@ Ext.define('Votr.view.admin.Wards', {
         },
         stores: {
             wards: {
-                type: 'tree',
                 model: 'Votr.model.admin.Ward',
-                rootVisible: false,
-                parentIdProperty: 'parent_id',
-                autoLoad: true
+                autoLoad: true,
+                proxy: {
+                    type: 'rest',
+                    url: '../api/admin/wards/{id}',
+                    reader: { type: 'json', rootProperty: 'wards' }
+                }
             },
             languages: 'Languages'
         },
@@ -57,8 +59,9 @@ Ext.define('Votr.view.admin.Wards', {
         }
     },
     items: [{
-        xtype: 'tree',
+        xtype: 'list',
         reference: 'wardList',
+        itemTpl: '<div><p>{names.default}<span style="float:right">something</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
         width: 384,
         bind: {
             store: '{wards}'
@@ -72,44 +75,13 @@ Ext.define('Votr.view.admin.Wards', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            text: 'Add Election',
-            handler: 'onAddElection'
-        }, {
-            xtype: 'button',
-            text: 'Add Ward',
-            handler: 'onAddWard',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
+            text: 'Add',
+            handler: 'onAdd'
         }, '->', {
             xtype: 'button',
             text: 'Delete',
             ui: 'decline',
             handler: 'onDelete',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
-        }, '->', {
-            xtype: 'button',
-            text: 'Voters',
-            ui: 'forward',
-            handler: 'onVoters',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
-        }, {
-            xtype: 'button',
-            text: 'Ballots',
-            ui: 'forward',
-            handler: 'onBallots',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
-        }, {
-            xtype: 'button',
-            text: 'Delegates',
-            ui: 'forward',
-            handler: 'onDelegates',
             bind: {
                 disabled: '{!wardList.selection}'
             }

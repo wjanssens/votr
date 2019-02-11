@@ -25,47 +25,54 @@ Ext.define('Votr.view.admin.MainController', {
     },
 
     onWards() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(0);
+        this.setActiveItem(0, 'root');
     },
 
-    onWard() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(0);
+    onWard(id) {
+        this.setActiveItem(0, id);
     },
 
-    onBallots() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(1);
+    onBallots(id) {
+        this.setActiveItem(1, id);
     },
 
-    onBallot() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(1);
+    onBallot(id) {
+        this.setActiveItem(1, id);
     },
 
-    onVoters() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(2);
+    onVoters(id) {
+        this.setActiveItem(2, id);
     },
 
-    onVoter() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(2);
+    onVoter(id) {
+        this.setActiveItem(2, id);
     },
 
-    onCandidates() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(3);
+    onCandidates(id) {
+        this.setActiveItem(3, id);
     },
 
-    onCandidate() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(3);
+    onCandidate(id) {
+        this.setActiveItem(3, id);
     },
 
-    onResults() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(4);
+    onResults(id) {
+        this.setActiveItem(4, id);
     },
 
-    onLog() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(5);
+    onLog(id) {
+        this.setActiveItem(5, id);
     },
 
     onProfile() {
-        this.getView().setActiveItem(1).down('#cards').setActiveItem(6);
-    }
+        this.setActiveItem(6, id);
+    },
+
+    setActiveItem(index, id) {
+        const cards = this.getView().setActiveItem(1).down('#cards');
+        cards.setActiveItem(index);
+        cards.getActiveItem().getViewModel().set("id", id);
+        cards.getActiveItem().getViewModel().notify();
+    },
 
 });

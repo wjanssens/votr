@@ -91,8 +91,8 @@ defmodule Votr.Election.Ballot do
       ward_id: :integer,
       ward_name: :string,
       ward_desc: :string,
-      start_time: :utc_datetime,
-      end_time: :utc_datetime,
+      start_at: :utc_datetime,
+      end_at: :utc_datetime,
       candidate_id: :integer,
       candidate_name: :string,
       candidate_desc: :string
@@ -102,17 +102,17 @@ defmodule Votr.Election.Ballot do
 
     results =
       """
-      with recursive heirarchy (id, parent_id, start_time, end_time) as (
-        select w.id, w.parent_id, w.start_time, w.end_time
+      with recursive heirarchy (id, parent_id, start_at, end_at) as (
+        select w.id, w.parent_id, w.start_at, w.end_at
         from ward w
         inner join voter v on v.parent_id = w.id
         where v.id = $1
         union all
-        select p.id, p.parent_id, p.start_time, p.end_time
+        select p.id, p.parent_id, p.start_at, p.end_at
         from ward p
         inner join heirarchy h on p.id = h.parent_id
-      ), data (ward_id, ward_seq, start_time, end_time, ballot_id, ballot_seq, candidate_id, candidate_seq) as
-        select w.id, w.seq, w.start_time, w.end_time, b.id, b.seq, c.id, c.seq
+      ), data (ward_id, ward_seq, start_at, end_at, ballot_id, ballot_seq, candidate_id, candidate_seq) as
+        select w.id, w.seq, w.start_at, w.end_at, b.id, b.seq, c.id, c.seq
         from heirarchy w
         inner join ballot b on b.ward_id = w.id
         inner join candidate c on c.ballot_id = b.id
@@ -123,7 +123,7 @@ defmodule Votr.Election.Ballot do
         where r.tag = $2 or r.tag = 'default'
       )
       select ballot_id, bn.value ballot_name, bd.value ballot_desc,
-             ward_id, start_time, end_time, wn.value ward_name, wd.value ward_desc,
+             ward_id, start_at, end_at, wn.value ward_name, wd.value ward_desc,
              candidate_id, cn.value candidate_name, cd.value candidate_desc
       from data
       inner join strings bn on bn.entity_id = ballot_id and bn.key = 'name' and bn.rn = 1
@@ -152,8 +152,8 @@ defmodule Votr.Election.Ballot do
                id: HashId.encode(b.ward_id),
                name: AES.decrypt(Base.decode64(b.ward_name)),
                description: AES.decrypt(Base.decode64(b.ward_desc)),
-               start: b.start_time,
-               end: b.end_time
+               start: b.start_at,
+               end: b.end_at
              },
              candidates: Map.get(candidates, b.ballot_id)
                          |> Enum.map(

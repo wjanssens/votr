@@ -12,12 +12,12 @@ Ext.define('Votr.model.admin.Ward', {
         {name: 'names'},
         {name: 'descriptions'},
         {
-            name: 'start_time', type: 'datetime', validators: [
+            name: 'start_at', type: 'datetime', validators: [
                 {type: 'datetime', message: 'Invalid end date/time'}
             ]
         },
         {
-            name: 'end_time', type: 'datetime', validators: [
+            name: 'end_at', type: 'datetime', validators: [
                 {type: 'datetime', message: 'Invalid end date/time'}
             ]
         },
@@ -26,19 +26,15 @@ Ext.define('Votr.model.admin.Ward', {
                 function (data) {
                     return `${data.names == null ? '' : data.names.default}`;
                 }
-        }
+        },
+        {name: 'ward_ct', type: 'integer'},
+        {name: 'voter_ct', type: 'integer'},
+        {name: 'ballot_ct', type: 'integer'}
     ],
     proxy: {
         type: 'rest',
-        url:
-            '../api/admin/wards',
-        reader:
-            {
-                type: 'json',
-                rootProperty:
-                    'wards'
-            }
+        url: '../api/admin/wards',
+        reader: { type: 'json', rootProperty: 'wards' }
     }
-    ,
 })
 ;

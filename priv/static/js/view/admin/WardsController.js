@@ -2,41 +2,53 @@ Ext.define('Votr.view.admin.WardsController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.admin.wards',
 
+    init: function(view) {
+        this.getViewModel().bind('{id}', this.onNavigate, this);
+    },
+
+    onNavigate: function(id) {
+        this.getViewModel().getStore('wards').load({
+            scope: this,
+            callback: function(records, operation, success) {
+                if (records.length > 0) {
+                    const list = this.lookupReference('wardList');
+                    list.setSelection(records[0]);
+                }
+            }
+        });
+    },
+
+    onWards: function() {
+        const list = this.lookupReference('wardList');
+        const selection = list.getSelection();
+        this.redirectTo(`#wards/${selection.get('id')}`)
+    },
+
     onVoters: function() {
-        this.redirectTo('#wards/1/voters')
+        const id = this.getViewModel().get('id');
+        this.redirectTo(`#wards/${id}/voters`)
     },
 
     onBallots: function() {
-        this.redirectTo('#wards/1/ballots')
+        const id = this.getViewModel().get('id');
+        this.redirectTo(`#wards/${id}/ballots`)
     },
 
-    onAddElection: function() {
-        const tree = this.lookupReference('wardList');
-        const store = tree.getStore();
-        const node = store.getRoot().appendChild({
-            names: { default: 'New Election'.translate() },
+    onAdd: function() {
+        const id = this.getViewModel().get('id');
+        const name = id == 'root' ? 'New Election' : 'New Ward';
+        const list = this.lookupReference('wardList');
+        const store = list.getStore('wards');
+        const node = store.add({
+            names: { default: name.translate() },
             descriptions: { default: '' }
         });
-        tree.setSelection(node);
-    },
-
-    onAddWard: function() {
-        const tree = this.lookupReference('wardList');
-        const selection = tree.getSelection();
-        if (selection) {
-            const node = selection.appendChild({
-                parent_id: selection.get('id'),
-                names: { default: 'New Ward'.translate() },
-                descriptions: { default: '' }
-            });
-            tree.expandNode(node);
-            tree.setSelection(node);
-        }
+        list.setSelection(node);
     },
 
     onSave: function() {
-        const tree = this.lookupReference('wardList');
-        const selection = tree.getSelection();
+        const list = this.lookupReference('wardList');
+        const selection = list.getSelection();
         if (selection.isValid()) {
             selection.save({
                 success: function(record, operation) {
@@ -62,10 +74,10 @@ Ext.define('Votr.view.admin.WardsController', {
     },
 
     onDelete: function() {
-        const tree = this.lookupReference('wardList');
-        const selection = tree.getSelection();
+        const list = this.lookupReference('wardList');
+        const selection = list.getSelection();
         if (selection) {
-            tree.deselectAll();
+            list.deselectAll();
             selection.erase();
         }
     }
