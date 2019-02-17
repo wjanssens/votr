@@ -2,23 +2,24 @@ defmodule VotrWeb.Router do
   use VotrWeb, :router
 
   pipeline :browser do
-    plug(:accepts, ["html"])
-    plug(:fetch_session)
-    plug(:fetch_flash)
-    plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
     plug SetLocale, gettext: VotrWeb.Gettext, default_locale: "en", cookie_key: "votr_locale"
   end
 
   pipeline :api do
-    plug(:accepts, ["json"])
-    #plug(:protect_from_forgery)
+    plug :accepts, ["json"]
+    plug Votr.Plug.RateLimit, [max_requests: 5, interval_seconds: 60]
+    #plug :protect_from_forgery
   end
 
   pipeline :api_authenticated do
-    plug(:accepts, ["json"])
-    plug(Votr.Plug.ApiAuthenticate)
-    #plug(:protect_from_forgery)
+    plug :accepts, ["json"]
+    plug Votr.Plug.ApiAuthenticate
+    #plug :protect_from_forgery
   end
 
   scope "/", VotrWeb do
@@ -36,6 +37,8 @@ defmodule VotrWeb.Router do
   scope "/api", Votr.Api do
     pipe_through(:api)
 
+    # TODO don't really want this endpoint rate-limited, how best to address this?
+    # could put the rate limit plug into the other three controllers instead of in the pipeline?
     resources("/voters/:voter_id/ballots", VoteController, only: [:show, :update])
     resources("/login", LoginController, only: [:create])
     resources("/activate", ActivateController, only: [:create])
@@ -45,19 +48,18 @@ defmodule VotrWeb.Router do
   scope "/api/admin", Votr.Api do
     pipe_through(:api_authenticated)
 
-    resources("/wards", WardsController, only: [:index, :show, :create, :update, :delete])
-    resources("/wards/:ward_id/voters", VotersController, only: [:index, :create])
-    put("/wards/:id/voters", VotersController, :replace)
-    resources("/ballots", BallotController, only: [:update, :delete])
-    resources("/ballots/:ballot_id/candidates", CandidatesController, only: [:index, :create])
+    resources("/wards", WardsController, only: [:create, :update, :delete])
+    resources("/wards/:ward_id/wards", WardsController, only: [:index])
+    resources("/wards/:ward_id/voters", VotersController, only: [:index])
+    resources("/wards/:ward_id/ballots", BallotsController, only: [:index])
+    resources("/ballots", BallotsController, only: [:create, :update, :delete])
+    resources("/ballots/:ballot_id/candidates", CandidatesController, only: [:index])
     resources("/ballots/:ballot_id/votes", BallotVotesController, only: [:index])
     resources("/ballots/:ballot_id/result", BallotResultController, only: [:index])
-    resources("/voters", VoterController, only: [:update, :delete])
-    resources("/voters/:voter_id/ballots", VoteController, only: [:show, :update])
-    resources("/res", ResourcesController, only: [:index])
-    resources("/res/:res_id/:key/:tag", ResourceController, only: [:update, :delete])
-    resources("/subjects/:subject_id/principals", PrincipalsController, only: [:index, :create])
-    resources("/principals", PrincipalController, only: [:update, :delete])
+    resources("/voters", VoterController, only: [:create, :update, :delete])
+    resources("/candidates", CandidatesController, only: [:create, :update, :delete])
+    resources("/subjects/:subject_id/principals", PrincipalsController, only: [:index])
+    resources("/principals", PrincipalController, only: [:create, :update, :delete])
     resources("/profiles", ProfileController, only: [:show, :update])
     resources("/totp", TotpController, only: [:create, :update, :delete])
   end

@@ -90,12 +90,20 @@ Ext.define('Votr.view.admin.Ballot', {
             bind: '{ballotList.selection.electing}'
         }, {
             xtype: 'checkboxfield',
+            name: 'anonymous',
+            label: 'Anonymous',
+            value: 'anonymous',
+            checked: false,
+            tooltip: 'Results are anonymous',
+            bind: '{ballotList.selection.anonymous}'
+        }, {
+            xtype: 'checkboxfield',
             name: 'shuffle',
             label: 'Shuffle Candidates',
             value: 'shuffle',
             checked: false,
             tooltip: 'Candidates are shown in a random order',
-            bind: '{ballotList.selection.shuffle}'
+            bind: '{ballotList.selection.shuffled}'
         }, {
             xtype: 'checkboxfield',
             name: 'mutable',
@@ -112,6 +120,18 @@ Ext.define('Votr.view.admin.Ballot', {
             checked: false,
             tooltip: 'Election results are public',
             bind: '{ballotList.selection.public}'
+        }, {
+            xtype: 'panel',
+            layout: 'hbox',
+            items: [
+                {flex: 1},
+                {
+                    xtype: 'button', ui: 'alt round', margin: 8, height: 96, width: 96, handler: 'onCandidates', bind: {
+                        html: '<span style="line-height: 1em; font-size: 24px;">{ballotList.selection.candidate_ct}</span><br/>Candidates'
+                    }
+                },
+                {flex: 1}
+            ]
         }
     ]
 });

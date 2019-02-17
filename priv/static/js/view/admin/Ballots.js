@@ -9,19 +9,23 @@ Ext.define('Votr.view.admin.Ballots', {
             lang: 'default'
         },
         stores: {
-            ballots: 'admin.Ballots',
+            ballots: {
+                model: 'Votr.model.admin.Ballot',
+                proxy: {
+                    type: 'rest',
+                    url: '../api/admin/wards/{id}/ballots',
+                    reader: { type: 'json', rootProperty: 'ballots' }
+                }
+            },
             languages: 'Languages'
         },
         formulas: {
             language: {
-                bind: {
-                    lang: '{lang}'
+                get: function (get) {
+                    return get('lang');
                 },
-                get: function(data) {
-                    return data.lang;
-                },
-                set: function(selection) {
-                    this.set('lang', selection.id)
+                set: function (selection) {
+                    this.set({'lang': selection.id})
                 }
             },
             method: {
@@ -48,31 +52,25 @@ Ext.define('Votr.view.admin.Ballots', {
                 }
             },
             title: {
-                bind: {
-                    title: '{ballotList.selection.title}',
-                    lang: '{lang}'
+                get: function (get) {
+                    const titles = get('ballotList.selection.titles');
+                    return titles == null ? '' : titles[get('language')];
                 },
-                get: function(data) {
-                    return data.title[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var title = this.get('ballotList.selection.title');
-                    title[lang] = value;
+                set: function (value) {
+                    const titles = Object.assign({}, this.get('ballotList.selection.titles'));
+                    titles[this.get('language')] = value;
+                    this.set('ballotList.selection.titles', titles);
                 }
             },
             description: {
-                bind: {
-                    description: '{ballotList.selection.description}',
-                    lang: '{lang}'
+                get: function (get) {
+                    const descriptions = get('ballotList.selection.descriptions');
+                    return descriptions == null ? '' : descriptions[get('language')];
                 },
-                get: function(data) {
-                    return data.description[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var description = this.get('ballotList.selection.description');
-                    description[lang] = value;
+                set: function (value) {
+                    const descriptions = Object.assign({}, this.get('ballotList.selection.descriptions'));
+                    descriptions[this.get('language')] = value;
+                    this.set('ballotList.selection.descriptions', descriptions);
                 }
             }
         }
@@ -85,8 +83,10 @@ Ext.define('Votr.view.admin.Ballots', {
         xtype: 'list',
         reference: 'ballotList',
         width: 384,
-        itemTpl: '<div><p>{title.default}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
-        bind: '{ballots}'
+        itemTpl: '<div><p>{titles.default}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
+        bind: {
+            store: '{ballots}'
+        }
     }, {
         xtype: 'admin.ballot',
         flex: 1
@@ -96,7 +96,7 @@ Ext.define('Votr.view.admin.Ballots', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            text: 'Add Ballot',
+            text: 'Add',
             handler: 'onAdd'
         }, {
             xtype: 'button',
@@ -114,14 +114,6 @@ Ext.define('Votr.view.admin.Ballots', {
                 disabled: '{!ballotList.selection}'
             }
         }, '->', {
-            xtype: 'button',
-            itemId: 'candidates',
-            text: 'Candidates',
-            handler: 'onCandidates',
-            bind: {
-                disabled: '{!ballotList.selection}'
-            }
-        }, {
             xtype: 'button',
             itemId: 'results',
             text: 'Results',

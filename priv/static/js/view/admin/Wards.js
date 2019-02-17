@@ -16,10 +16,9 @@ Ext.define('Votr.view.admin.Wards', {
         stores: {
             wards: {
                 model: 'Votr.model.admin.Ward',
-                autoLoad: true,
                 proxy: {
                     type: 'rest',
-                    url: '../api/admin/wards/{id}',
+                    url: '../api/admin/wards/{id}/wards',
                     reader: { type: 'json', rootProperty: 'wards' }
                 }
             },

@@ -4,8 +4,6 @@ Ext.define('Votr.model.Ballot', {
         {name: 'title', type: 'string'},
         {name: 'description', type: 'string'},
         {name: 'method', type: 'string'},
-        {name: 'start', type: 'date'},
-        {name: 'end', type: 'date'},
         {name: 'electing', type: 'integer'},
         {name: 'anonymous', type: 'boolean'},
         {name: 'shuffled', type: 'boolean'},

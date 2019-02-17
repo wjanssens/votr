@@ -35,7 +35,7 @@ defmodule Votr.Api.LoginController do
               Controls.update(Map.put(controls, :login_at, DateTime.utc_now()))
 
               conn
-              |> put_status(200)
+              |> put_status(:ok)
               |> put_resp_cookie("access_token", jwt, http_only: true)
               |> json(
                    %{
@@ -50,11 +50,11 @@ defmodule Votr.Api.LoginController do
                 # TODO don't send the TOTP token id, instead create a temporary conversation token and send that
                 # otherwise the second factor effectively becomes a single factor
                 conn
-                |> put_status(401)
+                |> put_status(:unauthorized)
                 |> json(%{success: false, error: "mfa_required", token: HashId.encode(totp.id)})
               _ ->
                 conn
-                |> put_status(401)
+                |> put_status(:unauthorized)
                 |> json(%{success: false, error: "unauthorized"})
             end
           "otp" ->
@@ -65,7 +65,7 @@ defmodule Votr.Api.LoginController do
                  {:ok, :valid} <- Totp.verify(password, totp.secret_key) do
               jwt = JWT.generate(totp.subject_id)
               conn
-              |> put_status(200)
+              |> put_status(:ok)
               |> put_resp_cookie("access_token", jwt, http_only: true)
               |> json(
                    %{
@@ -76,28 +76,28 @@ defmodule Votr.Api.LoginController do
                  )
             else
               _ -> conn
-                   |> put_status(401)
+                   |> put_status(:unauthorized)
                    |> json(%{success: false, error: "unauthorized"})
             end
           _ ->
             conn
-            |> put_status(401)
+            |> put_status(:unauthorized)
             |> json(%{success: false, error: "unauthorized"})
         end
       "votr_voter" ->
         case grant_type do
           "cr" ->
             conn
-            |> put_status(401)
+            |> put_status(:unauthorized)
             |> json(%{success: false, error: "unauthorized"})
           _ ->
             conn
-            |> put_status(401)
+            |> put_status(:unauthorized)
             |> json(%{success: false, error: "unauthorized"})
         end
       _ ->
         conn
-        |> put_status(401)
+        |> put_status(:unauthorized)
         |> json(%{success: false, error: "unauthorized"})
     end
   end

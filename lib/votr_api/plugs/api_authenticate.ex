@@ -1,4 +1,5 @@
 defmodule Votr.Plug.ApiAuthenticate do
+  import Phoenix.Controller, only: [json: 2]
   import Plug.Conn
 
   alias Votr.JWT
@@ -28,8 +29,8 @@ defmodule Votr.Plug.ApiAuthenticate do
     else
       _ ->
         conn
-        |> put_status(401)
-        |> Phoenix.Controller.json(%{success: false, error: "unauthorized"})
+        |> put_status(:unauthorized)
+        |> json(%{success: false, error: "unauthorized"})
         |> halt
     end
   end

@@ -6,11 +6,33 @@ defmodule Votr.Election.Ballot do
   alias Votr.HashId
   alias Votr.Repo
   alias Votr.Election.Ballot
+  alias Votr.Election.Candidate
   alias Votr.Election.Res
   alias Votr.Election.Ward
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
+  @derive {
+    Poison.Encoder,
+    only: [
+      :id,
+      :version,
+      :ward_id,
+      :seq,
+      :ext_id,
+      :method,
+      :quota,
+      :electing,
+      :shuffle,
+      :mutable,
+      :public,
+      :color,
+      :titles,
+      :descriptions,
+      :candidate_ct,
+      :updated_at
+    ]
+  }
   schema "ballot" do
     belongs_to :ward, Ward
     field :version, :integer
@@ -22,46 +44,86 @@ defmodule Votr.Election.Ballot do
     field :shuffle, :boolean          # candidates are displayed to the voter in a random order
     field :mutable, :boolean          # voters can change their vote
     field :public, :boolean           # results are publicly available
+    field :anonymous, :boolean        # votes are anonymous
     field :color, :string             # used to color ballots to help distinguish multiple ballots in a ward
+    field :candidate_ct, :integer, virtual: true
     has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
+    has_many :candidates, Candidate, foreign_key: :ballot_id, on_delete: :delete_all
     timestamps()
   end
 
-  @doc false
-  def changeset(ballot, attrs) do
-    ballot
-    |> cast(attrs, [])
-    |> validate_required([])
-    #    |> validate_inclusion(:method, ["scottish_stv", "meek_stv", "plurality", "approval", "condorcet"])
-    #    |> validate_includion(:quota,  ["droop", "hare", "imperator", "hagenback-bischoff"])
+  def insert(params) do
+    shard = FlexId.extract_partition(:id_generator, params.ward_id)
+
+    %Ballot{id: FlexId.generate(:id_generator, shard), version: 0}
+    |> cast(
+         params,
+         [
+           :ward_id,
+           :version,
+           :seq,
+           :ext_id,
+           :method,
+           :quota,
+           :electing,
+           :shuffle,
+           :mutable,
+           :public,
+           :anonymous,
+           :color
+         ]
+       )
+    |> validate_required([:id, :version, :seq])
+    |> Repo.insert()
   end
 
-  def upsert(ward_id, ballot) do
-    shard = FlexId.extract_partition(:id_generator, ward_id)
+  def update(params) do
+    try do
+      reorder(params)
 
-    ballot
-    |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard)  end)
-    |> cast(
-         %{},
-         [:id, :ward_id, :version, :seq, :ext_id, :method, :quota, :electing, :shuffle, :mutable, :public, :color]
-       )
-    |> validate_required([:method, :version, :subject_id, :seq, :method, :electing])
-    |> optimistic_lock(:version)
-    |> Votr.Repo.insert
+      %Ballot{id: params.id}
+      |> cast(
+           params,
+           [
+             :ward_id,
+             :version,
+             :seq,
+             :ext_id,
+             :method,
+             :quota,
+             :electing,
+             :shuffle,
+             :mutable,
+             :public,
+             :anonymous,
+             :color
+           ]
+         )
+      |> validate_required([:id, :version, :seq])
+      |> optimistic_lock(:version)
+      |> Repo.update()
+    rescue
+      e in Ecto.StaleEntryError -> {:conflict, e.message}
+    end
   end
 
   @doc """
-    Gets all of the ballots for a ward.
+    Gets all of the ballots for the ward.
   """
-  def select_all(subject_id, ward_id) do
-    Votr.Repo.all from b in Ballot,
-                  join: w in assoc(b, :ward),
-                  join: s in assoc(b, :strings),
-                  preload: [
-                    strings: s
-                  ],
-                  where: b.ward_id == ^ward_id and w.subject_id == ^subject_id,
-                  select: b
+  def select(subject_id, ward_id) do
+    Repo.all from b in Ballot,
+             inner_join: w in assoc(b, :ward),
+             left_join: s in assoc(b, :strings),
+             left_join: c in assoc(b, :candidates),
+             preload: [
+               strings: s
+             ],
+             where: w.subject_id == ^subject_id and b.ward_id == ^ward_id,
+             select: b,
+             select_merge: %{
+               candidate_ct: count(c.id, :distinct)
+             },
+             group_by: [b.id, s.id]
   end
 
   @doc """
@@ -168,5 +230,45 @@ defmodule Votr.Election.Ballot do
            }
          end
        )
+  end
+
+  def delete(id) do
+    Repo.delete(%Ballot{id: id})
+  end
+
+
+  @doc """
+    Re-sequences ballots in a ward.
+  """
+  def reorder(ballot) do
+    sql = """
+    WITH row_to_move AS (
+      SELECT ward_id, seq AS old_seq
+      FROM ballot
+      WHERE id = $1
+    ), rows_to_update AS (
+      SELECT id, old_seq
+      FROM ballot
+      CROSS JOIN row_to_move
+      WHERE (ballot.ward_id = row_to_move.ward_id)
+      AND seq BETWEEN
+        CASE WHEN old_seq < $2 THEN old_seq ELSE $2 END AND
+        CASE WHEN old_seq > $2 THEN old_seq ELSE $2 END
+    )
+    UPDATE ballot
+    SET seq = CASE
+      WHEN ballot.id = $1 THEN $2
+      WHEN old_seq < $2 THEN seq - 1
+      WHEN old_seq > $2 THEN seq + 1
+    END
+    FROM rows_to_update
+    WHERE rows_to_update.id = ballot.id
+    """
+
+    with {:ok, _} <- Ecto.Adapters.SQL.query(Repo, sql, [ballot.id, ballot.seq])
+      do
+    else {:error, msg} ->
+      {:error, msg}
+    end
   end
 end

@@ -25,25 +25,28 @@ Ext.define('Votr.view.admin.WardsController', {
     },
 
     onVoters: function() {
-        const id = this.getViewModel().get('id');
-        this.redirectTo(`#wards/${id}/voters`)
+        const list = this.lookupReference('wardList');
+        const selection = list.getSelection();
+        this.redirectTo(`#wards/${selection.get('id')}/voters`)
     },
 
     onBallots: function() {
-        const id = this.getViewModel().get('id');
-        this.redirectTo(`#wards/${id}/ballots`)
+        const list = this.lookupReference('wardList');
+        const selection = list.getSelection();
+        this.redirectTo(`#wards/${selection.get('id')}/ballots`)
     },
 
     onAdd: function() {
         const id = this.getViewModel().get('id');
         const name = id == 'root' ? 'New Election' : 'New Ward';
         const list = this.lookupReference('wardList');
-        const store = list.getStore('wards');
-        const node = store.add({
+        const store = list.getStore();
+        const added = store.add({
+            parent_id: id == 'root' ? null : id,
             names: { default: name.translate() },
             descriptions: { default: '' }
         });
-        list.setSelection(node);
+        list.setSelection(added[0]);
     },
 
     onSave: function() {
@@ -60,7 +63,7 @@ Ext.define('Votr.view.admin.WardsController', {
                     Ext.toast('Saved'.translate(), 2000);
                 },
                 failure: function(record, operation) {
-                    Ext.toast("Test");
+                    Ext.toast("TODO");
                 }
             });
         } else {

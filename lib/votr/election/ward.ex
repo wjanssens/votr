@@ -28,14 +28,14 @@ defmodule Votr.Election.Ward do
       :parent_id,
       :seq,
       :ext_id,
-      :name,
       :start_at,
       :end_at,
       :names,
       :descriptions,
       :ward_ct,
       :voter_ct,
-      :ballot_ct
+      :ballot_ct,
+      :updated_at
     ]
   }
   schema "ward" do
@@ -54,19 +54,6 @@ defmodule Votr.Election.Ward do
     has_many :voters, Voter, foreign_key: :ward_id, on_delete: :delete_all
     has_many :wards, Ward, foreign_key: :parent_id, on_delete: :delete_all
     timestamps()
-  end
-
-  @doc """
-    Gets all of the wards for a subject.
-  """
-  def select_all(subject_id) do
-    Repo.all from w in Ward,
-             join: s in assoc(w, :strings),
-             preload: [
-               strings: s
-             ],
-             where: w.subject_id == ^subject_id,
-             select: w
   end
 
   @doc """
@@ -101,7 +88,7 @@ defmodule Votr.Election.Ward do
     shard = FlexId.extract_partition(:id_generator, params.subject_id)
 
     %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(params, [:id, :version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
+    |> cast(params, [:version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
     |> validate_required([:id, :version, :subject_id, :seq])
     |> Repo.insert()
   end
@@ -112,7 +99,7 @@ defmodule Votr.Election.Ward do
 
       %Ward{id: params.id}
       |> cast(params, [:version, :parent_id, :ext_id, :start_at, :end_at])
-      |> validate_required([:id, :version])
+      |> validate_required([:id, :version, :seq])
       |> optimistic_lock(:version)
       |> Repo.update()
     rescue
@@ -130,15 +117,14 @@ defmodule Votr.Election.Ward do
   def reorder(ward) do
     sql = """
     WITH row_to_move AS (
-      SELECT subject_id, parent_id, seq AS old_seq
+      SELECT parent_id, seq AS old_seq
       FROM ward
       WHERE id = $1
     ), rows_to_update AS (
       SELECT id, old_seq
       FROM ward
       CROSS JOIN row_to_move
-      WHERE ward.subject_id = row_to_move.subject_id
-      AND (ward.parent_id is not distinct from row_to_move.parent_id)
+      WHERE (ward.parent_id is not distinct from row_to_move.parent_id)
       AND seq BETWEEN
         CASE WHEN old_seq < $2 THEN old_seq ELSE $2 END AND
         CASE WHEN old_seq > $2 THEN old_seq ELSE $2 END

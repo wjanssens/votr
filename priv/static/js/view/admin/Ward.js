@@ -69,9 +69,9 @@ Ext.define('Votr.view.admin.Ward', {
         }, {
             xtype: 'textfield',
             name: 'updated_at',
-            label: 'Update At',
+            label: 'Updated At',
             readOnly: true,
-            bind: '{wardList.selection.update_at}'
+            bind: '{wardList.selection.updated_at}'
         }, {
             xtype: 'panel',
             layout: 'hbox',
