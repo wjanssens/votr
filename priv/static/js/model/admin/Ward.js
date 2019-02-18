@@ -30,7 +30,7 @@ Ext.define('Votr.model.admin.Ward', {
         {name: 'ward_ct', type: 'integer'},
         {name: 'voter_ct', type: 'integer'},
         {name: 'ballot_ct', type: 'integer'},
-        {name: 'updated_at', type: 'datetime'}
+        {name: 'updated_at', type: 'date'}
     ],
     proxy: {
         type: 'rest',

@@ -115,22 +115,6 @@ Ext.define('Votr.view.admin.Ballots', {
             }
         }, '->', {
             xtype: 'button',
-            itemId: 'results',
-            text: 'Results',
-            handler: 'onResults',
-            bind: {
-                disabled: '{!ballotList.selection}'
-            }
-        }, {
-            xtype: 'button',
-            itemId: 'log',
-            text: 'Log',
-            handler: 'onLog',
-            bind: {
-                disabled: '{!ballotList.selection}'
-            }
-        }, '->', {
-            xtype: 'button',
             text: 'Save',
             ui: 'confirm',
             handler: 'onSave',

@@ -59,6 +59,7 @@ Ext.define('Votr.view.admin.WardsController', {
                     if (response.ward) {
                         record.set('id', response.ward.id);
                         record.set('version', response.ward.version);
+                        record.set('updated_at', response.ward.updated_at);
                     }
                     Ext.toast('Saved'.translate(), 2000);
                 },

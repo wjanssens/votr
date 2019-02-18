@@ -129,6 +129,15 @@ Ext.define('Votr.view.admin.Ballot', {
                     xtype: 'button', ui: 'alt round', margin: 8, height: 96, width: 96, handler: 'onCandidates', bind: {
                         html: '<span style="line-height: 1em; font-size: 24px;">{ballotList.selection.candidate_ct}</span><br/>Candidates'
                     }
+                },                {
+                    xtype: 'button', ui: 'alt round', margin: 8, height: 96, width: 96, handler: 'onResults', bind: {
+                        html: 'Results'
+                    }
+                },
+                {
+                    xtype: 'button', ui: 'alt round', margin: 8, height: 96, width: 96, handler: 'onLog', bind: {
+                        html: 'Log'
+                    }
                 },
                 {flex: 1}
             ]

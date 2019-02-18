@@ -10,6 +10,7 @@ Ext.define('Votr.model.admin.Voter', {
         {name: 'dob', type: 'string'},
         {name: 'email', type: 'string'},
         {name: 'phone', type: 'string'},
-        {name: 'postal_address', type: 'string'}
+        {name: 'postal_address', type: 'string'},
+        {name: 'updated_at', type: 'date'}
     ]
 });

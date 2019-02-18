@@ -1,56 +1,31 @@
-Ext.define('Votr.view.admin.BallotsController', {
+Ext.define('Votr.view.admin.CandidatesController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.admin.ballots',
+    alias: 'controller.admin.candidates',
 
     init: function(view) {
         this.getViewModel().bind('{id}', this.onNavigate, this);
     },
 
     onNavigate: function(id) {
-        this.getViewModel().getStore('ballots').load({
+        this.getViewModel().getStore('candidates').load({
             scope: this,
             callback: function(records, operation, success) {
                 if (records.length > 0) {
-                    const list = this.lookupReference('ballotList');
+                    const list = this.lookupReference('candidateList');
                     list.setSelection(records[0]);
                 }
             }
         });
     },
 
-    onCandidates: function() {
-        const list = this.lookupReference('ballotList');
-        const selection = list.getSelection();
-        this.redirectTo(`#ballots/${selection.get('id')}/candidates`)
-    },
-
-    onResults: function() {
-        const list = this.lookupReference('ballotList');
-        const selection = list.getSelection();
-        this.redirectTo(`#ballots/${selection.get('id')}/results`)
-    },
-
-    onLog: function() {
-        const list = this.lookupReference('ballotList');
-        const selection = list.getSelection();
-        this.redirectTo(`#ballots/${selection.get('id')}/log`)
-    },
-
     onAdd: function() {
         const id = this.getViewModel().get('id');
-        const list = this.lookupReference('ballotList');
+        const list = this.lookupReference('candidateList');
         const store = list.getStore();
         const added = store.add({
-            ward_id: id,
-            titles: { default: 'New Ballot'.translate() },
-            descriptions: { default: '' },
-            method: 'scottish_stv',
-            quota: 'droop',
-            electing: 1,
-            anonymous: true,
-            shuffle: false,
-            mutable: false,
-            public: true
+            ballot_id: id,
+            names: { default: 'New Candidate'.translate() },
+            descriptions: { default: '' }
         });
         list.setSelection(added[0]);
     },
@@ -60,16 +35,16 @@ Ext.define('Votr.view.admin.BallotsController', {
     },
 
     onSave: function() {
-        const list = this.lookupReference('ballotList');
+        const list = this.lookupReference('candidateList');
         const selection = list.getSelection();
         if (selection.isValid()) {
             selection.save({
                 success: function(record, operation) {
                     const response = Ext.JSON.decode(operation.getResponse().responseText);
-                    if (response.ballot) {
-                        record.set('id', response.ballot.id);
-                        record.set('version', response.ballot.version);
-                        record.set('updated_at', response.ballot.updated_at);
+                    if (response.candidate) {
+                        record.set('id', response.candidate.id);
+                        record.set('version', response.candidate.version);
+                        record.set('updated_at', response.candidate.updated_at);
                     }
                     Ext.toast('Saved'.translate(), 2000);
                 },
@@ -88,7 +63,7 @@ Ext.define('Votr.view.admin.BallotsController', {
     },
 
     onDelete: function() {
-        const list = this.lookupReference('ballotList');
+        const list = this.lookupReference('candidateList');
         const selection = list.getSelection();
         if (selection) {
             list.deselectAll();

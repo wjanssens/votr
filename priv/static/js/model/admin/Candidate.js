@@ -13,10 +13,16 @@ Ext.define('Votr.model.admin.Candidate', {
         {name: 'round', type: 'number'},
         {name: 'status', type: 'string'},
         {name: 'percentage', type: 'number'},
+        {name: 'updated_at', type: 'date'},
         {
             name: 'text', type: 'string', depends: ['names'], calculate: function (data) {
                 return data.names == null ? '' : data.names.default;
             }
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '../api/admin/candidates',
+        reader: { type: 'json', rootProperty: 'candidates' }
+    }
 });

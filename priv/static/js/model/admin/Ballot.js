@@ -15,7 +15,8 @@ Ext.define('Votr.model.admin.Ballot', {
         {name: 'mutable', type: 'boolean'},
         {name: 'anonymous', type: 'boolean'},
         {name: 'public', type: 'boolean'},
-        {name: 'candidate_ct', type: 'integer'}
+        {name: 'candidate_ct', type: 'integer'},
+        {name: 'updated_at', type: 'date'}
     ],
     proxy: {
         type: 'rest',

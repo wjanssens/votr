@@ -2,6 +2,7 @@ defmodule Votr.Election.Candidate do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  alias Votr.Repo
   alias Votr.Election.Ballot
   alias Votr.Election.Candidate
   alias Votr.Election.Res
@@ -19,36 +20,86 @@ defmodule Votr.Election.Candidate do
     timestamps()
   end
 
-  def upsert(ballot_id, candidate) do
-    shard = FlexId.extract_partition(:id_generator, ballot_id)
+  def insert(params) do
+    shard = FlexId.extract_partition(:id_generator, params.ballot_id)
 
-    candidate
-    |> Map.put_new_lazy(:id, fn -> FlexId.generate(:id_generator, shard)  end)
-    |> cast(%{}, [:id, :ward_id, :version, :seq, :ext_id, :withdrawn, :color])
-    |> validate_required([:seq])
-    |> optimistic_lock(:version)
-    |> Votr.Repo.insert
+    %Candidate{id: FlexId.generate(:id_generator, shard), version: 0}
+    |> cast(
+         params,
+         [:ballot_id, :version, :seq, :ext_id, :withdrawn, :color]
+       )
+    |> validate_required([:id, :version, :seq])
+    |> Repo.insert()
+  end
+
+  def update(params) do
+    try do
+      reorder(params)
+
+      %Candidate{id: params.id}
+      |> cast(
+           params,
+           [:ballot_id, :version, :seq, :ext_id, :withdrawn, :color]
+         )
+      |> validate_required([:id, :version, :seq])
+      |> optimistic_lock(:version)
+      |> Repo.update()
+    rescue
+      e in Ecto.StaleEntryError -> {:conflict, e.message}
+    end
   end
 
   @doc """
-    Gets all of the candidates for a ballot.
+    Gets all of the candidates for the ballot.
   """
-  def select_all(subject_id, ballot_id) do
-    Votr.Repo.all from c in Candidate,
-                  join: b in assoc(c, :ballot),
-                  join: w in assoc(b, :ward),
-                  join: s in assoc(c, :strings),
-                  preload: [
-                    strings: s
-                  ],
-                  where: c.ballot_id == ^ballot_id and w.subject_id == ^subject_id,
-                  select: c
+  def select(subject_id, ballot_id) do
+    Repo.all from c in Candidate,
+             inner_join: b in assoc(c, :ballot),
+             inner_join: w in assoc(b, :ward),
+             left_join: s in assoc(b, :strings),
+             preload: [
+               strings: s
+             ],
+             where: w.subject_id == ^subject_id and c.ballot_id == ^ballot_id,
+             select: c
   end
 
-  @doc false
-  def changeset(candidate, attrs) do
-    candidate
-    |> cast(attrs, [:ballot_id, :version, :ext_id, :withdrawn, :color])
-    |> validate_required([:ballot_id, :version, :withdrawn])
+  def delete(id) do
+    Repo.delete(%Candidate{id: id})
+  end
+
+  @doc """
+    Re-sequences ballots in a ward.
+  """
+  def reorder(candidate) do
+    sql = """
+    WITH row_to_move AS (
+      SELECT ballot_id, seq AS old_seq
+      FROM candidate
+      WHERE id = $1
+    ), rows_to_update AS (
+      SELECT id, old_seq
+      FROM candidate
+      CROSS JOIN row_to_move
+      WHERE (candidate.ballot_id = row_to_move.ballot_id)
+      AND seq BETWEEN
+        CASE WHEN old_seq < $2 THEN old_seq ELSE $2 END AND
+        CASE WHEN old_seq > $2 THEN old_seq ELSE $2 END
+    )
+    UPDATE candidate
+    SET seq = CASE
+      WHEN candidate.id = $1 THEN $2
+      WHEN old_seq < $2 THEN seq - 1
+      WHEN old_seq > $2 THEN seq + 1
+    END
+    FROM rows_to_update
+    WHERE rows_to_update.id = candidate.id
+    """
+
+    with {:ok, _} <- Ecto.Adapters.SQL.query(Repo, sql, [candidate.id, candidate.seq])
+      do
+    else {:error, msg} ->
+      {:error, msg}
+    end
   end
 end

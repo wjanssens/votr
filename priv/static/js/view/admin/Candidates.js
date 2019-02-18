@@ -9,56 +9,58 @@ Ext.define('Votr.view.admin.Candidates', {
             lang: 'default'
         },
         stores: {
-            candidates: 'admin.Candidates',
+            candidates: {
+                model: 'Votr.model.admin.Candidate',
+                proxy: {
+                    type: 'rest',
+                    url: '../api/admin/ballots/{id}/candidates',
+                    reader: { type: 'json', rootProperty: 'candidates' }
+                }
+            },
             languages: 'Languages'
         },
         formulas: {
             language: {
-                bind: {
-                    lang: '{lang}'
+                get: function (get) {
+                    return get('lang');
                 },
-                get: function(data) {
-                    return data.lang;
-                },
-                set: function(selection) {
-                    this.set('lang', selection.id)
+                set: function (selection) {
+                    this.set({'lang': selection.id})
                 }
             },
             name: {
-                bind: {
-                    name: '{candidateList.selection.name}',
-                    lang: '{lang}'
+                get: function (get) {
+                    const names = get('candidateList.selection.names');
+                    return names == null ? '' : names[get('language')];
                 },
-                get: function(data) {
-                    return data.name[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var name = this.get('candidateList.selection.name');
-                    name[lang] = value;
+                set: function (value) {
+                    const names = Object.assign({}, this.get('candidateList.selection.names'));
+                    names[this.get('language')] = value;
+                    this.set('candidateList.selection.names', names);
                 }
             },
             description: {
-                bind: {
-                    description: '{candidateList.selection.description}',
-                    lang: '{lang}'
+                get: function (get) {
+                    const descriptions = get('candidateList.selection.descriptions');
+                    return descriptions == null ? '' : descriptions[get('language')];
                 },
-                get: function(data) {
-                    return data.description[data.lang];
-                },
-                set: function(value) {
-                    var lang = this.get('lang');
-                    var description = this.get('candidateList.selection.description');
-                    description[lang] = value;
+                set: function (value) {
+                    const descriptions = Object.assign({}, this.get('candidateList.selection.descriptions'));
+                    descriptions[this.get('language')] = value;
+                    this.set('candidateList.selection.descriptions', descriptions);
                 }
             }
         }
     },
+    requires: [
+        "Votr.view.admin.CandidatesController"
+    ],
+    controller: 'admin.candidates',
     items: [{
         xtype: 'list',
         reference: 'candidateList',
         width: 384,
-        itemTpl: '<div><p>{name.default}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
+        itemTpl: '<div><p>{names.default}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
         bind: '{candidates}'
     }, {
         xtype: 'admin.candidate',
@@ -69,7 +71,7 @@ Ext.define('Votr.view.admin.Candidates', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            text: 'Add Candidate',
+            text: 'Add',
             handler: 'onAdd'
         }, '->', {
             xtype: 'button',

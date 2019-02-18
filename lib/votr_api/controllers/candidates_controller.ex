@@ -1,23 +1,23 @@
-defmodule Votr.Api.BallotsController do
+defmodule Votr.Api.CandidatesController do
   use VotrWeb, :controller
   use Timex
   alias Votr.AES
-  alias Votr.Election.Ballot
+  alias Votr.Election.Candidate
   alias Votr.Election.Res
   alias Votr.HashId
   require Logger
 
-  def index(conn, %{"ward_id" => ward_id}) do
+  def index(conn, %{"ballot_id" => ballot_id}) do
     subject_id = conn.assigns[:subject_id]
 
-    parent_id = HashId.decode(ward_id)
-    nodes = Ballot.select(subject_id, parent_id)
+    parent_id = HashId.decode(ballot_id)
+    nodes = Candidate.select(subject_id, parent_id)
 
-    ballots = nodes
+    candidates = nodes
             |> Enum.map(
                  fn w ->
-                   titles = w.strings
-                           |> Enum.filter(fn res -> res.key == "title" end)
+                   names = w.strings
+                           |> Enum.filter(fn res -> res.key == "name" end)
                            |> Enum.reduce(
                                 %{},
                                 fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
@@ -32,9 +32,9 @@ defmodule Votr.Api.BallotsController do
 
                    w
                    |> Map.update(:id, nil, &(HashId.encode &1))
-                   |> Map.update(:ward_id, nil, &(if is_nil(&1), do: nil, else: HashId.encode &1))
+                   |> Map.update(:ballot_id, nil, &(if is_nil(&1), do: nil, else: HashId.encode &1))
                    |> Map.update(:subject_id, nil, &(HashId.encode &1))
-                   |> Map.put(:titles, titles)
+                   |> Map.put(:names, names)
                    |> Map.put(:descriptions, descs)
                    |> Map.drop([:strings])
                  end
@@ -42,48 +42,42 @@ defmodule Votr.Api.BallotsController do
 
     conn
     |> put_status(200)
-    |> json(%{success: true, ballots: ballots})
+    |> json(%{success: true, candidates: candidates})
   end
 
   def create(conn, body) do
-    ward_id = HashId.decode(body["ward_id"])
+    ballot_id = HashId.decode(body["ballot_id"])
 
     # TODO verify that the subject owns the ward
-    # any ballot inserted with an invalid ward id would be orphaned as it can't be selected
+    # any candidate inserted with an invalid ward id would be orphaned as it can't be selected
 
-    ballot = %{
-      ward_id: ward_id,
+    candidate = %{
+      ballot_id: ballot_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
-      method: body["method"],
-      quota: body["quota"],
-      electing: body["electing"],
-      anonymous: body["anonymous"],
-      shuffle: body["shuffle"],
-      mutable: body["mutable"],
-      public: body["public"],
+      withdrawn: body["withdrawn"],
       color: body["color"]
     }
 
-    with {:ok, ballot} <- Ballot.insert(ballot),
-         {_, _} <- Res.upsert_all(ballot.id, res(body, "titles", "title")),
-         {_, _} <- Res.upsert_all(ballot.id, res(body, "descriptions", "description"))
+    with {:ok, candidate} <- Candidate.insert(candidate),
+         {_, _} <- Res.upsert_all(candidate.id, res(body, "names", "name")),
+         {_, _} <- Res.upsert_all(candidate.id, res(body, "descriptions", "description"))
       do
       conn
       |> put_status(:created)
       |> json(
            %{
              success: true,
-             ballot: %{
-               id: HashId.encode(ballot.id),
-               version: ballot.version,
-               updated_at: ballot.updated_at
+             candidate: %{
+               id: HashId.encode(candidate.id),
+               version: candidate.version,
+               updated_at: candidate.updated_at
              }
            }
          )
     else
       {:error, msg} ->
-        Logger.warn "Failed to insert ballot: #{msg}"
+        Logger.warn "Failed to insert candidate: #{msg}"
 
         conn
         |> put_status(:internal_server_error)
@@ -98,36 +92,30 @@ defmodule Votr.Api.BallotsController do
 
   def update(conn, body) do
     id = HashId.decode(body["id"])
-    ward_id = HashId.decode(body["ward_id"])
+    ballot_id = HashId.decode(body["ballot_id"])
 
-    ballot = %{
+    candidate = %{
       id: id,
       version: body["version"],
-      ward_id: ward_id,
+      ballot_id: ballot_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
-      method: body["method"],
-      quota: body["quota"],
-      electing: body["electing"],
-      anonymous: body["anonymous"],
-      shuffle: body["shuffle"],
-      mutable: body["mutable"],
-      public: body["public"],
+      withdrawn: body["withdrawn"],
       color: body["color"]
     }
 
-    with {:ok, ballot} <- Ballot.update(ballot),
-         {_, _} <- Res.upsert_all(ballot.id, res(body, "titles", "title")),
-         {_, _} <- Res.upsert_all(ballot.id, res(body, "descriptions", "description")) do
+    with {:ok, candidate} <- Candidate.update(candidate),
+         {_, _} <- Res.upsert_all(candidate.id, res(body, "names", "name")),
+         {_, _} <- Res.upsert_all(candidate.id, res(body, "descriptions", "description")) do
       conn
       |> put_status(:ok)
       |> json(
            %{
              success: true,
-             ballot: %{
-               id: HashId.encode(ballot.id),
-               version: ballot.version,
-               updated_at: ballot.updated_at
+             candidate: %{
+               id: HashId.encode(candidate.id),
+               version: candidate.version,
+               updated_at: candidate.updated_at
                # TODO include the other fields?
              }
            }
@@ -143,7 +131,7 @@ defmodule Votr.Api.BallotsController do
              }
            )
       {:error, msg} ->
-        Logger.warn "Failed to update ballot: #{msg}"
+        Logger.warn "Failed to update candidate: #{msg}"
 
         conn
         |> put_status(:internal_server_error)
@@ -161,7 +149,7 @@ defmodule Votr.Api.BallotsController do
 
     with {_, _} <- Res.delete_all(id),
          {_, _} <- Res.delete_all(id),
-         {:ok, _} <- Ballot.delete(id) do
+         {:ok, _} <- Candidate.delete(id) do
       conn
       |> put_status(:ok)
       |> json(
