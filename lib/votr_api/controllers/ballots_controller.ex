@@ -98,12 +98,10 @@ defmodule Votr.Api.BallotsController do
 
   def update(conn, body) do
     id = HashId.decode(body["id"])
-    ward_id = HashId.decode(body["ward_id"])
 
     ballot = %{
       id: id,
       version: body["version"],
-      ward_id: ward_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
       method: body["method"],

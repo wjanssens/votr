@@ -92,12 +92,10 @@ defmodule Votr.Api.CandidatesController do
 
   def update(conn, body) do
     id = HashId.decode(body["id"])
-    ballot_id = HashId.decode(body["ballot_id"])
 
     candidate = %{
       id: id,
       version: body["version"],
-      ballot_id: ballot_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
       withdrawn: body["withdrawn"],

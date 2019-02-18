@@ -55,6 +55,14 @@ Ext.define('Votr.view.admin.Candidate', {
             name: 'ext_id',
             label: 'External ID'
         }, {
+            xtype: 'selectfield',
+            name: 'color',
+            label: 'Color',
+            bind: {
+                store: '{colors}',
+                value: '{color}'
+            }
+        }, {
             xtype: 'filefield',
             label: "Avatar (48x48)",
             name: 'avatar',

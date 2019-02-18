@@ -17,6 +17,7 @@ Ext.define('Votr.view.admin.Candidates', {
                     reader: { type: 'json', rootProperty: 'candidates' }
                 }
             },
+            colors: 'Colors',
             languages: 'Languages'
         },
         formulas: {
@@ -25,7 +26,15 @@ Ext.define('Votr.view.admin.Candidates', {
                     return get('lang');
                 },
                 set: function (selection) {
-                    this.set({'lang': selection.id})
+                    this.set('lang', selection.id)
+                }
+            },
+            color: {
+                get: function (get) {
+                    return get('candidateList.selection.color');
+                },
+                set: function (selection) {
+                    this.set('candidateList.selection.color', selection.id)
                 }
             },
             name: {
@@ -60,7 +69,7 @@ Ext.define('Votr.view.admin.Candidates', {
         xtype: 'list',
         reference: 'candidateList',
         width: 384,
-        itemTpl: '<div><p>{names.default}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
+        itemTpl: '<div><div style="float: left; width: 8px; height: 48px; background-color: {color};">&nbsp;</div><img style="float: left; margin-right: 8px;" src="../images/guy.png"/><p>{names.default}<span style="float:right">{percentage * 100}%</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
         bind: '{candidates}'
     }, {
         xtype: 'admin.candidate',

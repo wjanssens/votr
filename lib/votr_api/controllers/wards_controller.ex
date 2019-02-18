@@ -93,14 +93,12 @@ defmodule Votr.Api.WardsController do
   # create a new election or ward
   def update(conn, body) do
     id = HashId.decode(body["id"])
-    parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
     subject_id = conn.assigns[:subject_id]
 
     ward = %{
       id: id,
       version: body["version"],
       subject_id: subject_id,
-      parent_id: parent_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
       start_at: dt(body, "start_at"),

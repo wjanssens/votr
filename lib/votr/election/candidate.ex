@@ -9,6 +9,21 @@ defmodule Votr.Election.Candidate do
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
+  @derive {
+    Poison.Encoder,
+    only: [
+      :id,
+      :version,
+      :ballot_id,
+      :seq,
+      :ext_id,
+      :withdrawn,
+      :color,
+      :names,
+      :descriptions,
+      :updated_at
+    ]
+  }
   schema "candidate" do
     belongs_to :ballot, Ballot
     field :version, :integer
@@ -56,7 +71,7 @@ defmodule Votr.Election.Candidate do
     Repo.all from c in Candidate,
              inner_join: b in assoc(c, :ballot),
              inner_join: w in assoc(b, :ward),
-             left_join: s in assoc(b, :strings),
+             left_join: s in assoc(c, :strings),
              preload: [
                strings: s
              ],

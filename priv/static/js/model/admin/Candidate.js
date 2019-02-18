@@ -1,8 +1,8 @@
 Ext.define('Votr.model.admin.Candidate', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'ward_id', type: 'integer'},
-        {name: 'version', type: 'integer'},
+        {name: 'version', type: 'integer', critical: true},
+        {name: 'ballot_id', type: 'integer'},
         {name: 'ext_id', type: 'string'},
         {name: 'seq', type: 'integer'},
         {name: 'names' },

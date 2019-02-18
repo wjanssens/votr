@@ -83,7 +83,7 @@ Ext.define('Votr.view.admin.Ballots', {
         xtype: 'list',
         reference: 'ballotList',
         width: 384,
-        itemTpl: '<div><p>{titles.default}<span style="float:right">{electing} / {candidates}</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
+        itemTpl: '<div><p>{titles.default}<span style="float:right">{electing} / {candidate_ct}</span></p><p style="color: var(--highlight-color)">{description.default}</p></div>',
         bind: {
             store: '{ballots}'
         }

@@ -24,6 +24,7 @@ Ext.define('Votr.controller.Admin', {
     stores: [
         'admin.Voters',
         'admin.Results',
-        'Languages'
+        'Languages',
+        'Colors'
     ]
 })
