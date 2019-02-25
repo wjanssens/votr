@@ -6,7 +6,8 @@ defmodule Votr.Repo.Migrations.CreateVoter do
       add(:version, :integer, null: false, default: 0, comment: "Optimistic concurrency version")
       add(:ward_id, references(:ward, on_delete: :delete_all), null: false)
       add(:ext_id, :varchar, null: true, comment: "External reference")
-      add(:voted, :integer, null: false, default: 0)
+      add(:weight, :decimal, precision: 11, scale: 5, default: 1.0, comment: "The weight of this voters votes")
+      add(:voted, :integer, null: false, default: 0, comment: "The number of times voted")
       timestamps()
     end
   end

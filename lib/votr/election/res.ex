@@ -38,7 +38,6 @@ defmodule Votr.Election.Res do
     No optimistic lock checking is performed since it's assumed that the parent entity lock version is used.
   """
   def upsert_all(entity_id, resources) do
-    IO.inspect(resources)
     shard = FlexId.extract_partition(:id_generator, entity_id)
 
     entries = resources

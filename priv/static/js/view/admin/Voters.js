@@ -6,9 +6,20 @@ Ext.define('Votr.view.admin.Voters', {
     referernceHolder: true,
     viewModel: {
         stores: {
-            voters: 'admin.Voters'
+            voters: {
+                model: 'Votr.model.admin.Voter',
+                proxy: {
+                    type: 'rest',
+                    url: '../api/admin/wards/{id}/voters',
+                    reader: { type: 'json', rootProperty: 'voters' }
+                }
+            },
         }
     },
+    requires: [
+        "Votr.view.admin.VotersController"
+    ],
+    controller: 'admin.voters',
     items: [{
         xtype: 'list',
         reference: 'voterList',
@@ -24,13 +35,8 @@ Ext.define('Votr.view.admin.Voters', {
         docked: 'bottom',
         items: [{
             xtype: 'button',
-            text: 'Add Voter',
+            text: 'Add',
             handler: 'onSave'
-        }, {
-            xtype: 'button',
-            text: 'Import',
-            tooltip: 'Import',
-            handler: 'onImport'
         }, '->', {
             xtype: 'button',
             text: 'Delete',

@@ -15,11 +15,12 @@ defmodule Votr.Api.WardsControllerTest do
         |> post(
              "/api/admin/wards",
              %{
-               name: %{
+               seq: 0,
+               names: %{
                  default: "test",
                  fr: "test"
                },
-               description: %{
+               descriptions: %{
                  default: ""
                }
              }
@@ -39,11 +40,12 @@ defmodule Votr.Api.WardsControllerTest do
              "/api/admin/wards",
              %{
                parent_id: ward_id,
-               name: %{
+               seq: 0,
+               names: %{
                  default: "test",
                  fr: "test"
                },
-               description: %{
+               descriptions: %{
                  default: ""
                }
              }
@@ -56,23 +58,35 @@ defmodule Votr.Api.WardsControllerTest do
       body =
         build_conn()
         |> put_req_header("authorization", "Bearer #{jwt}")
-        |> get("/api/admin/wards")
+        |> get("/api/admin/wards/root/wards")
         |> json_response(200)
 
       assert body["success"] == true
       wards = body["wards"]
-      assert Enum.count(wards) == 2
+      assert Enum.count(wards) == 1
 
-      assert Enum.at(wards, 0)["id"] == ward_id
-      assert Enum.at(wards, 0)["parent_id"] == nil
-      assert Enum.at(wards, 0)["name"]["default"] == "test"
-      assert Enum.at(wards, 0)["name"]["fr"] == "test"
-      assert Enum.at(wards, 0)["description"]["default"] == ""
+      ward = Enum.at(wards, 0)
+      assert ward["id"] == ward_id
+      assert ward["parent_id"] == nil
+      assert ward["names"]["default"] == "test"
+      assert ward["names"]["fr"] == "test"
+      assert ward["descriptions"]["default"] == ""
 
-      assert Enum.at(wards, 1)["parent_id"] == ward_id
-      assert Enum.at(wards, 1)["name"]["default"] == "test"
-      assert Enum.at(wards, 1)["name"]["fr"] == "test"
-      assert Enum.at(wards, 1)["description"]["default"] == ""
+      body =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{jwt}")
+        |> get("/api/admin/wards/#{ward_id}/wards")
+        |> json_response(200)
+
+      assert body["success"] == true
+      wards = body["wards"]
+      assert Enum.count(wards) == 1
+
+      ward = Enum.at(wards, 0)
+      assert ward["parent_id"] == ward_id
+      assert ward["names"]["default"] == "test"
+      assert ward["names"]["fr"] == "test"
+      assert ward["descriptions"]["default"] == ""
 
       # update a ward
       body =
@@ -84,12 +98,11 @@ defmodule Votr.Api.WardsControllerTest do
                id: ward_id,
                version: version,
                seq: 5,
-               parent_id: ward_id,
-               name: %{
+               names: %{
                  default: "name",
                  fr: "nom"
                },
-               description: %{
+               descriptions: %{
                  default: "description",
                  fr: "description"
                }

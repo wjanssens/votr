@@ -1,17 +1,17 @@
-Ext.define('Votr.view.admin.CandidatesController', {
+Ext.define('Votr.view.admin.VotersController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.admin.candidates',
+    alias: 'controller.admin.voters',
 
     init: function(view) {
         this.getViewModel().bind('{id}', this.onNavigate, this);
     },
 
     onNavigate: function(id) {
-        this.getViewModel().getStore('candidates').load({
+        this.getViewModel().getStore('voters').load({
             scope: this,
             callback: function(records, operation, success) {
                 if (records.length > 0) {
-                    const list = this.lookupReference('candidateList');
+                    const list = this.lookupReference('voterList');
                     list.setSelection(records[0]);
                 }
             }
@@ -20,27 +20,26 @@ Ext.define('Votr.view.admin.CandidatesController', {
 
     onAdd: function() {
         const id = this.getViewModel().get('id');
-        const list = this.lookupReference('candidateList');
+        const list = this.lookupReference('voterList');
         const store = list.getStore();
         const added = store.add({
             ballot_id: id,
-            names: { default: 'New Candidate'.translate() },
-            descriptions: { default: '' }
+            name: 'New Voter'
         });
         list.setSelection(added[0]);
     },
 
     onSave: function() {
-        const list = this.lookupReference('candidateList');
+        const list = this.lookupReference('voterList');
         const selection = list.getSelection();
         if (selection.isValid()) {
             selection.save({
                 success: function(record, operation) {
                     const response = Ext.JSON.decode(operation.getResponse().responseText);
-                    if (response.candidate) {
-                        record.set('id', response.candidate.id);
-                        record.set('version', response.candidate.version);
-                        record.set('updated_at', response.candidate.updated_at);
+                    if (response.ballot) {
+                        record.set('id', response.ballot.id);
+                        record.set('version', response.ballot.version);
+                        record.set('updated_at', response.ballot.updated_at);
                     }
                     Ext.toast('Saved'.translate(), 2000);
                 },
@@ -59,7 +58,7 @@ Ext.define('Votr.view.admin.CandidatesController', {
     },
 
     onDelete: function() {
-        const list = this.lookupReference('candidateList');
+        const list = this.lookupReference('voterList');
         const selection = list.getSelection();
         if (selection) {
             list.deselectAll();

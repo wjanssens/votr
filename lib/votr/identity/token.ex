@@ -13,13 +13,11 @@ defmodule Votr.Identity.Token do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  import Bitwise
   alias Votr.Identity.Token
   alias Votr.Identity.Password
   alias Votr.Identity.DN
   alias Votr.AES
   alias Votr.Repo
-  alias Votr.HashId
 
   @primary_key {:id, :integer, autogenerate: false}
   @timestamps_opts [type: :utc_datetime, usec: true]
@@ -75,7 +73,6 @@ defmodule Votr.Identity.Token do
     shard = FlexId.make_partition(username)
     id = FlexId.generate(:id_generator, shard)
 
-    IO.puts(DN.to_string(%{"username" => username, "password" => Password.hash(password)}))
     value = DN.to_string(%{"username" => username, "password" => Password.hash(password)})
             |> AES.encrypt()
             |> Base.encode64()

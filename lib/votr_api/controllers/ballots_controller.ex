@@ -158,7 +158,6 @@ defmodule Votr.Api.BallotsController do
     id = HashId.decode(body["id"])
 
     with {_, _} <- Res.delete_all(id),
-         {_, _} <- Res.delete_all(id),
          {:ok, _} <- Ballot.delete(id) do
       conn
       |> put_status(:ok)

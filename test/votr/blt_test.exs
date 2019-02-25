@@ -34,12 +34,12 @@ defmodule Votr.BltTest do
     assert election.candidates == ["Diane", "Bob", "Chuck", "Amy"]
     assert election.seats == 2
     assert election.withdrawn == [2]
-    assert Enum.count(election.ballots) == 14
+    assert Enum.count(election.ballots) == 9
 
     result = Votr.Stv.eval(election.ballots, election.seats)
                    |> Votr.Blt.rekey(election.candidates)
 
-    #IO.inspect(result)
+    # IO.inspect(result)
 
     # in round 0 (initial first choice counts)
     assert Map.get(Enum.at(result, 4), "Amy").votes == 8

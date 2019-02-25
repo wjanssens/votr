@@ -98,13 +98,6 @@ Ext.define('Votr.view.admin.Ballots', {
             xtype: 'button',
             text: 'Add',
             handler: 'onAdd'
-        }, {
-            xtype: 'button',
-            enableToggle: true,
-            iconCls: 'x-fa fa-filter',
-            text: 'Filter',
-            tooltip: 'Show All Ballots',
-            handler: 'onFilter'
         }, '->', {
             xtype: 'button',
             text: 'Delete',

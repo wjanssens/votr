@@ -137,4 +137,13 @@ defmodule Votr.Identity.Principal do
     end
   end
 
+  def delete_all(subject_id) do
+    Repo.delete_all from p in Principal,
+                    where: p.subject_id == ^subject_id
+  end
+
+  def delete_all(subject_id, kind) do
+    Repo.delete_all from p in Principal,
+                    where: p.subject_id == ^subject_id and p.kind == ^kind
+  end
 end

@@ -20,7 +20,7 @@ defmodule Votr.Blt do
 
     # each ballot has the format
     # <weight> <candidate> <candidate> ...0
-    # weight can be used to group identical ballots
+    # weight can be used to group identical ballots, or to give each voter different weight
     # candidate is the integer id of the candidate (i.e. 1,2,3)
     # candidate may be a - to indicate a skipped vote
     # two candidates may be joined with = to indicate the have equal rank
@@ -70,49 +70,44 @@ defmodule Votr.Blt do
           # ballot line
           a.state == :ballot ->
             [weight | candidates] = String.split(data, " ")
-            {weight, _} = Integer.parse(weight)
+            {weight, _} = Float.parse(weight)
 
-            ballot =
-              Enum.reduce(
-                candidates,
-                {1, %{}},
-                fn term, {rank, ballot} ->
-                  case term do
-                    "0" ->
-                      # end of ballot marker
-                      ballot
+            vote = Enum.reduce(
+              candidates,
+              {1, %{}},
+              fn term, {rank, ballot} ->
+                case term do
+                  "0" ->
+                    # end of ballot marker
+                    ballot
 
-                    "-" ->
-                      # undervote marker
-                      {rank + 1, ballot}
+                  "-" ->
+                    # undervote marker
+                    {rank + 1, ballot}
 
-                    _ ->
-                      {
-                        rank + 1,
-                        Enum.reduce(
-                          String.split(term, "="),
-                          ballot,
-                          fn c, a ->
-                            {c, _} = Integer.parse(c)
-                            Map.put(a, c, rank)
-                          end
-                        )
-                      }
-                  end
+                  _ ->
+                    {
+                      rank + 1,
+                      Enum.reduce(
+                        String.split(term, "="),
+                        ballot,
+                        fn c, a ->
+                          {c, _} = Integer.parse(c)
+                          Map.put(a, c, rank)
+                        end
+                      )
+                    }
                 end
-              )
+              end
+            )
+
+            ballot = %{ weight: weight, candidates: vote }
 
             Map.update!(
               a,
               :ballots,
               fn ballots ->
-                Enum.reduce(
-                  1..weight,
-                  ballots,
-                  fn _, a ->
-                    [ballot] ++ a
-                  end
-                )
+                [ballot] ++ ballots
               end
             )
 
@@ -136,12 +131,8 @@ defmodule Votr.Blt do
           true ->
             a
         end
-
-        # cond
       end
     )
-
-    # reduce
   end
 
 

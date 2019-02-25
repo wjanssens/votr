@@ -99,7 +99,7 @@ defmodule Votr.Election.Ward do
 
       %Ward{id: params.id}
       |> cast(params, [:version, :parent_id, :ext_id, :start_at, :end_at])
-      |> validate_required([:id, :version, :seq])
+      |> validate_required([:id, :version])
       |> optimistic_lock(:version)
       |> Repo.update()
     rescue

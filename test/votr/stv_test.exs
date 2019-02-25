@@ -13,6 +13,7 @@ defmodule Votr.StvTest do
           Enum.map(1..17, fn _ -> %{"a" => 2, "b" => 3, "c" => 4, "d" => 1} end)
         ]
       )
+      |> Enum.map(fn c -> %{weight: 1, candidates: c} end)
 
     result = Votr.Stv.eval(ballots, 2)
 
@@ -57,6 +58,7 @@ defmodule Votr.StvTest do
           Enum.map(1..13, fn _ -> %{"lynx" => 1, "tiger" => 2} end)
         ]
       )
+      |> Enum.map(fn c -> %{weight: 1, candidates: c} end)
 
     # run the election with Droop quota
     result = Votr.Stv.eval(ballots, 3)
@@ -153,6 +155,7 @@ defmodule Votr.StvTest do
           Enum.map(1..18, fn _ -> %{"gorilla" => 1, "silverback" => 2} end)
         ]
       )
+      |> Enum.map(fn c -> %{weight: 1, candidates: c} end)
 
     # run the election with Droop quota
     result = Votr.Stv.eval(ballots, 3)
@@ -244,6 +247,7 @@ defmodule Votr.StvTest do
           Enum.map(1..01, fn _ -> %{"buffalo" => 1, "jackalope" => 2, "turtle" => 3} end)
         ]
       )
+      |> Enum.map(fn c -> %{weight: 1, candidates: c} end)
 
     # this is a really interesting comparison of Hare vs Droop quota
     # in both cases the same candidates are elected, but in completely different
@@ -431,6 +435,7 @@ defmodule Votr.StvTest do
           Enum.map(1..15, fn _ -> %{"tiger" => 1, "leopard" => 2} end)
         ]
       )
+      |> Enum.map(fn c -> %{weight: 1, candidates: c} end)
 
     result = Votr.Stv.eval(ballots, 1)
 

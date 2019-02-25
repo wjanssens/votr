@@ -6,6 +6,7 @@
 # TODO implement overvote and undervote handling options and reporting
 # TODO implement Meek STV
 # TODO implement Baas STV
+# TODO implement weighted votes
 
 defmodule Votr.Stv do
   @moduledoc """
@@ -33,10 +34,9 @@ defmodule Votr.Stv do
   A ballot for FPTP should have only one key and a rank of 1.
   The key should may be either a string or a number.
   ```
-  [
-  	%{"a" => 1, "b" => 2, ...},
-  	%{"c" => 1, "d" => 2, ...},
-  	...
+  [ %{weight: 1.5, vote: %{"a" => 1, "b" => 2, ...} },
+    %{weight: 1.0, vote: %{"c" => 1, "d" => 2, ...} },
+    ...
   ]
   ```
 
@@ -72,7 +72,8 @@ defmodule Votr.Stv do
     # find the unique list of candidates from all the ballots
     candidates =
       ballots
-      |> Stream.flat_map(fn b -> Map.keys(b) end)
+      |> Stream.map(fn b -> b.candidates end)
+      |> Stream.flat_map(fn v -> Map.keys(v) end)
       |> Stream.uniq()
 
     # create a result that has an empty entry for every candidate
@@ -83,19 +84,23 @@ defmodule Votr.Stv do
       |> distribute(ranked_votes(ballots))
       |> Map.put(:exhausted, %{votes: 0})
 
+    sum = ballots
+          |> Enum.map(fn b -> b.weight end)
+          |> Enum.sum()
+    Enum.count(ballots)
+
     quota =
       case seats do
         1 ->
           # make the quota a pure majority (equivalent to hagenbach_bischoff)
-          Enum.count(ballots) / 2
-
+          sum / 2
         _ ->
           # calculate the number of votes it takes to be elected
           case Keyword.get(options, :quota, :droop) do
-            :imperali -> Enum.count(ballots) / (seats + 2)
-            :hare -> Enum.count(ballots) / seats
-            :hagenbach_bischoff -> Float.floor(Enum.count(ballots) / (seats + 1))
-            _ -> Enum.count(ballots) / (seats + 1) + 1
+            :imperali -> sum / (seats + 2)
+            :hare -> sum / seats
+            :hagenbach_bischoff -> Float.floor(sum / (seats + 1))
+            _ -> sum / (seats + 1) + 1
           end
       end
 
@@ -219,14 +224,15 @@ defmodule Votr.Stv do
          fn b ->
            # vote(s) with the lowest rank
            # candidate from the vote
-           b
-           |> Stream.filter(fn {k, _} -> k != :exhausted end)
-           |> Enum.min_by(fn {_, v} -> v end, fn -> {:exhausted, 0} end)
-           |> Tuple.to_list()
-           |> List.first()
+           c = b.candidates
+               |> Enum.filter(fn {k, _} -> k != :exhausted end)
+               |> Enum.min_by(fn {_, v} -> v end, fn -> {:exhausted, 0} end)
+               |> Tuple.to_list()
+               |> List.first()
+           %{w: b.weight, c: c}
          end
        )
-    |> Enum.reduce(%{}, fn c, a -> Map.update(a, c, 1, &(&1 + 1)) end)
+    |> Enum.reduce(%{}, fn %{c: c, w: w}, a -> Map.update(a, c, 1 * w, &(&1 + (1 * w))) end)
   end
 
   # Applies initial vote distribution to result for all candidates.
@@ -263,18 +269,44 @@ defmodule Votr.Stv do
 
     # find the ballots that were used to elect / exclude this candidate
     ballots_to_distribute = ballots
-                            |> Stream.map(fn b -> Map.drop(b, [:exhausted | ineligible]) end)
+                            |> Stream.map(
+                                 fn ballot ->
+                                   Map.update!(
+                                     ballot,
+                                     :candidates,
+                                     fn candidates ->
+                                       candidates
+                                       |> Map.drop([:exhausted | ineligible])
+                                     end
+                                   )
+                                 end
+                               )
                             |> Stream.filter(
-                                 fn b ->
-                                   b
-                                   |> Enum.min_by(fn {_, v} -> v end, fn -> {:exhausted, 0} end)
+                                 fn ballot ->
+                                   ballot.candidates
+                                   |> Enum.min_by(fn {_, rank} -> rank end, fn -> {:exhausted, 0} end)
                                    |> Tuple.to_list()
                                    |> Enum.member?(candidate)
                                  end
                                )
-                            |> Enum.map(fn b -> Map.drop(b, [candidate]) end)
+                            |> Enum.map(
+                                 fn ballot ->
+                                   Map.update!(
+                                     ballot,
+                                     :candidates,
+                                     fn candidates ->
+                                       candidates
+                                       |> Map.drop([candidate])
+                                     end
+                                   )
+                                 end
+                               )
 
-    weight = surplus / Enum.count(ballots_to_distribute)
+    # the weight of the distribution, not the voter's weight
+    weight = ballots_to_distribute
+             |> Enum.map(fn ballot -> ballot.weight end)
+             |> Enum.sum
+
     counts = ranked_votes(ballots_to_distribute)
 
     result
@@ -288,7 +320,7 @@ defmodule Votr.Stv do
              count = Map.get(counts, rk, 0)
              # update result row for candidate
              # TODO implement configurable precision
-             received = Float.round(weight * count, 5)
+             received = Float.round(surplus / weight * count, 5)
              if received > 0 do
                rv = rv
                     |> Map.delete(:surplus)
