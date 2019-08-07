@@ -191,7 +191,7 @@ Ext.define('Votr.view.index.Login', {
                             name: 'code',
                             label: 'Code'.translate(),
                             listeners: {
-                                initialize: 'intstallCodeFormatter'
+                                initialize: 'installCodeFormatter'
                             }
                         }, {
                             flex: 1
