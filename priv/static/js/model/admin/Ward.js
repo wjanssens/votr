@@ -7,6 +7,7 @@ Ext.define('Votr.model.admin.Ward', {
     fields: [
         {name: 'version', type: 'int', critical: true},
         {name: 'parent_id', type: 'string'},
+        {name: 'type', type: 'string'},
         {name: 'ext_id', type: 'string'},
         {name: 'seq', type: 'integer'},
         {name: 'names'},

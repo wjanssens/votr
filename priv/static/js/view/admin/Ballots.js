@@ -36,7 +36,6 @@ Ext.define('Votr.view.admin.Ballots', {
                     return data.method;
                 },
                 set: function(selection) {
-                    console.log(selection);
                     this.set('ballotList.selection.method', selection.data.value)
                 }
             },

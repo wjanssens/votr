@@ -5,6 +5,8 @@ defmodule Votr.Api.VotersController do
   alias Votr.Election.Voter
   alias Votr.Election.Res
   alias Votr.Identity.Principal
+  alias Votr.Identity.AccessCode
+  alias Votr.Identity.IdentityCard
   alias Votr.HashId
   require Logger
 

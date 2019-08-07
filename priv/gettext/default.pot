@@ -10,18 +10,18 @@
 msgid ""
 msgstr ""
 
-#: lib/votr_web/controllers/i18n_controller.ex:10
-msgid "Ballot ID"
-msgstr ""
-
-#: lib/votr_web/controllers/i18n_controller.ex:11
+#: lib/votr_web/controllers/i18n_controller.ex:8
 msgid "Next"
 msgstr ""
 
-#: lib/votr_web/controllers/i18n_controller.ex:9
+#: lib/votr_web/controllers/i18n_controller.ex:10
 msgid "Officials"
 msgstr ""
 
-#: lib/votr_web/controllers/i18n_controller.ex:8
+#: lib/votr_web/controllers/i18n_controller.ex:9
 msgid "Voter Login"
+msgstr ""
+
+#: lib/votr_web/controllers/i18n_controller.ex:11
+msgid "Access Code"
 msgstr ""

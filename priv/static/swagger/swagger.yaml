@@ -921,6 +921,10 @@ definitions:
       parent_id:
         description: parent ward identifier, null for elections
         type: string
+      type:
+        description: the type of ward
+        type: string
+        enum: ['election','poll','count']
       ext_id:
         description: external identifier
         type: string

@@ -19,8 +19,13 @@ Ext.define('Votr.view.admin.Wards', {
                 proxy: {
                     type: 'rest',
                     url: '../api/admin/wards/{id}/wards',
-                    reader: { type: 'json', rootProperty: 'wards' }
-                }
+                    reader: {type: 'json', rootProperty: 'wards'}
+                },
+                filters: [
+                    function (item) {
+                        return item.data.type === 'election';
+                    }
+                ]
             },
             languages: 'Languages'
         },
@@ -54,44 +59,61 @@ Ext.define('Votr.view.admin.Wards', {
                     descriptions[this.get('language')] = value;
                     this.set('wardList.selection.descriptions', descriptions);
                 }
+            },
+            type: {
+                bind: {
+                    type: '{wardList.selection.type}'
+                },
+                get: function (data) {
+                    return data.type;
+                },
+                set: function (selection) {
+                    this.set('wardList.selection.type', selection.data.value)
+                }
             }
+
         }
     },
-    items: [{
-        xtype: 'list',
-        reference: 'wardList',
-        itemTpl: '<div><p>{names.default}<span style="float:right">something</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
-        width: 384,
-        bind: {
-            store: '{wards}'
+    items: [
+        {
+            title: 'Elections',
+            xtype: 'list',
+            reference: 'wardList',
+            itemTpl: '<div><p>{names.default}<span style="float:right">something</span></p><p style="color: var(--highlight-color)">{descriptions.default}</p></div>',
+            width: 384,
+            bind: {
+                store: '{wards}'
+            }
+        }, {
+            xtype: 'admin.ward',
+            flex: 1
+        }, {
+            xtype: 'toolbar',
+            itemId: 'toolbar',
+            docked: 'bottom',
+            items: [{
+                xtype: 'button',
+                text: 'Add',
+                ui: 'action',
+                handler: 'onAdd'
+            }, '->', {
+                xtype: 'button',
+                text: 'Delete',
+                ui: 'decline',
+                handler: 'onDelete',
+                bind: {
+                    disabled: '{!wardList.selection}'
+                }
+            }, '->', {
+                xtype: 'button',
+                text: 'Save',
+                ui: 'confirm',
+                handler: 'onSave',
+                bind: {
+                    disabled: '{!wardList.selection}'
+                }
+            }
+            ]
         }
-    }, {
-        xtype: 'admin.ward',
-        flex: 1
-    }, {
-        xtype: 'toolbar',
-        itemId: 'toolbar',
-        docked: 'bottom',
-        items: [{
-            xtype: 'button',
-            text: 'Add',
-            handler: 'onAdd'
-        }, '->', {
-            xtype: 'button',
-            text: 'Delete',
-            ui: 'decline',
-            handler: 'onDelete',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
-        }, '->', {
-            xtype: 'button',
-            text: 'Save',
-            ui: 'confirm',
-            handler: 'onSave',
-            bind: {
-                disabled: '{!wardList.selection}'
-            }
-        }]
-    }]
+    ]
 });

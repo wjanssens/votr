@@ -39,6 +39,7 @@ Ext.define('Votr.view.admin.Main', {
             layout: 'card',
             padding: 0,
             items: [
+                {xtype: 'admin.dashboard'},
                 {xtype: 'admin.wards'},
                 {xtype: 'admin.ballots'},
                 {xtype: 'admin.voters'},

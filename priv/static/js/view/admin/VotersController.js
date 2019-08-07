@@ -24,7 +24,8 @@ Ext.define('Votr.view.admin.VotersController', {
         const store = list.getStore();
         const added = store.add({
             ballot_id: id,
-            name: 'New Voter'
+            name: 'New Voter',
+            weight: 1
         });
         list.setSelection(added[0]);
     },

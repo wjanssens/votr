@@ -16,6 +16,11 @@ Ext.define('Votr.view.admin.Voter', {
         label: 'External ID',
         bind: '{voterList.selection.ext_id}'
     }, {
+        xtype: 'numberfield',
+        name: 'weight',
+        label: 'Weight',
+        bind: '{woterList.selection.weight}'
+    }, {
         xtype: 'fieldset',
         title: 'Address Information',
         tooltip: 'used to deliver ballot information to voter',

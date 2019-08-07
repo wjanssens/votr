@@ -1,6 +1,7 @@
 Ext.define('Votr.controller.Admin', {
     extend: 'Ext.app.Controller',
     views: [
+        'admin.Dashboard',
         'admin.Wards',
         'admin.Ward',
         'admin.Ballots',

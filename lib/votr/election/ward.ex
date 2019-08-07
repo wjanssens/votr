@@ -27,6 +27,7 @@ defmodule Votr.Election.Ward do
       :subject_id,
       :parent_id,
       :seq,
+      :type,
       :ext_id,
       :start_at,
       :end_at,
@@ -43,6 +44,7 @@ defmodule Votr.Election.Ward do
     field :subject_id, :integer       # the owner / adminstrator for the election
     field :parent_id, :integer        # parent ward, null for elections
     field :seq, :integer              # the order in which wards are presented
+    field :type, :string              # Ward/Election, Poll, Count
     field :ext_id, :string            # reference to an external system
     field :start_at, :utc_datetime    # the date/time at which voting starts
     field :end_at, :utc_datetime      # the date/time at which voting ends

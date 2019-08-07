@@ -3,6 +3,7 @@ Ext.define('Votr.view.admin.MainController', {
     alias: 'controller.admin.main',
 
     routes : {
+        'dashboard': 'onDashboard',
         'profile': 'onProfile',
         'wards': 'onWards',
         'wards/:id': 'onWard',
@@ -17,55 +18,59 @@ Ext.define('Votr.view.admin.MainController', {
     },
 
     onHome() {
-        this.redirectTo('#wards');
+        this.redirectTo('#dashboard');
     },
 
     onProfileEdit() {
         this.redirectTo('#profile');
     },
 
+    onDashboard() {
+        this.setActiveItem(0)
+    },
+
     onWards() {
-        this.setActiveItem(0, 'root');
+        this.setActiveItem(1, 'root');
     },
 
     onWard(id) {
-        this.setActiveItem(0, id);
+        this.setActiveItem(1, id);
     },
 
     onBallots(id) {
-        this.setActiveItem(1, id);
+        this.setActiveItem(2, id);
     },
 
     onBallot(id) {
-        this.setActiveItem(1, id);
+        this.setActiveItem(2, id);
     },
 
     onVoters(id) {
-        this.setActiveItem(2, id);
+        this.setActiveItem(3, id);
     },
 
     onVoter(id) {
-        this.setActiveItem(2, id);
+        this.setActiveItem(3, id);
     },
 
     onCandidates(id) {
-        this.setActiveItem(3, id);
-    },
-
-    onCandidate(id) {
-        this.setActiveItem(3, id);
-    },
-
-    onResults(id) {
         this.setActiveItem(4, id);
     },
 
-    onLog(id) {
+    onCandidate(id) {
+        this.setActiveItem(4, id);
+    },
+
+    onResults(id) {
         this.setActiveItem(5, id);
     },
 
+    onLog(id) {
+        this.setActiveItem(7, id); // TODO
+    },
+
     onProfile() {
-        this.setActiveItem(6, id);
+        this.setActiveItem(7, id);
     },
 
     setActiveItem(index, id) {

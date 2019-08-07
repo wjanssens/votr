@@ -1,10 +1,10 @@
-Ext.define('Votr.view.login.LoginController', {
+Ext.define('Votr.view.index.LoginController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.login.login',
+    alias: 'controller.index.login',
 
     onLanguageChange: function (field, newValue) {
         var lang = newValue.id;
-        if (lang == 'default') window.location.href = '..'; // server side conneg will select something
+        if (lang === 'default') window.location.href = '..'; // server side conneg will select something
         else window.location.href = '../' + lang;
     },
 
@@ -17,6 +17,9 @@ Ext.define('Votr.view.login.LoginController', {
     },
 
     onVoterCredentials: function () {
+        let form = this.getView().down('#voterId');
+        let values = form.getValues();
+
         // TODO
         // send the voter credentials to the server
         // 200: -> #ballots
@@ -24,12 +27,9 @@ Ext.define('Votr.view.login.LoginController', {
         // 401: show error message
     },
 
-    onAdmin: function () {
-        this.redirectTo("#admin");
-    },
-
     onAdminCredentials: function () {
-        let values = this.getView().getValues();
+        let form = this.getView().down('#adminId');
+        let values = form.getValues();
         Ext.Ajax.request({
             url: '/api/login',
             jsonData: Ext.util.JSON.encode({
@@ -43,26 +43,27 @@ Ext.define('Votr.view.login.LoginController', {
             },
             failure: (response) => {
                 const obj = Ext.decode(response.responseText);
-                if (obj.error == 'mfa_required') {
+                if (obj.error === 'mfa_required') {
                     this.redirectTo("#mfa");
-                    this.getView().down('#token').setValue(obj.token);
-                } else if (obj.error == 'unauthorized') {
-                    this.getView().down('#message').setHtml('Invalid credentials'.translate());
+                    form.down('#token').setValue(obj.token);
+                } else if (obj.error === 'unauthorized') {
+                    form.down('#message').setHtml('Invalid credentials'.translate());
                 } else if (obj.message) {
-                    this.getView().down('#message').setHtml(obj.message);
+                    form.down('#message').setHtml(obj.message);
                 } else {
-                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                    form.down('#message').setHtml('Unexpected error'.translate());
                 }
             }
         });
     },
 
     onAdminForgotPassword: function () {
-        this.redirectTo("#forgot");
+        this.getView().setActiveItem(2);
     },
 
     onAdminMfa: function () {
-        let values = this.getView().getValues();
+        let form = this.getView().down('#adminMfa');
+        let values = form.getValues();
         Ext.Ajax.request({
             url: '/api/login',
             jsonData: Ext.util.JSON.encode({
@@ -76,23 +77,20 @@ Ext.define('Votr.view.login.LoginController', {
             },
             failure: (response) => {
                 const obj = Ext.decode(response.responseText);
-                if (obj.error == 'unauthorized')  {
-                    this.getView().down('#message').setHtml('Invalid code'.translate());
+                if (obj.error === 'unauthorized')  {
+                    form.down('#message').setHtml('Invalid code'.translate());
                 } else if (obj.message) {
-                    this.getView().down('#message').setHtml(obj.message);
+                    form.down('#message').setHtml(obj.message);
                 } else {
-                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                    form.down('#message').setHtml('Unexpected error'.translate());
                 }
             }
         });
     },
 
-    onAdminRegister: function () {
-        this.redirectTo("#register")
-    },
-
     onAdminRegistration: function () {
-        let values = this.getView().getValues();
+        let form = this.getView().down('#register');
+        let values = form.getValues();
         Ext.Ajax.request({
             url: '/api/subjects',
             jsonData: Ext.util.JSON.encode({
@@ -100,56 +98,52 @@ Ext.define('Votr.view.login.LoginController', {
                 password: values.password
             }),
             success: () => {
-                this.redirectTo('#confirm')
+                this.getView().down('#signUpCards').setActiveItem(1);
             },
             failure: () => {
-                this.getView().down('#message').setHtml('Unexpected error'.translate());
-            }
-        })
-    },
-
-    onSendResetToken: function () {
-        let values = this.getView().getValues();
-        Ext.Ajax.request({
-            url: '/api/subjects',
-            jsonData: Ext.util.JSON.encode({
-                username: values.email,
-                password: values.password
-            }),
-            success: () => {
-                this.redirectTo('#confirm')
-            },
-            failure: (response) => {
-                this.getView().down('#message').setHtml('Unexpected error'.translate());
+                form.down('#message').setHtml('Unexpected error'.translate());
             }
         })
     },
 
     onEmailConfirmation: function () {
-        let values = this.getView().getValues();
+        let form = this.getView().down('#confirm');
+        let values = form.getValues();
         Ext.Ajax.request({
             url: '/api/activate',
             jsonData: Ext.util.JSON.encode({
                 code: values.code
             }),
             success: () => {
-                this.redirectTo("#admin");
+                window.location.href = '/admin';
             },
             failure: (response) => {
-                if (response.status == 404) {
-                    this.getView().down('#message').setHtml('Invalid code'.translate());
+                if (response.status === 404) {
+                    form.down('#message').setHtml('Invalid code'.translate());
                 } else {
-                    this.getView().down('#message').setHtml('Unexpected error'.translate());
+                    form.down('#message').setHtml('Unexpected error'.translate());
                 }
             }
         });
     },
 
+    installCodeFormatter: function (c) {
+        try {
+            new Formatter(c.el.selectNode('input'), {
+                'pattern': '{{****}} {{****}} {{****}} {{****}}',
+                'persistent': true
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    },
+
     validateRegistration: function () {
-        let form = this.getView();
-        let email = form.getValues().email;
-        let password = form.getValues().password;
-        let retype = form.getValues().retype_password;
+        let form = this.getView().down('#register');
+        let values = form.getValues();
+        let email = values.email;
+        let password = values.password;
+        let retype = values.retype_password;
 
         form.down('#password').setUserCls('');
         form.down('#retype_password').setUserCls('');
@@ -177,11 +171,11 @@ Ext.define('Votr.view.login.LoginController', {
             form.down('#password').setUserCls('x-invalid');
             disabled = true;
         }
-        if (password == '') {
+        if (password === '') {
             form.down('#password').setUserCls('x-invalid');
             disabled = true;
         }
-        if (email == '') {
+        if (email === '') {
             form.down('#email').setUserCls('x-invalid');
             disabled = true;
         }
