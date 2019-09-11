@@ -13,18 +13,22 @@ Ext.define('Votr.view.index.Main', {
             xtype: 'toolbar',
             itemId: 'toolbar',
             docked: 'top',
-            title: 'Votr',
             items: [
                 '->',
                 {
                     xtype: 'button',
-                    text: 'Sign Up',
-                    handler: 'onSignUp'
+                    text: 'Pricing',
+                    handler: 'onPricing'
                 },
                 {
                     xtype: 'button',
-                    text: 'Sign In',
-                    handler: 'onSignIn'
+                    text: 'Docs',
+                    handler: 'onDocs'
+                },
+                {
+                    xtype: 'button',
+                    text: 'Blog',
+                    handler: 'onBlog'
                 }
             ]
         }, {
@@ -34,8 +38,8 @@ Ext.define('Votr.view.index.Main', {
             padding: 0,
             items: [
                 {xtype: 'index.hero'},
-                {xtype: 'index.testimonials'},
                 {xtype: 'index.features'},
+                {xtype: 'index.stats'},
                 {xtype: 'index.organizations'},
                 {xtype: 'index.footer'}
             ]

@@ -41,6 +41,16 @@
             font-size: 1em !important;
             font-weight: normal !important;
         }
+
+        .h {
+            font-size: 2em; font-weight: 300; margin: 16px 0;
+        }
+        .p {
+            font-size: 1.25em; font-weight: 300;
+        }
+        .stat {
+            font-size: 1.5em; font-weight: 700;
+        }
     </style>
 </head>
 

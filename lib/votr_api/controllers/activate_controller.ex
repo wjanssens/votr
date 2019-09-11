@@ -26,7 +26,9 @@ defmodule Votr.Api.ActivateController do
 
     with {:ok, token} <- Token.select(id),
          {:ok, subject_id} <- update_token(token),
-         {:ok, _} <- Token.delete(token.id) do
+         {:ok, _} <- Token.delete(id) do
+
+      IO.inspect(subject_id)
 
       if is_nil(subject_id) do
         conn
@@ -73,7 +75,6 @@ defmodule Votr.Api.ActivateController do
 
   defp update_password(token) do
     with password <- Password.select_by_subject_id(token.subject_id) do
-      IO.puts "updating password #{token.value}"
       Map.put(password, :hash, token.value)
       |> Password.update()
 

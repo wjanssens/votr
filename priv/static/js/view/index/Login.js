@@ -190,8 +190,11 @@ Ext.define('Votr.view.index.Login', {
                             itemId: 'code',
                             name: 'code',
                             label: 'Code'.translate(),
+                            autoCapitalize: true,
+                            autoCorrect: false,
+                            autoComplete: false,
                             listeners: {
-                                initialize: 'installCodeFormatter'
+                                keyup: 'onEmailConfirmationKeyUp'
                             }
                         }, {
                             flex: 1
@@ -204,6 +207,7 @@ Ext.define('Votr.view.index.Login', {
                             items: [
                                 '->', {
                                     xtype: 'button',
+                                    itemId: 'next',
                                     text: 'Next'.translate(),
                                     handler: 'onEmailConfirmation'
                                 }

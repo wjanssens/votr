@@ -106,6 +106,12 @@ Ext.define('Votr.view.index.LoginController', {
         })
     },
 
+    onEmailConfirmationKeyUp: function(field, e) {
+        if (e.getKey() == e.ENTER) {
+            this.onEmailConfirmation();
+        }
+    },
+
     onEmailConfirmation: function () {
         let form = this.getView().down('#confirm');
         let values = form.getValues();
@@ -127,12 +133,19 @@ Ext.define('Votr.view.index.LoginController', {
         });
     },
 
+    onEnter: function(event) {
+        var next = field.up('form').down('#next');
+        next.fireEvent('click', next, event, options);
+    },
+
     installCodeFormatter: function (c) {
         try {
-            new Formatter(c.el.selectNode('input'), {
-                'pattern': '{{****}} {{****}} {{****}} {{****}}',
-                'persistent': true
-            });
+            const input = c.el.selectNode('input');
+//            new Formatter(input, {
+//                'pattern': '{{****}} {{****}} {{****}} {{****}}',
+//                'persistent': true
+//            });
+            input.style = "text-transform: uppercase;"
         } catch (e) {
             console.log(e);
         }

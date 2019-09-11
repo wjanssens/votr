@@ -41,7 +41,7 @@ defmodule Votr.Election.Ward do
   }
   schema "ward" do
     field :version, :integer
-    field :subject_id, :integer       # the owner / adminstrator for the election
+    field :subject_id, :integer       # the owner / administrator for the election
     field :parent_id, :integer        # parent ward, null for elections
     field :seq, :integer              # the order in which wards are presented
     field :type, :string              # Ward/Election, Poll, Count

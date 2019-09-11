@@ -3,6 +3,7 @@ Ext.define('Votr.controller.Index', {
     views: [
         'index.Features',
         'index.Testimonials',
+        'index.Stats',
         'index.Hero',
         'index.Organizations',
         'index.Footer',

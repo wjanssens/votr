@@ -41,7 +41,7 @@ defmodule Votr.Mixfile do
       {:phoenix_live_reload, "~> 1.1.5", only: :dev},
       #{:gettext, "~> 0.16"},
       {:set_locale, "~> 0.2.4"},
-      {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:distillery, "~> 1.5.2"},
       {:flexid, "~> 0.1.1"},
       {:hashids, "~> 2.0.4"},
