@@ -13,61 +13,32 @@ Ext.define('Votr.view.admin.Ballot', {
             layout: 'hbox',
             defaults: {
                 margin: 10,
-                shadow: true,
                 flex: 1
             },
             items: [
+                { flex: 1 },
                 {
-                    xtype: 'panel',
-                    layout: 'hbox',
-                    title: 'Candidates',
-                    iconCls: 'x-fa fa-check-square',
-                    padding: 0,
+                    width: 300,
+                    layout: "hbox",
                     items: [
+                        { html: "<i class='fa fa-user-o'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
                         {
-                            xtype: 'button',
-                            width: '100%',
-                            handler: 'onCandidates',
-                            bind: {
-                                html: '<span style="text-align: center; line-height: 1em; font-size: 24px;">{ballotList.selection.candidate_ct}</span>'
-                            }
+                            layout: "vbox",
+                            items: [
+                                { cls: "stat", bind: { html: '<a href="#candidates/{ballotList.selection.id}">{ballotList.selection.candidate_ct}</a>' } },
+                                { html: "candidates".translate(), cls: "p" }
+                            ]
                         }
                     ]
                 },
-                {
-                    xtype: 'panel',
-                    layout: 'hbox',
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'button',
-                            handler: 'onResults',
-                            bind: {
-                                html: 'Results'
-                            }
-                        },
-                    ]
-                },
-                {
-                    xtype: 'panel',
-                    layout: 'hbox',
-                    title: 'Turnout',
-                    iconCls: 'x-fa fa-percent',
-                    style: 'text-align: center;',
-                    bind: {
-                        html: '<span style="font-size: 24px;">73%</span>'
-
-                    }
-                }
+                { flex: 1 }
             ]
         },
         {
             xtype: 'panel',
-            layout: 'hbox',
+            layout: 'vbox',
             padding: 0,
             defaults: {
-                shadow: true,
-                flex: 1,
                 margin: 10
             },
             items: [
@@ -195,8 +166,7 @@ Ext.define('Votr.view.admin.Ballot', {
                 {
                     title: 'Results',
                     xtype: 'cartesian',
-                    width: '100%',
-                    flex: 1,
+                    height: 600,
                     insetPadding: 20,
                     innerPadding: 20,
                     store: 'admin.Results',

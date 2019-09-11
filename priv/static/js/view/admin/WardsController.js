@@ -10,9 +10,9 @@ Ext.define('Votr.view.admin.WardsController', {
         this.getViewModel().getStore('wards').load({
             scope: this,
             callback: function (records, operation, success) {
-                if (records.length > 0) {
-                    const list = this.lookupReference('wardList');
-                    list.setSelection(records[0]);
+                if (success && records.length > 0) {
+//                    const list = this.lookupReference('wardList');
+//                    list.setSelection(records[0]);
                 }
             }
         });

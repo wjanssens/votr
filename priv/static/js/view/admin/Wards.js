@@ -20,12 +20,7 @@ Ext.define('Votr.view.admin.Wards', {
                     type: 'rest',
                     url: '../api/admin/wards/{id}/wards',
                     reader: {type: 'json', rootProperty: 'wards'}
-                },
-                filters: [
-                    function (item) {
-                        return item.data.type === 'election';
-                    }
-                ]
+                }
             },
             languages: 'Languages'
         },
@@ -70,8 +65,7 @@ Ext.define('Votr.view.admin.Wards', {
                 set: function (selection) {
                     this.set('wardList.selection.type', selection.data.value)
                 }
-            }
-
+            },
         }
     },
     items: [

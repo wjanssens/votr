@@ -10,7 +10,7 @@ Ext.define('Votr.view.index.Stats', {
         {
             layout: "hbox",
             items: [
-                { html: "<i class='fa fa-globe'></i>", style: "font-size: 4em;", padding: "0 16px" },
+                { html: "<i class='fa fa-globe'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
                 {
                     layout: "vbox",
                     items: [
@@ -23,7 +23,7 @@ Ext.define('Votr.view.index.Stats', {
         {
             layout: "hbox",
             items: [
-                { html: "<i class='fa fa-globe'></i>", style: "font-size: 4em;", padding: "0 16px" },
+                { html: "<i class='fa fa-globe'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
                 {
                     layout: "vbox",
                     items: [
@@ -37,7 +37,7 @@ Ext.define('Votr.view.index.Stats', {
         {
             layout: "hbox",
             items: [
-                { html: "<i class='fa fa-check-square-o'></i>", style: "font-size: 4em;", padding: "0 16px" },
+                { html: "<i class='fa fa-check-square-o'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
                 {
                     layout: "vbox",
                     items: [
@@ -50,7 +50,7 @@ Ext.define('Votr.view.index.Stats', {
         {
             layout: "hbox",
             items: [
-                { html: "<i class='fa fa-check-square-o'></i>", style: "font-size: 4em;", padding: "0 16px" },
+                { html: "<i class='fa fa-check-square-o'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
                 {
                     layout: "vbox",
                     items: [
