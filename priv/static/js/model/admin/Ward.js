@@ -13,16 +13,8 @@ Ext.define('Votr.model.admin.Ward', {
         {name: 'seq', type: 'integer'},
         {name: 'names'},
         {name: 'descriptions'},
-        {
-            name: 'start_at', type: 'datetime', validators: [
-                {type: 'datetime', message: 'Invalid end date/time'}
-            ]
-        },
-        {
-            name: 'end_at', type: 'datetime', validators: [
-                {type: 'datetime', message: 'Invalid end date/time'}
-            ]
-        },
+        {name: 'start_at', type: 'datetime'},
+        {name: 'end_at', type: 'datetime'},
         {
             name: 'text', type: 'string', depends: ['names'], calculate:
                 function (data) {
@@ -32,7 +24,7 @@ Ext.define('Votr.model.admin.Ward', {
         {name: 'ward_ct', type: 'integer'},
         {name: 'voter_ct', type: 'integer'},
         {name: 'ballot_ct', type: 'integer'},
-        {name: 'updated_at', type: 'date'}
+        {name: 'updated_at', type: 'datetime'}
     ],
     proxy: {
         type: 'rest',

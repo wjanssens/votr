@@ -111,41 +111,41 @@ Ext.define('Votr.view.admin.Ward', {
                    xtype: 'selectfield',
                    name: 'type',
                    label: 'Type'.translate(),
-                   bind: '{wardList.selection.type}',
-                   options: [{
-                       text: 'Election'.translate(),
-                       value: 'election'
-                   }, {
-                       text: 'Poll'.translate(),
-                       value: 'poll'
-                   }, {
-                       text: 'Count'.translate(),
-                       value: 'count'
-                   }]
+                   bind: '{type}',
+                   options: [
+                       { value: 'election', text: 'Election'.translate() },
+                       { value: 'poll', text: 'Poll'.translate() },
+                       { value: 'count', text: 'Count'.translate() }
+                   ]
                }, {
                     xtype: 'textfield',
                     name: 'ext_id',
                     label: 'External ID'.translate(),
                     bind: '{wardList.selection.ext_id}'
-                }, {
+               }, {
                     xtype: 'textfield',
                     name: 'start_at',
                     label: 'Start At'.translate(),
                     placeHolder: 'yyyy-mm-dd hh:mm [±hh:mm]',
-                    bind: '{wardList.selection.start_at}'
-                }, {
+                    bind: '{wardList.selection.start_at}',
+                    listeners: {
+                        change: 'validateDatetime'
+                    }
+               }, {
                     xtype: 'textfield',
                     name: 'end_at',
                     label: 'End At'.translate(),
                     placeHolder: 'yyyy-mm-dd hh:mm [±hh:mm]',
-                    bind: '{wardList.selection.end_at}'
-                }, {
+                    bind: '{wardList.selection.end_at}',
+                    listeners: {
+                        change: 'validateDatetime'
+                    }
+               }, {
                     xtype: 'textfield',
                     name: 'updated_at',
                     label: 'Updated At'.translate(),
-                    readOnly: true,
                     bind: '{wardList.selection.updated_at}'
-                }
+               }
             ]
         }
     ]

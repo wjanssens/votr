@@ -9,10 +9,11 @@ Ext.define('Votr.data.validator.DateTime', {
          * @cfg {String} message
          * The error message to return.
          */
-        message: 'Is in the wrong format'
+        message: 'Is in the wrong format'.translate()
     },
 
     constructor: function() {
+    debugger;
         this.callParent(arguments);
     },
 

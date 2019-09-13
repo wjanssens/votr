@@ -87,6 +87,16 @@ Ext.define('Votr.view.admin.WardsController', {
         }
     },
 
+    validateDatetime: function (field, value) {
+        field.setUserCls('');
+        if ((value || '').length > 0) {
+            const parsed = Ext.Date.parse(value, 'Y-m-d H:i', true);
+            if (!parsed) {
+                field.setUserCls('x-invalid');
+            }
+        }
+    },
+
     installDateTimeFormatter: function (c) {
         try {
             new Formatter(c.el.selectNode('input'), {
