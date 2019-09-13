@@ -1,5 +1,8 @@
 Ext.define('Votr.model.admin.Voter', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Votr.data.field.DateTime'
+    ],
     fields: [
         {name: 'ward_id', type: 'integer'},
         {name: 'name', type: 'string'},
@@ -11,7 +14,7 @@ Ext.define('Votr.model.admin.Voter', {
         {name: 'email', type: 'string'},
         {name: 'phone', type: 'string'},
         {name: 'postal_address', type: 'string'},
-        {name: 'updated_at', type: 'date'}
+        {name: 'updated_at', type: 'datetime'}
     ],
     proxy: {
         type: 'rest',

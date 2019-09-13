@@ -16,8 +16,6 @@ Ext.define('Votr.data.field.DateTime', {
     // when parsing is unsuccessful then the value is returned as is so the user can continue typing it in
     // when the value is sent to the server it is converted from the human readable format to iso8601
 
-    // this lets the user type in
-
     convert: (value) => {
         const patterns = [
             // used to parse values typed in by the user

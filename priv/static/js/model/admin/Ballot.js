@@ -1,5 +1,8 @@
 Ext.define('Votr.model.admin.Ballot', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Votr.data.field.DateTime'
+    ],
     fields: [
         {name: 'version', type: 'int', critical: true},
         {name: 'ward_id', type: 'string'},
@@ -16,7 +19,8 @@ Ext.define('Votr.model.admin.Ballot', {
         {name: 'anonymous', type: 'boolean'},
         {name: 'public', type: 'boolean'},
         {name: 'candidate_ct', type: 'integer'},
-        {name: 'updated_at', type: 'date'}
+        {name: 'round_ct', type: 'integer'},
+        {name: 'updated_at', type: 'datetime'}
     ],
     proxy: {
         type: 'rest',

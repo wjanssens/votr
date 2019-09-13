@@ -1,5 +1,8 @@
 Ext.define('Votr.model.admin.Candidate', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Votr.data.field.DateTime'
+    ],
     fields: [
         {name: 'version', type: 'integer', critical: true},
         {name: 'ballot_id', type: 'integer'},
@@ -13,7 +16,7 @@ Ext.define('Votr.model.admin.Candidate', {
         {name: 'round', type: 'number'},
         {name: 'status', type: 'string'},
         {name: 'percentage', type: 'number'},
-        {name: 'updated_at', type: 'date'},
+        {name: 'updated_at', type: 'datetime'},
         {
             name: 'text', type: 'string', depends: ['names'], calculate: function (data) {
                 return data.names == null ? '' : data.names.default;

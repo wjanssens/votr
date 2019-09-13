@@ -1,8 +1,7 @@
-Ext.define('Votr.model.Result', {
+Ext.define('Votr.model.admin.ResultCandidate', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'candidate', type: 'string'},
-        {name: 'round', type: 'integer'},
+        {name: 'name', type: 'string'},
         {name: 'status', type: 'string'},
         {name: 'votes', type: 'number'},
         {name: 'surplus', type: 'number'},

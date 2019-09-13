@@ -1,52 +1,55 @@
 Ext.define('Votr.store.admin.Results', {
     extend: 'Ext.data.Store',
-    model: 'Votr.model.admin.Result',
-    groupField: 'round',
-    groupDir: 'desc',
-    sorters: [{property: 'votes', direction: 'desc'},'name'],
+    model: 'Votr.model.admin.ResultRound',
     data: [
-        { round: 5, name: 'Monkey',    votes: 26.0, status: 'elected' },
-        { round: 5, name: 'Gorilla',   votes: 26.0, status: 'elected' },
-        { round: 5, name: 'Tarsier',   votes: 0.0,  status: 'excluded' },
-        { round: 5, name: 'Lynx',      votes: 0,    status: 'excluded' },
-        { round: 5, name: 'Tiger',     votes: 26.0, status: 'elected',  surplus: 8.0 },
-        { round: 5, name: 'Exhausted', votes: 14.0 },
-
-        { round: 4, name: 'Monkey',    votes: 26.0, status: 'elected' },
-        { round: 4, name: 'Gorilla',   votes: 26.0, status: 'elected' },
-        { round: 4, name: 'Tarsier',   votes: 0.0,  status: 'excluded'},
-        { round: 4, name: 'Lynx',      votes: 0,    status: 'excluded', surplus: 13.0 },
-        { round: 4, name: 'Tiger',     votes: 34.0, received: 13.0 },
-        { round: 4, name: 'Exhausted', votes: 14.0 },
-
-        { round: 3, name: 'Monkey',    votes: 26.0, status: 'elected' },
-        { round: 3, name: 'Gorilla',   votes: 26.0, status: 'elected' },
-        { round: 3, name: 'Tarsier',   votes: 0,    status: 'excluded', surplus: 5.0  },
-        { round: 3, name: 'Lynx',      votes: 13 },
-        { round: 3, name: 'Tiger',     votes: 21 },
-        { round: 3, name: 'Exhausted', votes: 14.0, received: 9.0 },
-
-        { round: 2, name: 'Monkey',    votes: 26.0, status: 'elected' },
-        { round: 2, name: 'Gorilla',   votes: 26.0, status: 'elected', surplus: 2.0 },
-        { round: 2, name: 'Tarsier',   votes: 5  },
-        { round: 2, name: 'Lynx',      votes: 13 },
-        { round: 2, name: 'Tiger',     votes: 21 },
-        { round: 2, name: 'Exhausted', votes: 9.0, received: 2.0 },
-
-        { round: 1, name: 'Monkey',    votes: 26.0, status: 'elected', surplus: 7.0 },
-        { round: 1, name: 'Gorilla',   votes: 28 },
-        { round: 1, name: 'Tarsier',   votes: 5  },
-        { round: 1, name: 'Lynx',      votes: 13 },
-        { round: 1, name: 'Tiger',     votes: 21 },
-        { round: 1, name: 'Exhausted', votes: 7.0, received: 7.0 },
-
-        { round: 0, name: 'Monkey',    votes: 33 },
-        { round: 0, name: 'Gorilla',   votes: 28 },
-        { round: 0, name: 'Tarsier',   votes: 5  },
-        { round: 0, name: 'Lynx',      votes: 13 },
-        { round: 0, name: 'Tiger',     votes: 21 },
-        { round: 0, name: 'Exhausted', votes: 0  }
-
+        { round: 5, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 26.0, status: 'elected' },
+            { name: 'Gorilla',   votes: 26.0, status: 'elected' },
+            { name: 'Tarsier',   votes: 0.0,  status: 'excluded' },
+            { name: 'Lynx',      votes: 0,    status: 'excluded' },
+            { name: 'Tiger',     votes: 26.0, status: 'elected',  surplus: 8.0 },
+            { name: 'Exhausted', votes: 14.0 },
+        ] },
+        { round: 4, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 26.0, status: 'elected' },
+            { name: 'Gorilla',   votes: 26.0, status: 'elected' },
+            { name: 'Tarsier',   votes: 0.0,  status: 'excluded'},
+            { name: 'Lynx',      votes: 0,    status: 'excluded', surplus: 13.0 },
+            { name: 'Tiger',     votes: 34.0, received: 13.0 },
+            { name: 'Exhausted', votes: 14.0 },
+        ] },
+        { round: 3, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 26.0, status: 'elected' },
+            { name: 'Gorilla',   votes: 26.0, status: 'elected' },
+            { name: 'Tarsier',   votes: 0,    status: 'excluded', surplus: 5.0  },
+            { name: 'Lynx',      votes: 13 },
+            { name: 'Tiger',     votes: 21 },
+            { name: 'Exhausted', votes: 14.0, received: 9.0 },
+        ] },
+        { round: 2, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 26.0, status: 'elected' },
+            { name: 'Gorilla',   votes: 26.0, status: 'elected', surplus: 2.0 },
+            { name: 'Tarsier',   votes: 5  },
+            { name: 'Lynx',      votes: 13 },
+            { name: 'Tiger',     votes: 21 },
+            { name: 'Exhausted', votes: 9.0, received: 2.0 },
+        ] },
+        { round: 1, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 26.0, status: 'elected', surplus: 7.0 },
+            { name: 'Gorilla',   votes: 28 },
+            { name: 'Tarsier',   votes: 5  },
+            { name: 'Lynx',      votes: 13 },
+            { name: 'Tiger',     votes: 21 },
+            { name: 'Exhausted', votes: 7.0, received: 7.0 },
+        ] },
+        { round: 0, threshold: 26.0, candidates: [
+            { name: 'Monkey',    votes: 33 },
+            { name: 'Gorilla',   votes: 28 },
+            { name: 'Tarsier',   votes: 5  },
+            { name: 'Lynx',      votes: 13 },
+            { name: 'Tiger',     votes: 21 },
+            { name: 'Exhausted', votes: 0  }
+        ] }
     ]
 });
 

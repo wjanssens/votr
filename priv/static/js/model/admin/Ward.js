@@ -1,7 +1,6 @@
 Ext.define('Votr.model.admin.Ward', {
     extend: 'Ext.data.TreeModel',
     requires: [
-        'Votr.data.validator.DateTime',
         'Votr.data.field.DateTime'
     ],
     fields: [

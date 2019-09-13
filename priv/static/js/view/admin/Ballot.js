@@ -31,6 +31,20 @@ Ext.define('Votr.view.admin.Ballot', {
                         }
                     ]
                 },
+                {
+                    width: 300,
+                    layout: "hbox",
+                    items: [
+                        { html: "<i class='fa fa-bar-chart-o'></i>", style: "font-size: 3.5em;", padding: "0 16px" },
+                        {
+                            layout: "vbox",
+                            items: [
+                                { cls: "stat", bind: { html: '<a href="#ballots/{ballotList.selection.id}/result">{ballotList.selection.result_round_ct}</a>' } },
+                                { html: "result rounds".translate(), cls: "p" }
+                            ]
+                        }
+                    ]
+                },
                 { flex: 1 }
             ]
         },
@@ -162,57 +176,6 @@ Ext.define('Votr.view.admin.Ballot', {
                             bind: '{ballotList.selection.public}'
                         }
                     ]
-                },
-                {
-                    title: 'Results',
-                    xtype: 'cartesian',
-                    height: 600,
-                    insetPadding: 20,
-                    innerPadding: 20,
-                    store: 'admin.Results',
-                    axes: [{
-                        type: 'numeric',
-                        position: 'left',
-                        title: {
-                            text: 'Votes'
-                        },
-                        fields: 'votes',
-                        limits: [{
-                            value: 26,
-                            line: {
-                                lineDash: [2, 2],
-                                title: {
-                                    text: 'Quota: 26 votes'
-                                }
-                            }
-                        }]
-                    }, {
-                        type: 'category',
-                        position: 'bottom',
-                        title: {
-                            text: 'Candidates'
-                        },
-                        fields: 'name'
-                    }],
-                    series: [{
-                        type: 'bar',
-                        stacked: true,
-                        highlight: true,
-                        xField: 'name',
-                        yField: ['votes','received'],
-                        style: {
-                            minGapWidth: 20
-                        },
-                        colors: ['#607D8B', '#fd9726'],
-                        highlight: {
-                            strokeStyle: 'black',
-                            fillStyle: '#fd9726'
-                        },
-                        label: {
-                            field: 'votes',
-                            display: 'insideEnd'
-                        }
-                    }]
                 }
             ]
         }

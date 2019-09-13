@@ -7,6 +7,7 @@ defmodule Votr.Election.Ballot do
   alias Votr.Repo
   alias Votr.Election.Ballot
   alias Votr.Election.Candidate
+  alias Votr.Election.Result
   alias Votr.Election.Res
   alias Votr.Election.Ward
 
@@ -30,6 +31,7 @@ defmodule Votr.Election.Ballot do
       :titles,
       :descriptions,
       :candidate_ct,
+      :round_ct,
       :updated_at
     ]
   }
@@ -47,8 +49,10 @@ defmodule Votr.Election.Ballot do
     field :anonymous, :boolean        # votes are anonymous
     field :color, :string             # used to color ballots to help distinguish multiple ballots in a ward
     field :candidate_ct, :integer, virtual: true
+    field :round_ct, :integer, virtual: true
     has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
     has_many :candidates, Candidate, foreign_key: :ballot_id, on_delete: :delete_all
+    has_many :results, Result, foreign_key: :ballot_id, on_delete: :delete_all
     timestamps()
   end
 
@@ -115,13 +119,15 @@ defmodule Votr.Election.Ballot do
              inner_join: w in assoc(b, :ward),
              left_join: s in assoc(b, :strings),
              left_join: c in assoc(b, :candidates),
+             left_join: r in assoc(b, :results),
              preload: [
                strings: s
              ],
              where: w.subject_id == ^subject_id and b.ward_id == ^ward_id,
              select: b,
              select_merge: %{
-               candidate_ct: count(c.id, :distinct)
+               candidate_ct: count(c.id, :distinct),
+               round_ct: max(r.round)
              },
              group_by: [b.id, s.id]
   end

@@ -19,7 +19,8 @@ Ext.define('Votr.controller.Admin', {
         'admin.Ballot',
         'admin.Voter',
         'admin.Candidate',
-        'admin.Result',
+        'admin.ResultRound',
+        'admin.ResultCandidate',
         'Language'
     ],
     stores: [
