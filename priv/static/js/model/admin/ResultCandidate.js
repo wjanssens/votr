@@ -5,6 +5,12 @@ Ext.define('Votr.model.admin.ResultCandidate', {
         {name: 'status', type: 'string'},
         {name: 'votes', type: 'number'},
         {name: 'surplus', type: 'number'},
-        {name: 'exhausted', type: 'number'}
+        {name: 'received', type: 'number'},
+        {name: 'exhausted', type: 'number'},
+        {
+            name: 'temp', type: 'number', depends: ['votes', 'received'], calculate: function (data) {
+                return data.votes - data.received;
+            }
+        }
     ]
 });

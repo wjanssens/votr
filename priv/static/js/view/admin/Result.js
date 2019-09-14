@@ -8,48 +8,50 @@ Ext.define('Votr.view.admin.Result', {
             xtype: 'cartesian',
             insetPadding: 20,
             innerPadding: 20,
-            bind: '{resultRoundList.selection.candidates}',
+            flex: 1,
+            bind: {
+                store: {
+                    model: 'Votr.model.admin.ResultCandidate',
+                    data: '{resultRoundsList.selection.candidates}'
+                }
+            },
             axes: [{
                 type: 'numeric',
-                position: 'left',
+                position: 'bottom',
                 title: {
-                    text: 'Votes'
+                    text: 'Votes'.translate()
                 },
-                fields: 'votes',
+                fields: ['votes', 'temp'],
                 limits: [{
-                    value: 26,
+                    bind: { value: '{resultRoundsList.selection.quota}' },
                     line: {
                         lineDash: [2, 2],
                         title: {
-                            text: 'Quota: 26 votes'
+                            bind: { text: 'Quota: {resultRoundsList.selection.quota} votes' }
                         }
                     }
                 }]
             }, {
                 type: 'category',
-                position: 'bottom',
+                position: 'left',
                 title: {
                     text: 'Candidates'.translate()
                 },
                 fields: 'name'
             }],
+            flipXY: true,
             series: [{
                 type: 'bar',
-                stacked: true,
                 highlight: true,
                 xField: 'name',
-                yField: ['votes','received'],
+                yField: ['temp','surplus','received'],
                 style: {
                     minGapWidth: 20
                 },
-                colors: ['#607D8B', '#fd9726'],
+                colors: ['#607D8B', '#e91e63', '#91c34a'],
                 highlight: {
                     strokeStyle: 'black',
                     fillStyle: '#fd9726'
-                },
-                label: {
-                    field: 'votes',
-                    display: 'insideEnd'
                 }
             }]
         }

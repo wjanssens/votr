@@ -39,7 +39,7 @@ Ext.define('Votr.view.admin.Ballot', {
                         {
                             layout: "vbox",
                             items: [
-                                { cls: "stat", bind: { html: '<a href="#ballots/{ballotList.selection.id}/result">{ballotList.selection.result_round_ct}</a>' } },
+                                { cls: "stat", bind: { html: '<a href="#ballots/{ballotList.selection.id}/results">xxx{ballotList.selection.result_round_ct}</a>' } },
                                 { html: "result rounds".translate(), cls: "p" }
                             ]
                         }

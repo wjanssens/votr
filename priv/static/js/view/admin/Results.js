@@ -6,15 +6,27 @@ Ext.define('Votr.view.admin.Results', {
     referenceHolder: true,
     viewModel: {
         stores: {
-            rounds: 'admin.Results',
+            resultRounds: {
+                model: 'Votr.model.admin.ResultRound',
+                proxy: {
+                    type: 'rest',
+                    url: '../api/admin/ballots/{id}/results',
+                    reader: { type: 'json', rootProperty: 'data' }
+                }
+            }
         }
     },
+    requires: [
+        "Votr.view.admin.ResultsController"
+    ],
+    controller: 'admin.results',
     items: [{
         xtype: 'list',
+        reference: 'resultRoundsList',
         width: 384,
         itemTpl: '<div><p>Round {round}</p></div>',
         bind: {
-            store: '{rounds}'
+            store: '{resultRounds}'
         }
     }, {
         xtype: 'admin.result',

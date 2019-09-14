@@ -5,6 +5,7 @@ Ext.define('Votr.model.ResultCandidate', {
         {name: 'status', type: 'string'},
         {name: 'votes', type: 'number'},
         {name: 'surplus', type: 'number'},
+        {name: 'received', type: 'number'},
         {name: 'exhausted', type: 'number'}
     ]
 });

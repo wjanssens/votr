@@ -55,7 +55,7 @@ defmodule VotrWeb.Router do
     resources("/ballots", BallotsController, only: [:create, :update, :delete])
     resources("/ballots/:ballot_id/candidates", CandidatesController, only: [:index])
     resources("/ballots/:ballot_id/votes", BallotVotesController, only: [:index])
-    resources("/ballots/:ballot_id/result", BallotResultController, only: [:index])
+    resources("/ballots/:ballot_id/results", BallotResultsController, only: [:index])
     resources("/voters", VoterController, only: [:create, :update, :delete])
     resources("/candidates", CandidatesController, only: [:create, :update, :delete])
     resources("/subjects/:subject_id/principals", PrincipalsController, only: [:index])
