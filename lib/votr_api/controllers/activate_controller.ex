@@ -28,8 +28,6 @@ defmodule Votr.Api.ActivateController do
          {:ok, subject_id} <- update_token(token),
          {:ok, _} <- Token.delete(id) do
 
-      IO.inspect(subject_id)
-
       if is_nil(subject_id) do
         conn
         |> put_status(200)

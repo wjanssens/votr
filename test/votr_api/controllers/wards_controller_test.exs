@@ -5,7 +5,7 @@ defmodule Votr.Api.WardsControllerTest do
   use ExUnit.Case, async: true
 
   test "wards lifecycle" do
-    with_subject fn (jwt) ->
+    with_subject fn (_subject, jwt) ->
 
       # add a ward
       body =
