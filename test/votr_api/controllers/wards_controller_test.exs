@@ -112,6 +112,15 @@ defmodule Votr.Api.WardsControllerTest do
 
       assert body["success"] == true
 
+      # delete a ward
+      body =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{jwt}")
+        |> delete("/api/admin/wards/#{ward_id}")
+        |> json_response(200)
+
+      assert body["success"] == true
+
     end
   end
 end
