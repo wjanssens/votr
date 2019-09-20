@@ -56,38 +56,13 @@ defmodule Votr.Election.Ballot do
     timestamps()
   end
 
-  def insert(params) do
-    shard = FlexId.extract_partition(:id_generator, params.ward_id)
+  def insert(subject_id, ballot) do
+    with {:ok} <- Ward.verify_ownership(subject_id, ballot.ward_id) do
+      shard = FlexId.extract_partition(:id_generator, ballot.ward_id)
 
-    %Ballot{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(
-         params,
-         [
-           :ward_id,
-           :version,
-           :seq,
-           :ext_id,
-           :method,
-           :quota,
-           :electing,
-           :shuffle,
-           :mutable,
-           :public,
-           :anonymous,
-           :color
-         ]
-       )
-    |> validate_required([:id, :version, :seq])
-    |> Repo.insert()
-  end
-
-  def update(params) do
-    try do
-      reorder(params)
-
-      %Ballot{id: params.id}
+      %Ballot{id: FlexId.generate(:id_generator, shard), version: 0}
       |> cast(
-           params,
+           ballot,
            [
              :ward_id,
              :version,
@@ -104,10 +79,39 @@ defmodule Votr.Election.Ballot do
            ]
          )
       |> validate_required([:id, :version, :seq])
-      |> optimistic_lock(:version)
-      |> Repo.update()
-    rescue
-      e in Ecto.StaleEntryError -> {:conflict, e.message}
+      |> Repo.insert()
+    end
+  end
+
+  def update(subject_id, ballot) do
+    with {:ok} <- Ward.verify_ownership(subject_id, ballot.ward_id) do
+      try do
+        reorder(ballot)
+
+        %Ballot{id: ballot.id}
+        |> cast(
+             ballot,
+             [
+               :ward_id,
+               :version,
+               :seq,
+               :ext_id,
+               :method,
+               :quota,
+               :electing,
+               :shuffle,
+               :mutable,
+               :public,
+               :anonymous,
+               :color
+             ]
+           )
+        |> validate_required([:id, :version, :seq])
+        |> optimistic_lock(:version)
+        |> Repo.update()
+      rescue
+        e in Ecto.StaleEntryError -> {:conflict, e.message}
+      end
     end
   end
 
@@ -238,10 +242,14 @@ defmodule Votr.Election.Ballot do
        )
   end
 
-  def delete(id) do
-    Repo.delete(%Ballot{id: id})
+  def delete(subject_id, id) do
+    with {1, _} <- Repo.delete_all from b in Ballot,
+                                   inner_join: w in assoc(b, :ward),
+                                   where: w.subject_id == ^subject_id and b.id == ^id do
+      {:ok, 1}
+    else _ -> {:error, :not_found}
+    end
   end
-
 
   @doc """
     Re-sequences ballots in a ward.

@@ -137,6 +137,33 @@ defmodule Votr.Identity.Principal do
     end
   end
 
+  @doc """
+    Inserts or updates all principals for an entity.
+    This is meant for bulk replacement of principals.
+    No optimistic lock checking is performed since it's assumed that the parent entity lock version is used.
+  """
+  def upsert_all(subject_id, principals) do
+    shard = FlexId.extract_partition(:id_generator, subject_id)
+
+    entries = principals
+              |> Enum.map(
+                   fn p ->
+                     %{
+                       id: FlexId.generate(:id_generator, shard),
+                       subject_id: subject_id,
+                       version: 0,
+                       kind: p.kind,
+                       seq: p.seq,
+                       value: p.value,
+                       hash: p.hash,
+                       inserted_at: DateTime.utc_now,
+                       updated_at: DateTime.utc_now
+                     }
+                   end
+                 )
+    Repo.insert_all Res, entries, on_conflict: :replace_all, conflict_target: [:subject_id, :kind, :seq]
+  end
+
   def delete_all(subject_id) do
     Repo.delete_all from p in Principal,
                     where: p.subject_id == ^subject_id

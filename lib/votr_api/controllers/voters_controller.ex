@@ -1,12 +1,14 @@
 defmodule Votr.Api.VotersController do
   use VotrWeb, :controller
   use Timex
-  alias Votr.AES
   alias Votr.Election.Voter
-  alias Votr.Election.Res
+  alias Votr.Identity.Subject
   alias Votr.Identity.Principal
-  alias Votr.Identity.AccessCode
-  alias Votr.Identity.IdentityCard
+  alias Votr.Identity.CommonName
+  alias Votr.Identity.Phone
+  alias Votr.Identity.Email
+  alias Votr.Identity.PostalAddress
+  alias Votr.Identity.Opaque
   alias Votr.HashId
   require Logger
 
@@ -19,30 +21,46 @@ defmodule Votr.Api.VotersController do
     voters = nodes
              |> Enum.map(
                   fn v ->
-                    names = v.strings
-                            |> Enum.filter(fn res -> res.key == "name" end)
-                            |> Enum.reduce(
-                                 %{},
-                                 fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
-                               )
+                    opaques = v.principals
+                              |> Enum.filter(fn p -> p.kind == "opaque" end)
+                              |> Enum.map(fn p -> Opaque.from_principal(p) end)
+                              |> Enum.map(fn o -> o.hash end)
 
-                    access_code = v.principals
-                                  |> Enum.filter(fn p -> p.kind == "access_code" end)
-                                  |> Enum.map(fn p -> AccessCode.from_principal(p) end)
-                                  |> Enum.map(fn ac -> ac.number end)
-                                  |> Enum.at(0)
+                    name = v.principals
+                           |> Enum.filter(fn p -> p.kind == "common_name" end)
+                           |> Enum.map(fn p -> CommonName.from_principal(p) end)
+                           |> Enum.map(fn cn -> cn.name end)
+                           |> Enum.at(0)
 
-                    identity_cards = v.principals
-                                     |> Enum.filter(fn p -> p.kind == "identity_card" end)
-                                     |> Enum.map(fn p -> IdentityCard.from_principal(p) end)
-                                     |> Enum.map(fn ic -> ic.value.number end)
+                    address = v.principals
+                              |> Enum.filter(fn p -> p.kind == "postal_address" end)
+                              |> Enum.map(fn p -> PostalAddress.from_principal(p) end)
+                              |> Enum.map(fn a -> a.lines end)
+                              |> Enum.at(0)
+
+                    email = v.principals
+                              |> Enum.filter(fn p -> p.kind == "email" end)
+                              |> Enum.map(fn p -> Email.from_principal(p) end)
+                              |> Enum.map(fn e -> e.address end)
+                              |> Enum.at(0)
+
+                    phone = v.principals
+                              |> Enum.filter(fn p -> p.kind == "phone" end)
+                              |> Enum.map(fn p -> Phone.from_principal(p) end)
+                              |> Enum.map(fn p -> p.number end)
+                              |> Enum.at(0)
 
                     v
                     |> Map.update(:id, nil, &(HashId.encode &1))
                     |> Map.update(:ward_id, nil, &(HashId.encode &1))
                     |> Map.update(:subject_id, nil, &(HashId.encode &1))
-                    |> Map.put(:name, Map.get(names, "default"))
-                    |> Map.drop([:strings])
+                    |> Map.put(:name, name)
+                    |> Map.put(:address, address)
+                    |> Map.put(:email, email)
+                    |> Map.put(:phone, phone)
+                    |> Map.put(:id1, Enum.find(opaques, fn o -> o.seq == 0 end))
+                    |> Map.put(:id2, Enum.find(opaques, fn o -> o.seq == 1 end))
+                    |> Map.drop([:principals])
                   end
                 )
 
@@ -51,18 +69,20 @@ defmodule Votr.Api.VotersController do
     |> json(%{success: true, voters: voters})
   end
 
-  # create a new election or ward
+  # create a voter
   def create(conn, body) do
     ward_id = HashId.decode(body["ward_id"])
+    subject_id = conn.assigns[:subject_id]
+
 
     voter = %{
-      subject_id: conn.assigns[:subject_id],
       ward_id: ward_id,
-      ext_id: body["ext_id"],
+      ext_id: body["ext_id"]
     }
 
-    with {:ok, voter} <- Voter.insert(voter),
-         {_, _} <- Res.upsert_all(voter.id, res(body)) do
+    with {:ok, subject} <- Subject.insert_voter(ward_id),
+         {:ok, voter} <- Voter.insert(subject_id, Map.put_new(voter, :subject_id, subject.id)),
+         {:ok, _} <- Principal.upsert_all(subject.id, principals(subject.id, body)) do
       conn
       |> put_status(:created)
       |> json(
@@ -91,7 +111,7 @@ defmodule Votr.Api.VotersController do
     end
   end
 
-  # create a new election or ward
+  # update a voter
   def update(conn, body) do
     id = HashId.decode(body["id"])
     subject_id = conn.assigns[:subject_id]
@@ -99,12 +119,11 @@ defmodule Votr.Api.VotersController do
     voter = %{
       id: id,
       version: body["version"],
-      subject_id: subject_id,
       ext_id: body["ext_id"],
     }
 
-    with {:ok, voter} <- Voter.update(voter),
-         {_, _} <- Res.upsert_all(voter.id, res(body)) do
+    with {:ok, voter} <- Voter.update(subject_id, voter),
+         {_, _} <- Principal.upsert_all(voter.id, principals(voter.subject_id, body)) do
       conn
       |> put_status(:ok)
       |> json(
@@ -142,12 +161,12 @@ defmodule Votr.Api.VotersController do
     end
   end
 
+  # delete a voter
   def delete(conn, body) do
     id = HashId.decode(body["id"])
+    subject_id = conn.assigns[:subject_id]
 
-    with {_, _} <- Principal.delete_all(id),
-         {_, _} <- Res.delete_all(id),
-         {:ok, _} <- Voter.delete(id) do
+    with {1, _} <- Voter.delete(subject_id, id) do
       conn
       |> put_status(:ok)
       |> json(
@@ -156,7 +175,7 @@ defmodule Votr.Api.VotersController do
            }
          )
     else
-      {:conflict, _msg} ->
+      _ ->
         conn
         |> put_status(:conflict)
         |> json(
@@ -168,22 +187,55 @@ defmodule Votr.Api.VotersController do
     end
   end
 
-  defp res(body) do
+  defp principals(subject_id, body) do
     [
-      %{
-        key: "name",
-        tag: "default",
-        value: body["name"]
-      }
+      PostalAddress.to_principal(
+        %{
+          subject_id: subject_id,
+          label: "home",
+          failures: 0,
+          lines: String.split(body["address"], "\n", trim: true)
+        }
+      ),
+      CommonName.to_principal(
+        %{
+          subject_id: subject_id,
+          name: body["name"]
+        }
+      ),
+      Email.to_principal(
+        %{
+          subject_id: subject_id,
+          label: "home",
+          state: "valid",
+          failures: 0,
+          address: body["email"]
+        }
+      ),
+      Phone.to_principal(
+        %{
+          subject_id: subject_id,
+          label: "phone",
+          state: "valid",
+          failures: 0,
+          address: body["phone"]
+        }
+      ),
+      Opaque.to_principal(
+        %{
+          subject_id: subject_id,
+          seq: 0,
+          hash: body["id1"]
+        }
+      ),
+      Opaque.to_principal(
+        %{
+          subject_id: subject_id,
+          seq: 1,
+          hash: body["id2"]
+        }
+      )
     ]
   end
 
-  defp principal(body, body_key, kind, seq) do
-    value = body[body_key]
-    %{
-      key: "name",
-      tag: "default",
-      value: body["name"]
-    }
-  end
 end

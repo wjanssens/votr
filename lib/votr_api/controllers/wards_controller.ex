@@ -48,9 +48,10 @@ defmodule Votr.Api.WardsController do
   # create a new election or ward
   def create(conn, body) do
     parent_id = if is_binary(body["parent_id"]), do: HashId.decode(body["parent_id"]), else: nil
+    subject_id = conn.assigns[:subject_id]
 
     ward = %{
-      subject_id: conn.assigns[:subject_id],
+      subject_id: subject_id,
       parent_id: parent_id,
       seq: body["seq"] || 0,
       ext_id: body["ext_id"],
@@ -58,7 +59,7 @@ defmodule Votr.Api.WardsController do
       end_at: dt(body, "end_at")
     }
 
-    with {:ok, ward} <- Ward.insert(ward),
+    with {:ok, ward} <- Ward.insert(subject_id, ward),
          {_, _} <- Res.upsert_all(ward.id, res(body, "names", "name")),
          {_, _} <- Res.upsert_all(ward.id, res(body, "descriptions", "description"))
       do
@@ -105,7 +106,7 @@ defmodule Votr.Api.WardsController do
       end_at: dt(body, "end_at")
     }
 
-    with {:ok, ward} <- Ward.update(ward),
+    with {:ok, ward} <- Ward.update(subject_id, ward),
          {_, _} <- Res.upsert_all(ward.id, res(body, "names", "name")),
          {_, _} <- Res.upsert_all(ward.id, res(body, "descriptions", "description")) do
       conn
@@ -147,9 +148,9 @@ defmodule Votr.Api.WardsController do
 
   def delete(conn, body) do
     id = HashId.decode(body["id"])
+    subject_id = conn.assigns[:subject_id]
 
-    with {_, _} <- Res.delete_all(id),
-         {:ok, _} <- Ward.delete(id) do
+    with {1, _} <- Ward.delete(subject_id, id) do
       conn
       |> put_status(:ok)
       |> json(

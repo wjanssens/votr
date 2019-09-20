@@ -19,7 +19,7 @@ Ext.define('Votr.view.admin.Voter', {
         xtype: 'numberfield',
         name: 'weight',
         label: 'Weight',
-        bind: '{woterList.selection.weight}'
+        bind: '{voterList.selection.weight}'
     }, {
         xtype: 'fieldset',
         title: 'Address Information',

@@ -47,9 +47,7 @@ defmodule Votr.Api.BallotsController do
 
   def create(conn, body) do
     ward_id = HashId.decode(body["ward_id"])
-
-    # TODO verify that the subject owns the ward
-    # any ballot inserted with an invalid ward id would be orphaned as it can't be selected
+    subject_id = conn.assigns[:subject_id]
 
     ballot = %{
       ward_id: ward_id,
@@ -65,7 +63,7 @@ defmodule Votr.Api.BallotsController do
       color: body["color"]
     }
 
-    with {:ok, ballot} <- Ballot.insert(ballot),
+    with {:ok, ballot} <- Ballot.insert(subject_id, ballot),
          {_, _} <- Res.upsert_all(ballot.id, res(body, "titles", "title")),
          {_, _} <- Res.upsert_all(ballot.id, res(body, "descriptions", "description"))
       do
@@ -98,6 +96,7 @@ defmodule Votr.Api.BallotsController do
 
   def update(conn, body) do
     id = HashId.decode(body["id"])
+    subject_id = conn.assigns[:subject_id]
 
     ballot = %{
       id: id,
@@ -114,7 +113,7 @@ defmodule Votr.Api.BallotsController do
       color: body["color"]
     }
 
-    with {:ok, ballot} <- Ballot.update(ballot),
+    with {:ok, ballot} <- Ballot.update(subject_id, ballot),
          {_, _} <- Res.upsert_all(ballot.id, res(body, "titles", "title")),
          {_, _} <- Res.upsert_all(ballot.id, res(body, "descriptions", "description")) do
       conn
@@ -156,9 +155,9 @@ defmodule Votr.Api.BallotsController do
 
   def delete(conn, body) do
     id = HashId.decode(body["id"])
+    subject_id = conn.assigns[:subject_id]
 
-    with {_, _} <- Res.delete_all(id),
-         {:ok, _} <- Ballot.delete(id) do
+    with {:ok, _} <- Ballot.delete(subject_id, id) do
       conn
       |> put_status(:ok)
       |> json(

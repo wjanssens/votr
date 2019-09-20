@@ -35,32 +35,40 @@ defmodule Votr.Election.Candidate do
     timestamps()
   end
 
-  def insert(params) do
-    shard = FlexId.extract_partition(:id_generator, params.ballot_id)
-
-    %Candidate{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(
-         params,
-         [:ballot_id, :version, :seq, :ext_id, :withdrawn, :color]
-       )
-    |> validate_required([:id, :version, :seq])
-    |> Repo.insert()
+  defp verify_ownership(subject_id, ballot_id) do
+    query = from b in Ballot,
+                 inner_join: w in assoc(b, :ward),
+                 where: w.subject_id == ^subject_id and b.id == ^ballot_id
+    with 1 <- Repo.aggregate query, :count, :id do
+      {:ok}
+    else _ -> {:error, :not_found}
+    end
   end
 
-  def update(params) do
-    try do
-      reorder(params)
+  def insert(subject_id, candidate) do
+    with {:ok} <- verify_ownership(subject_id, candidate.ballot_id) do
+      shard = FlexId.extract_partition(:id_generator, candidate.ballot_id)
 
-      %Candidate{id: params.id}
-      |> cast(
-           params,
-           [:ballot_id, :version, :seq, :ext_id, :withdrawn, :color]
-         )
+      %Candidate{id: FlexId.generate(:id_generator, shard), version: 0}
+      |> cast(candidate, [:ballot_id, :version, :seq, :ext_id, :withdrawn, :color])
       |> validate_required([:id, :version, :seq])
-      |> optimistic_lock(:version)
-      |> Repo.update()
-    rescue
-      e in Ecto.StaleEntryError -> {:conflict, e.message}
+      |> Repo.insert()
+    end
+  end
+
+  def update(subject_id, candidate) do
+    with {:ok} <- verify_ownership(subject_id, candidate.ballot_id) do
+      try do
+        reorder(candidate)
+
+        %Candidate{id: candidate.id}
+        |> cast(candidate, [:version, :seq, :ext_id, :withdrawn, :color])
+        |> validate_required([:id, :version, :seq])
+        |> optimistic_lock(:version)
+        |> Repo.update()
+      rescue
+        e in Ecto.StaleEntryError -> {:conflict, e.message}
+      end
     end
   end
 
@@ -79,8 +87,14 @@ defmodule Votr.Election.Candidate do
              select: c
   end
 
-  def delete(id) do
-    Repo.delete(%Candidate{id: id})
+  def delete(subject_id, id) do
+    with {1, _} <- Repo.delete_all from c in Candidate,
+                                   inner_join: b in assoc(c, :ballot),
+                                   inner_join: w in assoc(b, :ward),
+                                   where: w.subject_id == ^subject_id and b.id == ^id do
+      {:ok, 1}
+    else _ -> {:error, :not_found}
+    end
   end
 
   @doc """

@@ -18,4 +18,14 @@ defmodule Votr.Identity.Subject do
     }
     |> Repo.insert()
   end
+
+  def insert_voter(ward_id) do
+    shard = FlexId.extract_partition(:id_generator, ward_id)
+    id = FlexId.generate(:id_generator, shard)
+
+    %Subject{
+      id: id
+    }
+    |> Repo.insert()
+  end
 end

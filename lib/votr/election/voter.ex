@@ -4,9 +4,6 @@ defmodule Votr.Election.Voter do
   import Ecto.Query
   alias Votr.Repo
   alias Votr.Identity.Principal
-  alias Votr.Identity.AccessCode
-  alias Votr.Identity.IdentityCard
-  alias Votr.Election.Res
   alias Votr.Election.Voter
   alias Votr.Election.Ward
 
@@ -25,9 +22,8 @@ defmodule Votr.Election.Voter do
       :name,
       :email,
       :phone,
-      :access_code,
-      :identity_card_1,
-      :identity_card_2
+      :id1,
+      :id2
     ]
   }
   schema "voter" do
@@ -36,35 +32,33 @@ defmodule Votr.Election.Voter do
     field :ext_id, :string   # reference to an external system
     field :voted, :integer   # the number of times this voter voted
     field :weight, :float    # the weight that this voter's vote counts for
-    has_many :strings, Res, foreign_key: :entity_id, on_delete: :delete_all
+    has_one :subject, Subject, foreign_key: :subject_id, on_delete: :delete_all
     has_many :principals, Principal, foreign_key: :subject_id, on_delete: :delete_all
     timestamps()
   end
 
-  def insert(params) do
-    shard = FlexId.extract_partition(:id_generator, params.ballot_id)
+  def insert(subject_id, voter) do
+    with {:ok} <- Ward.verify_ownership(subject_id, voter.ward_id) do
+      shard = FlexId.extract_partition(:id_generator, voter.ward_id)
 
-    %Voter{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(
-         params,
-         [:ballot_id, :version, :ext_id, :weight, :voted]
-       )
-    |> validate_required([:id, :version])
-    |> Repo.insert()
+      %Voter{id: FlexId.generate(:id_generator, shard), version: 0}
+      |> cast(voter, [:ward_id, :version, :ext_id, :weight, :voted])
+      |> validate_required([:id, :version])
+      |> Repo.insert()
+    end
   end
 
-  def update(params) do
-    try do
-      %Voter{id: params.id}
-      |> cast(
-           params,
-           [:ballot_id, :version, :ext_id, :weight, :voted]
-         )
-      |> validate_required([:id, :version])
-      |> optimistic_lock(:version)
-      |> Repo.update()
-    rescue
-      e in Ecto.StaleEntryError -> {:conflict, e.message}
+  def update(subject_id, voter) do
+    with {:ok} <- Ward.verify_ownership(subject_id, voter.ward_id) do
+      try do
+        %Voter{id: voter.id}
+        |> cast(voter, [:version, :ext_id, :weight, :voted])
+        |> validate_required([:id, :version])
+        |> optimistic_lock(:version)
+        |> Repo.update()
+      rescue
+        e in Ecto.StaleEntryError -> {:conflict, e.message}
+      end
     end
   end
 
@@ -74,17 +68,18 @@ defmodule Votr.Election.Voter do
   def select(subject_id, ward_id) do
     Repo.all from v in Voter,
              inner_join: w in assoc(v, :ward),
-             left_join: s in assoc(v, :strings),
              left_join: p in assoc(v, :principals),
              preload: [
-               strings: s,
                principals: p
              ],
              where: w.subject_id == ^subject_id and v.ward_id == ^ward_id,
              select: v
   end
 
-  def delete(id) do
-    Repo.delete(%Voter{id: id})
+  def delete(subject_id, id) do
+    # the associated subject and principals will cascade delete
+    Repo.delete_all from v in Voter,
+                    inner_join: w in assoc(v, :ward),
+                    where: w.subject_id == ^subject_id and v.id == ^id
   end
 end

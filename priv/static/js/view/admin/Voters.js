@@ -36,7 +36,7 @@ Ext.define('Votr.view.admin.Voters', {
         items: [{
             xtype: 'button',
             text: 'Add',
-            handler: 'onSave'
+            handler: 'onAdd'
         }, '->', {
             xtype: 'button',
             text: 'Delete',

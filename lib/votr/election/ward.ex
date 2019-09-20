@@ -86,31 +86,57 @@ defmodule Votr.Election.Ward do
              group_by: [w.id, s.id]
   end
 
-  def insert(params) do
-    shard = FlexId.extract_partition(:id_generator, params.subject_id)
-
-    %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
-    |> cast(params, [:version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
-    |> validate_required([:id, :version, :subject_id, :seq])
-    |> Repo.insert()
-  end
-
-  def update(params) do
-    try do
-      reorder(params)
-
-      %Ward{id: params.id}
-      |> cast(params, [:version, :parent_id, :ext_id, :start_at, :end_at])
-      |> validate_required([:id, :version])
-      |> optimistic_lock(:version)
-      |> Repo.update()
-    rescue
-      e in Ecto.StaleEntryError -> {:conflict, e.message}
+  def verify_ownership(subject_id, ward_id) do
+    query = from w in Ward,
+                 where: w.subject_id == ^subject_id and w.id == ^ward_id
+    with 1 <- Repo.aggregate query, :count, :id do
+      {:ok}
+    else _ -> {:error, :not_found}
     end
   end
 
-  def delete(id) do
-    Repo.delete(%Ward{id: id})
+  def insert(subject_id, ward) do
+    ins = fn (subject_id, ward) ->
+      shard = FlexId.extract_partition(:id_generator, subject_id)
+
+      %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
+      |> cast(ward, [:version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
+      |> validate_required([:id, :version, :subject_id, :seq])
+      |> Repo.insert()
+    end
+
+    if ward.parent_id != nil do
+      with {:ok} <- verify_ownership(subject_id, ward.parent_id) do
+        ins.(subject_id, ward)
+      end
+    else
+      ins.(subject_id, ward)
+    end
+  end
+
+  def update(subject_id, ward) do
+    with {:ok} <- verify_ownership(subject_id, ward.id) do
+      try do
+        reorder(ward)
+
+        %Ward{id: ward.id}
+        |> cast(ward, [:version, :ext_id, :start_at, :end_at])
+        |> validate_required([:id, :version])
+        |> optimistic_lock(:version)
+        |> Repo.update()
+      rescue
+        e in Ecto.StaleEntryError -> {:conflict, e.message}
+      end
+    else _ -> {:error, :not_found}
+    end
+  end
+
+  def delete(subject_id, id) do
+    with {1, _} <- Repo.delete_all from w in Ward,
+                                   where: w.subject_id == ^subject_id and w.id == ^id do
+      {:ok, 1}
+    else _ -> {:error, :not_found}
+    end
   end
 
   @doc """
@@ -141,8 +167,8 @@ defmodule Votr.Election.Ward do
     WHERE rows_to_update.id = ward.id
     """
 
-    with {:ok, _} <- Ecto.Adapters.SQL.query(Repo, sql, [ward.id, ward.seq])
-      do
+    with {:ok, _} <- Ecto.Adapters.SQL.query(Repo, sql, [ward.id, ward.seq]) do
+      {:ok}
     else {:error, msg} ->
       {:error, msg}
     end

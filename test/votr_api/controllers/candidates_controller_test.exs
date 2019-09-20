@@ -7,13 +7,10 @@ defmodule Votr.Api.CandidatesControllerTest do
   test "ballot lifecycle" do
     with_subject fn (subject, jwt) ->
       with_ward subject.id, fn (ward) ->
-        ward_id = Votr.HashId.encode(ward.id)
-
         with_ballot ward.id, fn(ballot) ->
           ballot_id = Votr.HashId.encode(ballot.id)
 
           # add a candidate
-
           body =
             build_conn()
             |> put_req_header("content-type", "application/json")
@@ -57,7 +54,7 @@ defmodule Votr.Api.CandidatesControllerTest do
           assert candidate["id"] == candidate_id
           assert candidate["ballot_id"] == ballot_id
 
-          # update a ballot
+          # update a candidate
           body =
             build_conn()
             |> put_req_header("authorization", "Bearer #{jwt}")
@@ -73,7 +70,7 @@ defmodule Votr.Api.CandidatesControllerTest do
 
           assert body["success"] == true
 
-          # delete a ballot
+          # delete a candidate
           body =
             build_conn()
             |> put_req_header("authorization", "Bearer #{jwt}")
