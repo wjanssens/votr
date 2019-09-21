@@ -14,31 +14,31 @@ defmodule Votr.Api.CandidatesController do
     nodes = Candidate.select(subject_id, parent_id)
 
     candidates = nodes
-            |> Enum.map(
-                 fn w ->
-                   names = w.strings
-                           |> Enum.filter(fn res -> res.key == "name" end)
-                           |> Enum.reduce(
-                                %{},
-                                fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
-                              )
+                 |> Enum.map(
+                      fn w ->
+                        names = w.strings
+                                |> Enum.filter(fn res -> res.key == "name" end)
+                                |> Enum.reduce(
+                                     %{},
+                                     fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
+                                   )
 
-                   descs = w.strings
-                           |> Enum.filter(fn res -> res.key == "description" end)
-                           |> Enum.reduce(
-                                %{},
-                                fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
-                              )
+                        descs = w.strings
+                                |> Enum.filter(fn res -> res.key == "description" end)
+                                |> Enum.reduce(
+                                     %{},
+                                     fn res, acc -> Map.put(acc, res.tag, AES.decrypt(Base.decode64!(res.value))) end
+                                   )
 
-                   w
-                   |> Map.update(:id, nil, &(HashId.encode &1))
-                   |> Map.update(:ballot_id, nil, &(if is_nil(&1), do: nil, else: HashId.encode &1))
-                   |> Map.update(:subject_id, nil, &(HashId.encode &1))
-                   |> Map.put(:names, names)
-                   |> Map.put(:descriptions, descs)
-                   |> Map.drop([:strings])
-                 end
-               )
+                        w
+                        |> Map.update(:id, nil, &(HashId.encode &1))
+                        |> Map.update(:ballot_id, nil, &(if is_nil(&1), do: nil, else: HashId.encode &1))
+                        |> Map.update(:subject_id, nil, &(HashId.encode &1))
+                        |> Map.put(:names, names)
+                        |> Map.put(:descriptions, descs)
+                        |> Map.drop([:strings])
+                      end
+                    )
 
     conn
     |> put_status(200)
@@ -154,15 +154,14 @@ defmodule Votr.Api.CandidatesController do
            }
          )
     else
+      {:error, :not_found} ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{success: false, error: "not_found"})
       {:conflict, _msg} ->
         conn
         |> put_status(:conflict)
-        |> json(
-             %{
-               success: false,
-               error: "conflict"
-             }
-           )
+        |> json(%{success: false, error: "conflict"})
     end
   end
 

@@ -39,16 +39,16 @@ defmodule Votr.Api.VotersController do
                               |> Enum.at(0)
 
                     email = v.principals
-                              |> Enum.filter(fn p -> p.kind == "email" end)
-                              |> Enum.map(fn p -> Email.from_principal(p) end)
-                              |> Enum.map(fn e -> e.address end)
-                              |> Enum.at(0)
+                            |> Enum.filter(fn p -> p.kind == "email" end)
+                            |> Enum.map(fn p -> Email.from_principal(p) end)
+                            |> Enum.map(fn e -> e.address end)
+                            |> Enum.at(0)
 
                     phone = v.principals
-                              |> Enum.filter(fn p -> p.kind == "phone" end)
-                              |> Enum.map(fn p -> Phone.from_principal(p) end)
-                              |> Enum.map(fn p -> p.number end)
-                              |> Enum.at(0)
+                            |> Enum.filter(fn p -> p.kind == "phone" end)
+                            |> Enum.map(fn p -> Phone.from_principal(p) end)
+                            |> Enum.map(fn p -> p.number end)
+                            |> Enum.at(0)
 
                     v
                     |> Map.update(:id, nil, &(HashId.encode &1))
@@ -74,7 +74,6 @@ defmodule Votr.Api.VotersController do
     ward_id = HashId.decode(body["ward_id"])
     subject_id = conn.assigns[:subject_id]
 
-
     voter = %{
       ward_id: ward_id,
       ext_id: body["ext_id"]
@@ -82,7 +81,7 @@ defmodule Votr.Api.VotersController do
 
     with {:ok, subject} <- Subject.insert_voter(ward_id),
          {:ok, voter} <- Voter.insert(subject_id, Map.put_new(voter, :subject_id, subject.id)),
-         {:ok, _} <- Principal.upsert_all(subject.id, principals(subject.id, body)) do
+         {_, _} <- Principal.upsert_all(subject.id, principals(subject.id, body)) do
       conn
       |> put_status(:created)
       |> json(
@@ -102,12 +101,7 @@ defmodule Votr.Api.VotersController do
 
         conn
         |> put_status(:internal_server_error)
-        |> json(
-             %{
-               success: false,
-               error: "internal_server_error"
-             }
-           )
+        |> json(%{success: false, error: "internal_server_error"})
     end
   end
 
@@ -122,6 +116,9 @@ defmodule Votr.Api.VotersController do
       ext_id: body["ext_id"],
     }
 
+    # TODO this isn't working because the subject_id is missing
+    # maybe it would be better to eliminate the subject table and the subject_id and treat the voter id as the
+    # foreign key to principal
     with {:ok, voter} <- Voter.update(subject_id, voter),
          {_, _} <- Principal.upsert_all(voter.id, principals(voter.subject_id, body)) do
       conn
@@ -189,53 +186,66 @@ defmodule Votr.Api.VotersController do
 
   defp principals(subject_id, body) do
     [
-      PostalAddress.to_principal(
-        %{
-          subject_id: subject_id,
-          label: "home",
-          failures: 0,
-          lines: String.split(body["address"], "\n", trim: true)
-        }
-      ),
-      CommonName.to_principal(
-        %{
-          subject_id: subject_id,
-          name: body["name"]
-        }
-      ),
-      Email.to_principal(
-        %{
-          subject_id: subject_id,
-          label: "home",
-          state: "valid",
-          failures: 0,
-          address: body["email"]
-        }
-      ),
-      Phone.to_principal(
-        %{
-          subject_id: subject_id,
-          label: "phone",
-          state: "valid",
-          failures: 0,
-          address: body["phone"]
-        }
-      ),
-      Opaque.to_principal(
-        %{
-          subject_id: subject_id,
-          seq: 0,
-          hash: body["id1"]
-        }
-      ),
-      Opaque.to_principal(
-        %{
-          subject_id: subject_id,
-          seq: 1,
-          hash: body["id2"]
-        }
-      )
+      if Map.has_key? body, :address do
+        PostalAddress.to_principal(
+          %{
+            subject_id: subject_id,
+            label: "home",
+            failures: 0,
+            lines: String.split(body["address"], "\n", trim: true)
+          }
+        )
+      end,
+      if Map.has_key? body, :name do
+        CommonName.to_principal(
+          %{
+            subject_id: subject_id,
+            name: body["name"]
+          }
+        )
+      end,
+      if Map.has_key? body, :email do
+        Email.to_principal(
+          %{
+            subject_id: subject_id,
+            label: "home",
+            state: "valid",
+            failures: 0,
+            address: body["email"]
+          }
+        )
+      end,
+      if Map.has_key? body, :phone do
+        Phone.to_principal(
+          %{
+            subject_id: subject_id,
+            label: "phone",
+            state: "valid",
+            failures: 0,
+            address: body["phone"]
+          }
+        )
+      end,
+      if Map.has_key? body, :id1 do
+        Opaque.to_principal(
+          %{
+            subject_id: subject_id,
+            seq: 0,
+            hash: body["id1"]
+          }
+        )
+      end,
+      if Map.has_key? body, :id2 do
+        Opaque.to_principal(
+          %{
+            subject_id: subject_id,
+            seq: 1,
+            hash: body["id2"]
+          }
+        )
+      end
     ]
+    |> Enum.filter(&is_map/1)
   end
 
 end

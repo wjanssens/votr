@@ -161,7 +161,7 @@ defmodule Votr.Identity.Principal do
                      }
                    end
                  )
-    Repo.insert_all Res, entries, on_conflict: :replace_all, conflict_target: [:subject_id, :kind, :seq]
+    Repo.insert_all Principal, entries, on_conflict: :replace_all, conflict_target: [:subject_id, :kind, :seq]
   end
 
   def delete_all(subject_id) do

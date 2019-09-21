@@ -10,8 +10,8 @@ defmodule Votr.Identity.Subject do
   end
 
   def insert(username) do
-    shard = FlexId.make_partition(username)
-    id = FlexId.generate(:id_generator, shard)
+    shard = FlexId.make_partition username
+    id = FlexId.generate :id_generator, shard
 
     %Subject{
       id: id
@@ -20,12 +20,12 @@ defmodule Votr.Identity.Subject do
   end
 
   def insert_voter(ward_id) do
-    shard = FlexId.extract_partition(:id_generator, ward_id)
-    id = FlexId.generate(:id_generator, shard)
+    shard = FlexId.extract_partition :id_generator, ward_id
+    id = FlexId.generate :id_generator, shard
 
     %Subject{
       id: id
     }
-    |> Repo.insert()
+    |> Repo.insert
   end
 end

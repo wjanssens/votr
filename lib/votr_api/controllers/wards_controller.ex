@@ -150,7 +150,7 @@ defmodule Votr.Api.WardsController do
     id = HashId.decode(body["id"])
     subject_id = conn.assigns[:subject_id]
 
-    with {1, _} <- Ward.delete(subject_id, id) do
+    with {:ok, _} <- Ward.delete(subject_id, id) do
       conn
       |> put_status(:ok)
       |> json(

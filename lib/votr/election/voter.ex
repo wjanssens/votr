@@ -31,7 +31,7 @@ defmodule Votr.Election.Voter do
     field :version, :integer
     field :ext_id, :string   # reference to an external system
     field :voted, :integer   # the number of times this voter voted
-    field :weight, :float    # the weight that this voter's vote counts for
+    field :weight, :decimal  # the weight that this voter's vote counts for
     has_one :subject, Subject, foreign_key: :subject_id, on_delete: :delete_all
     has_many :principals, Principal, foreign_key: :subject_id, on_delete: :delete_all
     timestamps()
@@ -48,8 +48,18 @@ defmodule Votr.Election.Voter do
     end
   end
 
+  def verify_ownership(subject_id, voter_id) do
+    query = from v in Voter,
+                 inner_join: w in assoc(v, :ward),
+                 where: w.subject_id == ^subject_id and v.id == ^voter_id
+    with 1 <- Repo.aggregate query, :count, :id do
+      {:ok}
+    else _ -> {:error, :not_found}
+    end
+  end
+
   def update(subject_id, voter) do
-    with {:ok} <- Ward.verify_ownership(subject_id, voter.ward_id) do
+    with {:ok} <- verify_ownership(subject_id, voter.id) do
       try do
         %Voter{id: voter.id}
         |> cast(voter, [:version, :ext_id, :weight, :voted])

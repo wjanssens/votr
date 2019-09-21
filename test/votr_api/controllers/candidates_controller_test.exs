@@ -7,7 +7,7 @@ defmodule Votr.Api.CandidatesControllerTest do
   test "ballot lifecycle" do
     with_subject fn (subject, jwt) ->
       with_ward subject.id, fn (ward) ->
-        with_ballot ward.id, fn(ballot) ->
+        with_ballot subject.id, ward.id, fn(ballot) ->
           ballot_id = Votr.HashId.encode(ballot.id)
 
           # add a candidate

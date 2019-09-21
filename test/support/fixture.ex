@@ -14,13 +14,16 @@ defmodule Votr.Api.Fixture do
   end
 
   def with_ward(subject_id, f) do
-    with {:ok, ward} = Ward.insert(%{subject_id: subject_id, seq: 0}) do
+    with {:ok, ward} = Ward.insert(subject_id, %{seq: 0}) do
       f.(ward)
     end
   end
 
-  def with_ballot(ward_id, f) do
-    with {:ok, ballot} = Ballot.insert(%{ward_id: ward_id, seq: 0, method: "scottish_stv", quota: "droop"}) do
+  def with_ballot(subject_id, ward_id, f) do
+    with {:ok, ballot} = Ballot.insert(
+           subject_id,
+           %{ward_id: ward_id, seq: 0, method: "scottish_stv", quota: "droop"}
+         ) do
       f.(ballot)
     end
   end

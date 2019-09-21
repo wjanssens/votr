@@ -86,31 +86,31 @@ defmodule Votr.Election.Ward do
              group_by: [w.id, s.id]
   end
 
+  def insert(subject_id, ward) do
+    ins = fn (subject_id, ward) ->
+      shard = FlexId.extract_partition(:id_generator, subject_id)
+
+      %Ward{id: FlexId.generate(:id_generator, shard), version: 0, subject_id: subject_id}
+      |> cast(ward, [:version, :parent_id, :seq, :ext_id, :start_at, :end_at])
+      |> validate_required([:id, :version, :subject_id, :seq])
+      |> Repo.insert()
+    end
+
+    if (Map.has_key? ward, :parent_id) and (not is_nil ward.parent_id) do
+      with {:ok} <- verify_ownership(subject_id, ward.parent_id) do
+        ins.(subject_id, ward)
+      end
+    else
+      ins.(subject_id, ward)
+    end
+  end
+
   def verify_ownership(subject_id, ward_id) do
     query = from w in Ward,
                  where: w.subject_id == ^subject_id and w.id == ^ward_id
     with 1 <- Repo.aggregate query, :count, :id do
       {:ok}
     else _ -> {:error, :not_found}
-    end
-  end
-
-  def insert(subject_id, ward) do
-    ins = fn (subject_id, ward) ->
-      shard = FlexId.extract_partition(:id_generator, subject_id)
-
-      %Ward{id: FlexId.generate(:id_generator, shard), version: 0}
-      |> cast(ward, [:version, :subject_id, :parent_id, :seq, :ext_id, :start_at, :end_at])
-      |> validate_required([:id, :version, :subject_id, :seq])
-      |> Repo.insert()
-    end
-
-    if ward.parent_id != nil do
-      with {:ok} <- verify_ownership(subject_id, ward.parent_id) do
-        ins.(subject_id, ward)
-      end
-    else
-      ins.(subject_id, ward)
     end
   end
 

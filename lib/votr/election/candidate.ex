@@ -35,18 +35,8 @@ defmodule Votr.Election.Candidate do
     timestamps()
   end
 
-  defp verify_ownership(subject_id, ballot_id) do
-    query = from b in Ballot,
-                 inner_join: w in assoc(b, :ward),
-                 where: w.subject_id == ^subject_id and b.id == ^ballot_id
-    with 1 <- Repo.aggregate query, :count, :id do
-      {:ok}
-    else _ -> {:error, :not_found}
-    end
-  end
-
   def insert(subject_id, candidate) do
-    with {:ok} <- verify_ownership(subject_id, candidate.ballot_id) do
+    with {:ok} <- Ballot.verify_ownership(subject_id, candidate.ballot_id) do
       shard = FlexId.extract_partition(:id_generator, candidate.ballot_id)
 
       %Candidate{id: FlexId.generate(:id_generator, shard), version: 0}
@@ -56,8 +46,19 @@ defmodule Votr.Election.Candidate do
     end
   end
 
+  def verify_ownership(subject_id, candidate_id) do
+    query = from c in Candidate,
+                 inner_join: b in assoc(c, :ballot),
+                 inner_join: w in assoc(b, :ward),
+                 where: w.subject_id == ^subject_id and c.id == ^candidate_id
+    with 1 <- Repo.aggregate query, :count, :id do
+      {:ok}
+    else _ -> {:error, :not_found}
+    end
+  end
+
   def update(subject_id, candidate) do
-    with {:ok} <- verify_ownership(subject_id, candidate.ballot_id) do
+    with {:ok} <- verify_ownership(subject_id, candidate.id) do
       try do
         reorder(candidate)
 
@@ -91,7 +92,7 @@ defmodule Votr.Election.Candidate do
     with {1, _} <- Repo.delete_all from c in Candidate,
                                    inner_join: b in assoc(c, :ballot),
                                    inner_join: w in assoc(b, :ward),
-                                   where: w.subject_id == ^subject_id and b.id == ^id do
+                                   where: w.subject_id == ^subject_id and c.id == ^id do
       {:ok, 1}
     else _ -> {:error, :not_found}
     end

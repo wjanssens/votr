@@ -83,8 +83,18 @@ defmodule Votr.Election.Ballot do
     end
   end
 
+  def verify_ownership(subject_id, ballot_id) do
+    query = from b in Ballot,
+                 inner_join: w in assoc(b, :ward),
+                 where: w.subject_id == ^subject_id and b.id == ^ballot_id
+    with 1 <- Repo.aggregate query, :count, :id do
+      {:ok}
+    else _ -> {:error, :not_found}
+    end
+  end
+
   def update(subject_id, ballot) do
-    with {:ok} <- Ward.verify_ownership(subject_id, ballot.ward_id) do
+    with {:ok} <- verify_ownership(subject_id, ballot.id) do
       try do
         reorder(ballot)
 
