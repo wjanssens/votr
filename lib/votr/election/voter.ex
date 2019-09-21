@@ -32,7 +32,8 @@ defmodule Votr.Election.Voter do
     field :ext_id, :string   # reference to an external system
     field :voted, :integer   # the number of times this voter voted
     field :weight, :decimal  # the weight that this voter's vote counts for
-    has_one :subject, Subject, foreign_key: :subject_id, on_delete: :delete_all
+    field :subject_id, :integer
+    has_one :subject, Subject, references: :subject_id, on_delete: :delete_all
     has_many :principals, Principal, foreign_key: :subject_id, on_delete: :delete_all
     timestamps()
   end
@@ -42,7 +43,7 @@ defmodule Votr.Election.Voter do
       shard = FlexId.extract_partition(:id_generator, voter.ward_id)
 
       %Voter{id: FlexId.generate(:id_generator, shard), version: 0}
-      |> cast(voter, [:ward_id, :version, :ext_id, :weight, :voted])
+      |> cast(voter, [:subject_id, :ward_id, :version, :ext_id, :weight, :voted])
       |> validate_required([:id, :version])
       |> Repo.insert()
     end
@@ -65,7 +66,7 @@ defmodule Votr.Election.Voter do
         |> cast(voter, [:version, :ext_id, :weight, :voted])
         |> validate_required([:id, :version])
         |> optimistic_lock(:version)
-        |> Repo.update()
+        |> Repo.update(returning: true)
       rescue
         e in Ecto.StaleEntryError -> {:conflict, e.message}
       end

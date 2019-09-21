@@ -116,9 +116,6 @@ defmodule Votr.Api.VotersController do
       ext_id: body["ext_id"],
     }
 
-    # TODO this isn't working because the subject_id is missing
-    # maybe it would be better to eliminate the subject table and the subject_id and treat the voter id as the
-    # foreign key to principal
     with {:ok, voter} <- Voter.update(subject_id, voter),
          {_, _} <- Principal.upsert_all(voter.id, principals(voter.subject_id, body)) do
       conn
