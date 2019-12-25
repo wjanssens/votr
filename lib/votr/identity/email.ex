@@ -4,7 +4,6 @@ defmodule Votr.Identity.Email do
   Email addresses may be used to deliver ballots to voters.
   """
   use Ecto.Schema
-  import Ecto.Changeset
   alias Votr.Identity.Email
   alias Votr.Identity.Principal
   alias Votr.Identity.DN

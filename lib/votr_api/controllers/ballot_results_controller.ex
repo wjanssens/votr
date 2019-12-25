@@ -7,8 +7,10 @@ defmodule Votr.Api.BallotResultsController do
 
   def index(conn, %{"ballot_id" => ballot_id}) do
     subject_id = conn.assigns[:subject_id]
+    tags = Accept.extract_accept_language(conn)
 
-    #rounds = Result.select(subject_id, HashId.decode(ballot_id))
+    # TODO use real data instead of mock data
+#    rounds = Result.select(subject_id, HashId.decode(ballot_id), Enum.at(tags, 0))
 
     rounds = [
                %{round: 5, quota: 26.0, name: "Monkey", votes: 26.0, status: "elected"},

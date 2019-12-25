@@ -73,6 +73,16 @@ defmodule Votr.Election.Voter do
     end
   end
 
+  def increment_voted_count(subject_id) do
+    Repo.update_all from v in Voter,
+                    where: v.subject_id == ^subject_id,
+                    update: [
+                      inc: [
+                        voted: 1
+                      ]
+                    ]
+  end
+
   @doc """
     Gets all of the voters for the ward.
   """

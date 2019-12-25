@@ -12,10 +12,10 @@
 defmodule Votr.Approval do
   def approval(ballots, seats) do
     # create a unique list of candidates
-    candidates =
-      ballots
-      |> Stream.flat_map(fn b -> Map.keys(b) end)
-      |> Stream.uniq()
+#    candidates =
+#      ballots
+#      |> Stream.flat_map(fn b -> Map.keys(b) end)
+#      |> Stream.uniq()
 
     # create a result that has an empty entry for every candidate
 #    result =

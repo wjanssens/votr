@@ -1,10 +1,11 @@
-defmodule Votr.Vote do
+defmodule Votr.Election.Vote do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Votr.Election.Vote
 
   @timestamps_opts [type: :utc_datetime, usec: true]
   schema "ballot_log" do
-    field(:ballot_id, :integer)
+    belongs_to :ballot, Ballot
     field(:version, :integer)
     field(:voter_id, :integer) # an optional link to voter only when the ballot is mutable
     field(:weight, :integer)   # used to compact identical votes from multiple voters
@@ -12,11 +13,18 @@ defmodule Votr.Vote do
     timestamps()
   end
 
-  @doc false
-  def changeset(ballot_log, attrs) do
-    ballot_log
-    |> cast(attrs, [:ballot_id, :voter_id, :value])
-    |> validate_required([:ballot_id, :value])
+  def insert_all(subject_id, votes) do
+    shard = FlexId.extract_partition(:id_generator, subject_id)
+
+    all = votes
+    |> Enum.map(
+         fn ->
+           %Vote{id: FlexId.generate(:id_generator, shard), version: 0, weight: 1}
+           |> cast(votes, [:ballot_id, :voter_id, :value])
+           |> validate_required([:id, :ballot_id, :version, :weight, :value])
+         end
+       )
+    Repo.insert_all Vote, all, on_conflict: :replace_all, conflict_target: [:ballot_id, :voter_id]
   end
 
   def select_values(ballot_id) do

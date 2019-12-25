@@ -165,7 +165,7 @@ defmodule Votr.Election.Ballot do
       }, ...
     ]
   """
-  def select_for_voter(voter_id, lang_tag) do
+  def select_for_voter(subject_id, lang_tag) do
     types = %{
       ballot_id: :integer,
       ballot_name: :string,
@@ -188,7 +188,7 @@ defmodule Votr.Election.Ballot do
         select w.id, w.parent_id, w.start_at, w.end_at
         from ward w
         inner join voter v on v.parent_id = w.id
-        where v.id = $1
+        where v.subject_id = $1
         union all
         select p.id, p.parent_id, p.start_at, p.end_at
         from ward p
@@ -217,7 +217,7 @@ defmodule Votr.Election.Ballot do
       order by ward_seq, ballot_seq, candidate_seq
 
       """
-      |> Votr.Repo.query!([voter_id, lang_tag])
+      |> Votr.Repo.query!([subject_id, lang_tag])
 
     all = Enum.map(results.rows, &Repo.load(types, {results.columns, &1}))
     ballots = Enum.uniq_by(all, fn b -> b.ballot_id end)

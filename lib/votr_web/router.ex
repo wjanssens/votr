@@ -39,7 +39,7 @@ defmodule VotrWeb.Router do
 
     # TODO don't really want this endpoint rate-limited, how best to address this?
     # could put the rate limit plug into the other three controllers instead of in the pipeline?
-    resources("/voters/:voter_id/ballots", VoteController, only: [:show, :update])
+    resources("/ballots", VoteController, only: [:index, :create])
     resources("/login", LoginController, only: [:create])
     resources("/activate", ActivateController, only: [:create])
     resources("/subjects", SubjectsController, only: [:create])

@@ -4,7 +4,6 @@ defmodule Votr.Identity.Phone do
   Phone numbers may be used to deliver ballots to voters (via SMS).
   """
   use Ecto.Schema
-  import Ecto.Changeset
   alias Votr.Identity.Phone
   alias Votr.Identity.Principal
   alias Votr.Identity.DN

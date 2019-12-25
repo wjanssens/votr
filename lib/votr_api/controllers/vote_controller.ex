@@ -1,19 +1,39 @@
 defmodule Votr.Api.VoteController do
   use VotrWeb, :controller
+  alias Votr.Api.Accept
   alias Votr.Election.Ballot
+  alias Votr.Repo
 
-  def index(conn, %{"id" => id}) do
-    tags = extract_accept_language(conn)
+  def index(conn, body) do
+    subject_id = conn.assigns[:subject_id]
+    tags = Accept.extract_accept_language(conn)
 
     # gets all the ballots for the wards
-    ballots = Ballot.select_for_voter(id, Enum.at(tags, 0))
-
-    result = %{ success: true, ballots: ballots }
+    ballots = Ballot.select_for_voter(subject_id, Enum.at(tags, 0))
 
     conn
     |> put_resp_content_type("application/json")
     |> put_status(:ok)
-    |> json(result)
+    |> json(%{success: true, ballots: ballots})
+  end
+
+  def create(conn, %{votes: votes}) do
+    subject_id = conn.assigns[:subject_id]
+
+    all = votes
+    |> Enum.map(fn {k, v} -> %{ballot_id: k, value: v} end)
+
+    Repo.transaction(
+      fn ->
+        Vote.insert_all(subject_id, all)
+        Voter.increment_voted_count(subject_id)
+      end
+    )
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_status(:ok)
+    |> json(%{success: true})
   end
 
   defp translate(strings, tags, entity_id, key) do
@@ -25,33 +45,4 @@ defmodule Votr.Api.VoteController do
     |> Enum.map(& &1.value)
   end
 
-  defp extract_accept_language(conn) do
-    case conn |> get_req_header("accept-language") do
-      [value | _] ->
-        value
-        |> String.split(",")
-        |> Enum.map(&parse_language_option/1)
-        |> Enum.sort(&(&1.quality > &2.quality))
-        |> Enum.map(& &1.tag)
-
-      _ ->
-        []
-    end
-    |> Enum.concat("default")
-  end
-
-  defp parse_language_option(string) do
-    captures =
-      ~r/^(?<tag>[\w\-]+)(?:;q=(?<quality>[\d\.]+))?$/i
-      |> Regex.named_captures(string)
-
-    %{
-      tag: captures["tag"],
-      quality:
-        case Float.parse(captures["quality"] || "1.0") do
-          {val, _} -> val
-          _ -> 1.0
-        end
-    }
-  end
 end

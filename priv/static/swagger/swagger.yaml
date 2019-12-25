@@ -13,33 +13,7 @@ paths:
       summary: All the ballots for a voter
       produces:
         - application/json
-      parameters:
-        - name: voter
-          in: query
-          required: false
-          type: string
-          description: only return ballots for a particular voter
-        - name: ward
-          in: query
-          required: false
-          type: string
-          description: focus on a particular ward
-        - name: q
-          in: query
-          required: false
-          type: string
-          description: free-form text search
-        - name: offset
-          in: query
-          required: false
-          type: integer
-          default: 0
-        - name: limit
-          in: query
-          required: false
-          type: integer
-          default: 25
-        responses:
+      responses:
         '200':
           description: A list of ballots (potentially nothing depending on access controls).
           schema:
@@ -59,11 +33,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: id
-          in: path
-          description: 'Ballot ID'
-          required: true
-          type: string
         - name: votes
           in: body
           description: A ballot with votes.
