@@ -1,4 +1,4 @@
-defmodule Votr.Repo.Migrations.CreatePrincipal do
+defmodule Votr.Repo.Migrations.CreateToken do
   use Ecto.Migration
 
   def change do
